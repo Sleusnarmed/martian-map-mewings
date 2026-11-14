@@ -84,9 +84,11 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
         controls.minimumCollisionTerrainHeight = MAX_CAMERA_HEIGHT
         viewer.scene.globe.maximumScreenSpaceError = 3
         viewer.scene.globe.tileCacheSize = 160
-        viewer.scene.globe.loadingDescendantLimit = 8
+        // Load and display each coarse level before requesting finer descendants.
+        // Parent coverage remains visible while individual child tiles refine.
+        viewer.scene.globe.loadingDescendantLimit = 0
         viewer.scene.globe.preloadAncestors = true
-        viewer.scene.globe.preloadSiblings = false
+        viewer.scene.globe.preloadSiblings = true
         viewer.resolutionScale = 1
         let textured = false
         try {
@@ -106,7 +108,8 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
           const center = new Cesium.Cartesian2(viewer.canvas.clientWidth / 2, viewer.canvas.clientHeight / 2)
           const ray = viewer.camera.getPickRay(center)
           const hasSurface = ray && viewer.scene.globe.pick(ray, viewer.scene)
-          settledFrames = viewer.scene.globe.tilesLoaded && hasSurface ? settledFrames + 1 : 0
+          // Reveal the first usable coarse surface, without waiting for all detail.
+          settledFrames = hasSurface ? settledFrames + 1 : 0
           if (settledFrames >= 2) { revealed = true; setTerrainVisible(true) }
           else if (settledFrames) viewer.scene.requestRender()
         }))
@@ -258,11 +261,11 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
         <label className="control-row"><span>Contour lines</span><input type="checkbox" checked={contours} disabled={!ready || showPreview} onChange={e => setContours(e.target.checked)} /></label>
         <label className="control-row">Contour interval<select disabled={!ready || !contours || showPreview} value={spacing} onChange={e => setSpacing(Number(e.target.value))}><option value="50">50 m</option><option value="100">100 m</option><option value="250">250 m</option></select></label>
         </fieldset>
-        <details className="source-card"><summary>Data & sources</summary><strong>MRO · Context Camera</strong><p>NASA / JPL / USGS<br />Source DEM: 20 m per pixel<br />Vertical reference: MOLA</p><a href={DEM_SOURCE} target="_blank" rel="noreferrer">View source dataset ↗</a>{wildcat && <p><a href={wildcat.source} target="_blank" rel="noreferrer">Wildcat Ridge coordinates ↗</a></p>}<p>Prepared from historical NASA data. Warm colors and shading are derived from elevation, not a surface photograph.</p><p>The cyan arrow is a mock position and heading, not live tracking. Syrtis Major is the regional context.</p><a href={region.center.source} target="_blank" rel="noreferrer">Jezero center · USGS ↗</a></details>
+        <details className="source-card"><summary>Data & sources</summary><strong>MRO · Context Camera</strong><p>NASA / JPL / USGS<br />Source DEM: 20 m per pixel<br />Vertical reference: MOLA</p><a href={DEM_SOURCE} target="_blank" rel="noreferrer">View source dataset ↗</a>{wildcat && <p><a href={wildcat.source} target="_blank" rel="noreferrer">Wildcat Ridge coordinates ↗</a></p>}<p>Prepared from historical NASA data. Colors and shading are derived from elevation, not a surface photograph.</p><p>The cyan arrow is a mock position and heading, not live tracking. Syrtis Major is the regional context.</p><a href={region.center.source} target="_blank" rel="noreferrer">Jezero center · USGS ↗</a></details>
       </aside>
       <section className="map-shell" aria-label="Interactive Jezero terrain">
         <div className="cesium-host" ref={container} aria-hidden={showPreview} style={{ pointerEvents: showPreview ? 'none' : 'auto' }} />
-        {showPreview && <TerrainPreview message={fast2D ? 'Fast 2D · Detailed rendering paused' : '2D preview · Preparing 2.5D relief…'} error={state.status === 'error' ? state.message : null} onOpenDetail={fast2D ? () => setFast2D(false) : undefined}/>}
+        {showPreview && <TerrainPreview message={fast2D ? 'Fast 2D · Detailed rendering paused' : 'Preparing the first terrain surface…'} error={state.status === 'error' ? state.message : null} onOpenDetail={fast2D ? () => setFast2D(false) : undefined}/>}
         {ready && !showPreview && <><div className="map-badge"><strong>Syrtis Major / Jezero</strong><span role="status">{refining ? 'Refining terrain…' : 'True-scale relief'}</span></div><button className="map-reset" onClick={() => { setSelectedPoint('jezero'); focus(region.center.longitude, region.center.latitude, 75000) }}>Reset view</button><div className="map-legend"><p>Elevation · m, MOLA reference</p><div className="elevation-ramp" style={{background: `linear-gradient(90deg, ${region.palette.join(',')})`}}/><div className="legend-values"><span>{Math.round(state.data.minimumHeight)}</span><span>{Math.round(state.data.maximumHeight)}</span></div><small>Display grid ≈ {state.data.displayResolutionMeters} m · source 20 m</small></div></>}
         {state.status === 'error' && <button className="detail-retry" onClick={() => { setTerrainVisible(false); setState({status: 'loading'}); setAttempt(n => n + 1) }}>Retry detailed view</button>}
         <footer className="map-footer"><span>{showPreview ? 'Shaded relief · Mock position, not live tracking' : inspection ? `${inspection.lat.toFixed(5)}° N · ${inspection.lon.toFixed(5)}° E · ${inspection.elevation.toFixed(0)} m` : 'Click terrain to inspect elevation'}</span><span className="navigation-help">{showPreview ? '2D: drag to pan · Use + / − to zoom' : 'Drag to pan · Scroll to zoom · Ctrl + drag to tilt'}</span></footer>
