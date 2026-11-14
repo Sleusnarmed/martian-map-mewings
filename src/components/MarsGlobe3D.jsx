@@ -14,7 +14,7 @@ function createCrispBadge(
   textColor = "#FFFFFF",
   isDisabled = false,
 ) {
-  const scale = 2;
+  const scale = 3;
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d");
 
@@ -173,6 +173,7 @@ export default function MarsGlobe3D({ onZoneSelected, compact = false }) {
       requestRenderMode: true,
       maximumRenderTimeChange: Infinity,
       targetFrameRate: 30,
+      useBrowserRecommendedResolution: false,
       globe: new Cesium.Globe(marsEllipsoid),
       skyAtmosphere: false,
       baseLayerPicker: false,
@@ -187,7 +188,11 @@ export default function MarsGlobe3D({ onZoneSelected, compact = false }) {
       selectionIndicator: false,
     });
 
-    viewer.resolutionScale = Math.min(1, 1.5 / (window.devicePixelRatio || 1));
+    viewer.resolutionScale = Math.min(1, 2 / (window.devicePixelRatio || 1));
+    const controls = viewer.scene.screenSpaceCameraController;
+    controls.inertiaSpin = 0;
+    controls.inertiaTranslate = 0;
+    controls.inertiaZoom = 0;
     viewer.imageryLayers.removeAll();
     viewer.imageryLayers.addImageryProvider(
       new Cesium.WebMapTileServiceImageryProvider({
@@ -312,6 +317,7 @@ export default function MarsGlobe3D({ onZoneSelected, compact = false }) {
       now: () => performance.now(),
       reducedMotion: () => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
       visible: () => !document.hidden,
+      canResume: () => viewer.camera.positionCartographic.height >= MARS_PREVIEW_HEIGHT,
       onChange: state => { if (containerRef.current) containerRef.current.dataset.motion = state; },
       rotate: angle => { viewer.camera.rotate(Cesium.Cartesian3.UNIT_Z, angle); viewer.scene.requestRender(); },
       zoom: () => { viewer.camera.cancelFlight(); viewer.camera.zoomIn(viewer.camera.positionCartographic.height * 0.15); viewer.scene.requestRender(); },
@@ -367,19 +373,14 @@ export default function MarsGlobe3D({ onZoneSelected, compact = false }) {
     const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
     let pointerDown = false;
 
-    handler.setInputAction(
-      () => { pointerDown = true; viewer.camera.cancelFlight(); motion.freeze(); },
-      Cesium.ScreenSpaceEventType.LEFT_DOWN,
-    );
-    handler.setInputAction(() => { pointerDown = false; }, Cesium.ScreenSpaceEventType.LEFT_UP);
-    handler.setInputAction(() => stopSpin(), Cesium.ScreenSpaceEventType.WHEEL);
-    handler.setInputAction(
-      () => stopSpin(),
-      Cesium.ScreenSpaceEventType.PINCH_START,
-    );
+    const beginInteraction = () => { pointerDown = true; viewer.camera.cancelFlight(); motion.beginInteraction(); };
+    const endInteraction = () => { pointerDown = false; motion.endInteraction(); };
+    for (const type of [Cesium.ScreenSpaceEventType.LEFT_DOWN, Cesium.ScreenSpaceEventType.RIGHT_DOWN, Cesium.ScreenSpaceEventType.MIDDLE_DOWN, Cesium.ScreenSpaceEventType.PINCH_START]) handler.setInputAction(beginInteraction, type);
+    for (const type of [Cesium.ScreenSpaceEventType.LEFT_UP, Cesium.ScreenSpaceEventType.RIGHT_UP, Cesium.ScreenSpaceEventType.MIDDLE_UP, Cesium.ScreenSpaceEventType.PINCH_END]) handler.setInputAction(endInteraction, type);
+    handler.setInputAction(() => { viewer.camera.cancelFlight(); motion.interact(); }, Cesium.ScreenSpaceEventType.WHEEL);
 
     handler.setInputAction((movement) => {
-      if (pointerDown) stopSpin();
+      if (pointerDown) motion.interact();
       const picked = viewer.scene.pick(movement.endPosition);
       if (Cesium.defined(picked) && picked.id?.properties?.itemData) {
         const data = picked.id.properties.itemData.getValue();
@@ -410,7 +411,7 @@ export default function MarsGlobe3D({ onZoneSelected, compact = false }) {
             // Al tocar el marcador de Syrtis Major en el globo, entra a ver sus sub-zonas
             enterRegion(viewer, data);
           } else {
-            stopSpin();
+            motion.interact();
             setInspectedItem({ ...data, type, isPinned: true });
             setTooltipPos({
               x: click.position.x,
@@ -421,7 +422,7 @@ export default function MarsGlobe3D({ onZoneSelected, compact = false }) {
           enterZone(viewer, data);
         }
       } else {
-        motion.pause(true);
+        motion.interact(true);
         setInspectedItem(null);
       }
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);

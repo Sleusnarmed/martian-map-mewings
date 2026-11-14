@@ -4,19 +4,16 @@ import { MARS_REGIONS } from '../src/data/marsZones.js'
 import { JEZERO_POINTS } from '../src/features/terrain/pointsOfInterest.js'
 import { normalizeRoute, routeForZone } from '../src/navigation.js'
 
-test('available globe destinations resolve to distinct terrain deep links', () => {
+test('the globe offers only Jezero; Wildcat remains a point inside its local map', () => {
   const destinations = MARS_REGIONS.filter(region => region.available).flatMap(region => region.zones)
-  assert.deepEqual(destinations.map(zone => zone.id).sort(), ['jezero', 'wildcat-ridge'])
-  assert.equal(new Set(destinations.map(routeForZone)).size, 2)
+  assert.deepEqual(destinations.map(zone => zone.id), ['jezero'])
   for (const zone of destinations) {
     const route = routeForZone(zone)
     assert.ok(route)
     assert.equal(normalizeRoute(`#${route}`), route)
   }
-  const wildcat = destinations.find(zone => zone.id === 'wildcat-ridge')
-  const point = JEZERO_POINTS.find(point => point.id === wildcat.id)
-  assert.equal(wildcat.lat, point.latitude)
-  assert.equal(wildcat.lon, point.longitude)
+  assert.ok(JEZERO_POINTS.some(point => point.id === 'wildcat-ridge'))
+  assert.equal(normalizeRoute('#/mars/wildcat-ridge'), '/mars/wildcat-ridge')
 })
 
 test('regions, unknown sites and inherited object keys cannot open terrain', () => {

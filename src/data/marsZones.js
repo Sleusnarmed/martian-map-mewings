@@ -23,17 +23,6 @@ export const MARS_REGIONS = [
         summary:
           "Antiguo paleolago marciano de 45 km con delta fluvial preservado.",
       },
-      {
-        id: "wildcat-ridge",
-        name: "Jezero – Wildcat Ridge",
-        subtitle: "Parada Científica · Wildcat Ridge / Hazeltop",
-        lat: 18.45863707,
-        lon: 77.40588851,
-        altitude: 12000,
-        color: "#EAFE07",
-        summary:
-          "Afloramiento sedimentario rico en sulfatos y materia orgánica potencial.",
-      },
     ],
   },
   {

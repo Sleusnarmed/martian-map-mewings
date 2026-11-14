@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createGlobeMotion, MARS_OVERVIEW_HEIGHT, MARS_PREVIEW_HEIGHT } from '../src/components/globeMotion.js'
 
-function fixture(reduced = false) {
+function fixture(reduced = false, canResume = () => true) {
   let time = 0
   let shown = true
   const rotations = []
@@ -12,7 +12,7 @@ function fixture(reduced = false) {
   const motion = createGlobeMotion({
     rotate: angle => rotations.push(angle), zoom: () => { zooms += 1 },
     resetCamera: (_, __, complete) => flights.push(complete), now: () => time,
-    reducedMotion: () => reduced, visible: () => shown, onChange: state => states.push(state),
+    reducedMotion: () => reduced, visible: () => shown, onChange: state => states.push(state), canResume,
   })
   return { motion, rotations, flights, states, zooms: () => zooms, tick: ms => { time += ms; motion.tick() }, hide: value => { shown = !value } }
 }
@@ -25,16 +25,32 @@ test('overview starts further out and rotation is time based', () => {
   assert.ok(Math.abs(f.rotations.reduce((sum, angle) => sum + angle, 0) + 0.028) < 1e-12)
 })
 
-test('first touch stops and zooms once; inactivity never restarts rotation', () => {
+test('overview resumes after 500 ms of inactivity and a held gesture stays paused', () => {
   const f = fixture()
   f.motion.restart(true); f.flights[0](); f.tick(50)
-  f.motion.freeze()
+  f.motion.beginInteraction()
   assert.equal(f.zooms(), 0)
-  f.motion.pause(true); f.motion.pause(true)
-  f.tick(90000)
+  f.motion.interact(true); f.motion.interact(true)
+  f.tick(1000)
   assert.equal(f.zooms(), 1)
   assert.equal(f.rotations.length, 1)
   assert.equal(f.states.at(-1), 'paused')
+  f.motion.endInteraction(); f.tick(499)
+  assert.equal(f.rotations.length, 1)
+  f.tick(1)
+  assert.equal(f.rotations.length, 2)
+})
+
+test('new input extends the idle delay; focusing a zone disables all idle resumes', () => {
+  const f = fixture()
+  f.motion.restart(true); f.flights[0]()
+  f.motion.interact(); f.tick(400); f.motion.interact(); f.tick(499)
+  assert.equal(f.rotations.length, 0)
+  f.tick(1)
+  assert.equal(f.rotations.length, 1)
+  f.motion.pause()
+  f.motion.beginInteraction(); f.motion.interact(); f.motion.endInteraction(); f.tick(90000)
+  assert.equal(f.rotations.length, 1)
   f.motion.restart(true); f.flights.at(-1)(); f.tick(50)
   assert.equal(f.rotations.length, 2)
 })
@@ -46,6 +62,19 @@ test('interacting during a back flight invalidates its pending auto-rotation', (
   f.flights[0](); f.tick(50)
   assert.equal(f.rotations.length, 0)
   assert.equal(f.zooms(), 0)
+})
+
+test('manually zooming into a regional view also locks the idle rotation until going back', () => {
+  let wide = false
+  const f = fixture(false, () => wide)
+  f.motion.restart(true); f.flights[0]()
+  f.motion.interact(); f.tick(500)
+  assert.equal(f.states.at(-1), 'paused')
+  wide = true
+  f.motion.interact(); f.tick(500)
+  assert.equal(f.rotations.length, 0)
+  f.motion.restart(true); f.flights.at(-1)(); f.tick(50)
+  assert.equal(f.rotations.length, 1)
 })
 
 test('hidden/compact/reduced-motion views do not rotate or jump after resuming', () => {
