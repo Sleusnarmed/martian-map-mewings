@@ -68,7 +68,7 @@ The primary view should make the *local* mission decision understandable. A 3D g
 
 The `main` branch now integrates Héctor’s planetary home, the Mars globe, and the Jezero cartography demo. The planning discussion above describes future work; route planning is not implemented.
 
-Run `npm install` and `npm run dev`. Select **Marte → Explorar Marte**, then the **Syrtis Major** globe marker, then **Cráter Jezero** or **Jezero – Wildcat Ridge**. Other planets have no destination. The breadcrumb and browser Back/Forward return between views.
+Run `npm install` and `npm run dev`. Select **Marte → Explorar Marte**, then the **Syrtis Major** globe marker, then **Cráter Jezero** or **Jezero – Wildcat Ridge**. Other planets have no destination. The home screen embeds the real Cesium globe; Explorar Marte expands that same viewer without a URL change. Sistema solar collapses it. Terrain navigation still uses hash links and browser history. The Space Apps loader is indeterminate, not download progress. The globe renders on demand at up to 30 FPS, with capped pixel density and no automatic rotation.
 
 Direct routes: `/#/`, `/#/mars`, `/#/mars/jezero`, and `/#/mars/wildcat-ridge`. Terrain always opens in 2.5D, with Wildcat Ridge centered in a close-up. Globe imagery requires NASA Trek connectivity; the prepared regional DEM is local.
 

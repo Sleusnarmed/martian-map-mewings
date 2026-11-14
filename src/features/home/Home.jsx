@@ -1,5 +1,7 @@
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import './home.css';
+import SpaceLoader from '../../components/SpaceLoader';
+const MarsGlobe = lazy(() => import('../../components/MarsGlobe3D'));
 
 import spaceApps from '../../NASA Space Apps Logos - 2026/Space Apps Logo Color and White.svg';
 import orbits from '../../Patterns/Orbits.png';
@@ -16,7 +18,9 @@ const WORLDS = [
   { number: '08', name: 'Neptuno', system: 'GIGANTE HELADO', style: 'neptune', description: 'Un planeta de vientos extremos.', image: '/assets/planets/neptune.jpg', source: 'https://science.nasa.gov/solar-system/neptune/' },
 ];
 
-function App({ onMarsSelected }) {
+function App({ onZoneSelected, initiallyExpanded = false }) {
+  const [expanded, setExpanded] = useState(initiallyExpanded);
+  const onMarsSelected = () => setExpanded(true);
   const [worldIndex, setWorldIndex] = useState(3);
   const [modalOpen, setModalOpen] = useState(false);
   const world = WORLDS[worldIndex];
@@ -63,6 +67,10 @@ function App({ onMarsSelected }) {
             <div className="relative flex w-full items-center justify-center">
               <button aria-label="Planeta anterior" onClick={() => moveWorld(-1)} className="orbital-arrow absolute left-0 z-20 sm:left-4"><span className="material-symbols-outlined text-[26px]">chevron_left</span></button>
               <div className="relative flex h-64 w-64 items-center justify-center sm:h-80 sm:w-80 md:h-96 md:w-96 lg:h-[420px] lg:w-[420px]">
+                {world.style === 'mars' ? <div className={expanded ? 'home-globe home-globe-expanded' : 'home-globe'}>
+                  <Suspense fallback={<SpaceLoader />}><MarsGlobe onZoneSelected={onZoneSelected} compact={!expanded} /></Suspense>
+                  {expanded ? <button className="globe-home-back" onClick={() => setExpanded(false)}>← Sistema solar</button> : <button className="globe-expand-hit" aria-label="Explorar Marte" onClick={onMarsSelected} />}
+                </div> : <>
                 <div key={world.style} className={`planet-glow planet-${world.style} relative h-full w-full select-none overflow-hidden rounded-full`} role={world.style === 'mars' ? 'button' : 'img'} tabIndex={world.style === 'mars' ? 0 : undefined} onClick={() => { if (world.style === 'mars') onMarsSelected?.() }} onKeyDown={event => { if (world.style === 'mars' && ['Enter', ' '].includes(event.key)) { event.preventDefault(); onMarsSelected?.() } }} aria-label={world.style === 'mars' ? 'Explorar Marte' : `Vista de ${world.name}`}>
                   <div className="planet-surface" />
                   <img
@@ -76,7 +84,8 @@ function App({ onMarsSelected }) {
                       console.warn(`No se pudo cargar la imagen NASA de ${world.name}; se mostrará el planeta de respaldo.`);
                     }}
                   />
-                </div>
+                </div></>}
+
               </div>
               <button aria-label="Planeta siguiente" onClick={() => moveWorld(1)} className="orbital-arrow absolute right-0 z-20 sm:right-4"><span className="material-symbols-outlined text-[26px]">chevron_right</span></button>
             </div>

@@ -63,7 +63,7 @@ function createCrispBadge(
   };
 }
 
-export default function MarsGlobe3D({ onZoneSelected }) {
+export default function MarsGlobe3D({ onZoneSelected, compact = false }) {
   const containerRef = useRef(null);
   const viewerRef = useRef(null);
   const overlayRef = useRef(null);
@@ -86,7 +86,16 @@ export default function MarsGlobe3D({ onZoneSelected }) {
       navLevel,
       activeRegionId: activeRegion?.id || null,
     };
+    viewerRef.current?.viewer.scene.requestRender();
   }, [navLevel, activeRegion]);
+
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      const viewer = viewerRef.current?.viewer;
+      if (viewer && !viewer.isDestroyed()) { viewer.resize(); viewer.scene.requestRender(); }
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [compact]);
 
   const enterRegion = useCallback((viewer, region) => {
     if (!region.available) return;
@@ -151,6 +160,9 @@ export default function MarsGlobe3D({ onZoneSelected }) {
     const viewer = new Cesium.Viewer(containerRef.current, {
       ellipsoid: marsEllipsoid,
       baseLayer: false,
+      requestRenderMode: true,
+      maximumRenderTimeChange: Infinity,
+      targetFrameRate: 30,
       globe: new Cesium.Globe(marsEllipsoid),
       skyAtmosphere: false,
       baseLayerPicker: false,
@@ -165,6 +177,7 @@ export default function MarsGlobe3D({ onZoneSelected }) {
       selectionIndicator: false,
     });
 
+    viewer.resolutionScale = Math.min(1, 1.5 / (window.devicePixelRatio || 1));
     viewer.imageryLayers.removeAll();
     viewer.imageryLayers.addImageryProvider(
       new Cesium.WebMapTileServiceImageryProvider({
@@ -285,8 +298,8 @@ export default function MarsGlobe3D({ onZoneSelected }) {
       viewer.camera.position,
     );
 
-    let isSpinning = true;
-    const tickListener = viewer.clock.onTick.addEventListener((clock) => {
+    let isSpinning = false;
+    const tickListener = viewer.scene.preRender.addEventListener((_scene, time) => {
       if (isSpinning) {
         viewer.scene.camera.rotate(Cesium.Cartesian3.UNIT_Z, -0.0011);
       }
@@ -300,7 +313,7 @@ export default function MarsGlobe3D({ onZoneSelected }) {
           if (currentLevel === "zones") {
             regEntity.show = false;
           } else {
-            const pos = regEntity.position.getValue(clock.currentTime);
+            const pos = regEntity.position.getValue(time);
             regEntity.show = pos ? occluder.isPointVisible(pos) : false;
           }
         }
@@ -309,7 +322,7 @@ export default function MarsGlobe3D({ onZoneSelected }) {
           const zoneEntity = viewer.entities.getById(`zone-${z.id}`);
           if (zoneEntity) {
             if (currentLevel === "zones" && reg.id === activeRegionId) {
-              const pos = zoneEntity.position.getValue(clock.currentTime);
+              const pos = zoneEntity.position.getValue(time);
               zoneEntity.show = pos ? occluder.isPointVisible(pos) : false;
             } else {
               zoneEntity.show = false;
@@ -443,7 +456,7 @@ export default function MarsGlobe3D({ onZoneSelected }) {
       <div ref={containerRef} className="w-full h-full touch-none" />
 
       {/* BARRA SUPERIOR */}
-      {!isTransitioning && (
+      {!compact && !isTransitioning && (
         <header className="pointer-events-none absolute top-0 left-0 right-0 z-30 flex flex-wrap items-center justify-between gap-3 px-4 sm:px-6 py-3.5">
           <div className="flex items-center gap-3">
             <img
@@ -476,7 +489,7 @@ export default function MarsGlobe3D({ onZoneSelected }) {
       )}
 
       {/* TARJETA FLOTANTE (ACTIVA O BLOQUEADA) */}
-      {inspectedItem && !isTransitioning && tooltipPos && (
+      {inspectedItem && !compact && !isTransitioning && tooltipPos && (
         <div
           style={{
             left: `${Math.min(Math.max(tooltipPos.x + 16, 16), window.innerWidth - 304)}px`,
@@ -547,7 +560,7 @@ export default function MarsGlobe3D({ onZoneSelected }) {
       )}
 
       {/* BOTÓN FLOTANTE PARA VOLVER A DESPLEGAR LA BARRA LATERAL CUANDO ESTÁ COLAPSADA */}
-      {!isTransitioning && !isSidebarOpen && (
+      {!compact && !isTransitioning && !isSidebarOpen && (
         <button
           onClick={() => setIsSidebarOpen(true)}
           className="absolute left-3 sm:left-5 top-18 sm:top-20 z-30 min-h-[44px] px-4 py-2.5 bg-[#07173F]/95 hover:bg-[#0042A6] active:scale-95 text-[#EAFE07] border-2 border-[#2E96F5] rounded-xl shadow-2xl flex items-center gap-2 text-xs font-bold uppercase tracking-wider transition cursor-pointer"
@@ -558,7 +571,7 @@ export default function MarsGlobe3D({ onZoneSelected }) {
       )}
 
       {/* BARRA LATERAL IZQUIERDA DESPLEGABLE: REGIONES */}
-      {navLevel === "regions" && !isTransitioning && isSidebarOpen && (
+      {!compact && navLevel === "regions" && !compact && !isTransitioning && isSidebarOpen && (
         <aside className="absolute left-3 sm:left-5 top-18 sm:top-20 bottom-4 z-30 w-68 sm:w-78 bg-[#07173F]/92 backdrop-blur-md border-2 border-[#2E96F5] rounded-2xl p-3.5 shadow-2xl flex flex-col transition-all duration-200">
           <div className="flex items-start justify-between gap-2 pb-2.5 mb-2.5 border-b border-[#2E96F5]/30">
             <div>
@@ -631,9 +644,9 @@ export default function MarsGlobe3D({ onZoneSelected }) {
       )}
 
       {/* BARRA LATERAL IZQUIERDA DESPLEGABLE: ZONAS DENTRO DE SYRTIS MAJOR */}
-      {navLevel === "zones" &&
+      {!compact && navLevel === "zones" &&
         activeRegion &&
-        !isTransitioning &&
+        !compact && !isTransitioning &&
         isSidebarOpen && (
           <aside className="absolute left-3 sm:left-5 top-18 sm:top-20 z-30 w-68 sm:w-80 bg-[#07173F]/95 backdrop-blur-md border-2 border-[#2E96F5] rounded-2xl p-4 shadow-2xl transition-all duration-200">
             <div className="flex items-start justify-between gap-2 pb-2.5 mb-3 border-b border-[#2E96F5]/30">
