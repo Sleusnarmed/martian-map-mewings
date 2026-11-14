@@ -12,6 +12,7 @@ export default function MissionIcon({ name, size = 18 }) {
     'panel-open': <><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M14 4v16m-3-11-3 3 3 3" /></>,
     return: <path d="m9 14-5-5 5-5M4 9h10a6 6 0 0 1 6 6v5" />,
     speaker: <><path d="m11 5-6 4H2v6h3l6 4V5Z" /><path d="M15 8a6 6 0 0 1 0 8M18 5a10 10 0 0 1 0 14" /></>,
+    'speaker-muted': <><path d="m11 5-6 4H2v6h3l6 4V5Z" /><path d="m16 9 6 6m0-6-6 6" /></>,
     stop: <rect x="6" y="6" width="12" height="12" rx="1" />,
     alert: <><path d="M12 3 2 21h20L12 3Z" /><path d="M12 9v5m0 3v.5" /></>,
   }
