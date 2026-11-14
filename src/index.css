@@ -31,3 +31,15 @@ button:disabled { cursor: default; opacity: .55; }
 a { color: var(--space-yellow); text-underline-offset: 4px; }
 button, a, select { touch-action: manipulation; }
 ::selection { color: var(--space-deep); background: var(--space-yellow); }
+
+@theme {
+  --color-neon-lime: #eafe07;
+  --color-text-light-blue: #ccd9ef;
+  --font-display: 'Fira Sans', Arial, sans-serif;
+  --font-sans: 'Overpass', Arial, sans-serif;
+}
+.journey-nav { height: 44px; display:flex; align-items:center; gap:16px; padding:0 20px; background:var(--space-deep); font-size:13px; border-bottom:1px solid var(--space-yonder); }
+.journey-screen { height:calc(100dvh - 44px); }
+.journey-screen .terrain-app { height:100%; }
+.journey-loading { padding:32px; }
+@media(max-width:700px) { .journey-nav { gap:8px; font-size:11px; padding:0 10px; } .journey-screen .terrain-app { height:auto; } }

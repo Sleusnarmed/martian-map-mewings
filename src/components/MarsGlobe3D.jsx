@@ -1,5 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import * as Cesium from "cesium";
+import "cesium/Build/Cesium/Widgets/widgets.css";
+import { routeForZone } from "../navigation";
 import { animate } from "animejs";
 import { MARS_REGIONS } from "../data/marsZones";
 import spaceAppsLogo from "../NASA Space Apps Logos - 2026/Space Apps White small logo.png";
@@ -65,6 +67,7 @@ export default function MarsGlobe3D({ onZoneSelected }) {
   const containerRef = useRef(null);
   const viewerRef = useRef(null);
   const overlayRef = useRef(null);
+  const transitionRef = useRef(null);
 
   const [navLevel, setNavLevel] = useState("regions");
   const [activeRegion, setActiveRegion] = useState(null);
@@ -85,13 +88,69 @@ export default function MarsGlobe3D({ onZoneSelected }) {
     };
   }, [navLevel, activeRegion]);
 
+  const enterRegion = useCallback((viewer, region) => {
+    if (!region.available) return;
+    setInspectedItem(null);
+    if (viewerRef.current?.stopSpin) viewerRef.current.stopSpin();
+
+    setActiveRegion(region);
+    setNavLevel("zones");
+    setIsSidebarOpen(true);
+
+    viewer.camera.flyTo({
+      destination: Cesium.Cartesian3.fromDegrees(
+        77.5,
+        18.4,
+        region.zoomAltitude,
+        Cesium.Ellipsoid.MARS,
+      ),
+      duration: 2.0,
+    });
+  }, []);
+
+  const enterZone = useCallback((viewer, zone) => {
+    if (!viewer || viewer.isDestroyed() || !routeForZone(zone)) return;
+    setIsTransitioning(true);
+    setInspectedItem(null);
+    if (viewerRef.current?.stopSpin) viewerRef.current.stopSpin();
+
+    viewer.camera.flyTo({
+      destination: Cesium.Cartesian3.fromDegrees(
+        zone.lon,
+        zone.lat,
+        zone.altitude,
+        Cesium.Ellipsoid.MARS,
+      ),
+      duration: 1.9,
+      cancel: () => setIsTransitioning(false),
+      complete: () => {
+        if (viewer.isDestroyed()) return;
+        if (overlayRef.current) {
+          transitionRef.current = animate(overlayRef.current, {
+            opacity: [1, 0],
+            scale: [1, 1.04],
+            duration: 450,
+            ease: "inQuad",
+            onComplete: () => {
+              if (onZoneSelected) onZoneSelected(zone);
+            },
+          });
+        } else if (onZoneSelected) {
+          onZoneSelected(zone);
+        }
+      },
+    });
+  }, [onZoneSelected]);
+
   useEffect(() => {
     if (!containerRef.current) return;
 
     const marsEllipsoid = Cesium.Ellipsoid.MARS;
-    Cesium.Ellipsoid.default = marsEllipsoid;
+    window.CESIUM_BASE_URL = `${import.meta.env.BASE_URL}cesium/`;
 
     const viewer = new Cesium.Viewer(containerRef.current, {
+      ellipsoid: marsEllipsoid,
+      baseLayer: false,
       globe: new Cesium.Globe(marsEllipsoid),
       skyAtmosphere: false,
       baseLayerPicker: false,
@@ -325,11 +384,15 @@ export default function MarsGlobe3D({ onZoneSelected }) {
     viewerRef.current = { viewer, stopSpin };
 
     return () => {
+      transitionRef.current?.cancel();
+      transitionRef.current = null;
+      viewerRef.current = null;
+      viewer.camera.cancelFlight();
       tickListener();
       handler.destroy();
       if (!viewer.isDestroyed()) viewer.destroy();
     };
-  }, []);
+  }, [enterRegion, enterZone]);
 
   // Solo gira el planeta y centra la cámara en la región elegida desde el panel lateral (sin entrar automáticamente)
   const focusRegionOnGlobe = (region) => {
@@ -351,26 +414,6 @@ export default function MarsGlobe3D({ onZoneSelected }) {
   };
 
   // Entra dentro de Syrtis Major para desplegar Jezero y Wildcat Ridge
-  const enterRegion = (viewer, region) => {
-    if (!region.available) return;
-    setInspectedItem(null);
-    if (viewerRef.current?.stopSpin) viewerRef.current.stopSpin();
-
-    setActiveRegion(region);
-    setNavLevel("zones");
-    setIsSidebarOpen(true);
-
-    viewer.camera.flyTo({
-      destination: Cesium.Cartesian3.fromDegrees(
-        77.5,
-        18.4,
-        region.zoomAltitude,
-        Cesium.Ellipsoid.MARS,
-      ),
-      duration: 2.0,
-    });
-  };
-
   const handleBackToRegions = () => {
     const viewer = viewerRef.current?.viewer;
     if (!viewer) return;
@@ -391,48 +434,17 @@ export default function MarsGlobe3D({ onZoneSelected }) {
     });
   };
 
-  const enterZone = (viewer, zone) => {
-    setIsTransitioning(true);
-    setInspectedItem(null);
-    if (viewerRef.current?.stopSpin) viewerRef.current.stopSpin();
-
-    viewer.camera.flyTo({
-      destination: Cesium.Cartesian3.fromDegrees(
-        zone.lon,
-        zone.lat,
-        zone.altitude,
-        Cesium.Ellipsoid.MARS,
-      ),
-      duration: 1.9,
-      complete: () => {
-        if (overlayRef.current) {
-          animate(overlayRef.current, {
-            opacity: [1, 0],
-            scale: [1, 1.04],
-            duration: 450,
-            ease: "inQuad",
-            onComplete: () => {
-              if (onZoneSelected) onZoneSelected(zone);
-            },
-          });
-        } else if (onZoneSelected) {
-          onZoneSelected(zone);
-        }
-      },
-    });
-  };
-
   return (
     <div
       ref={overlayRef}
-      className="relative w-full h-dvh bg-[#07173F] overflow-hidden select-none text-white"
+      className="relative w-full h-full bg-[#07173F] overflow-hidden select-none text-white"
     >
       {/* Globo 3D de Marte */}
       <div ref={containerRef} className="w-full h-full touch-none" />
 
       {/* BARRA SUPERIOR */}
       {!isTransitioning && (
-        <header className="pointer-events-none fixed top-0 left-0 right-0 z-30 flex flex-wrap items-center justify-between gap-3 px-4 sm:px-6 py-3.5">
+        <header className="pointer-events-none absolute top-0 left-0 right-0 z-30 flex flex-wrap items-center justify-between gap-3 px-4 sm:px-6 py-3.5">
           <div className="flex items-center gap-3">
             <img
               src={spaceAppsLogo}
@@ -470,7 +482,7 @@ export default function MarsGlobe3D({ onZoneSelected }) {
             left: `${Math.min(Math.max(tooltipPos.x + 16, 16), window.innerWidth - 304)}px`,
             top: `${Math.min(Math.max(tooltipPos.y - 20, 72), window.innerHeight - 240)}px`,
           }}
-          className={`pointer-events-none fixed z-50 w-72 backdrop-blur-md border-2 rounded-xl p-4 text-white shadow-2xl ${
+          className={`pointer-events-none absolute z-50 w-72 backdrop-blur-md border-2 rounded-xl p-4 text-white shadow-2xl ${
             inspectedItem.type === "region" && !inspectedItem.available
               ? "bg-slate-950/95 border-slate-500/70"
               : "bg-[#07173F]/95 border-[#2E96F5]"
@@ -538,7 +550,7 @@ export default function MarsGlobe3D({ onZoneSelected }) {
       {!isTransitioning && !isSidebarOpen && (
         <button
           onClick={() => setIsSidebarOpen(true)}
-          className="fixed left-3 sm:left-5 top-18 sm:top-20 z-30 min-h-[44px] px-4 py-2.5 bg-[#07173F]/95 hover:bg-[#0042A6] active:scale-95 text-[#EAFE07] border-2 border-[#2E96F5] rounded-xl shadow-2xl flex items-center gap-2 text-xs font-bold uppercase tracking-wider transition cursor-pointer"
+          className="absolute left-3 sm:left-5 top-18 sm:top-20 z-30 min-h-[44px] px-4 py-2.5 bg-[#07173F]/95 hover:bg-[#0042A6] active:scale-95 text-[#EAFE07] border-2 border-[#2E96F5] rounded-xl shadow-2xl flex items-center gap-2 text-xs font-bold uppercase tracking-wider transition cursor-pointer"
         >
           <span>☰</span>
           <span>{navLevel === "zones" ? "Zonas" : "Regiones"}</span>
@@ -547,7 +559,7 @@ export default function MarsGlobe3D({ onZoneSelected }) {
 
       {/* BARRA LATERAL IZQUIERDA DESPLEGABLE: REGIONES */}
       {navLevel === "regions" && !isTransitioning && isSidebarOpen && (
-        <aside className="fixed left-3 sm:left-5 top-18 sm:top-20 bottom-4 z-30 w-68 sm:w-78 bg-[#07173F]/92 backdrop-blur-md border-2 border-[#2E96F5] rounded-2xl p-3.5 shadow-2xl flex flex-col transition-all duration-200">
+        <aside className="absolute left-3 sm:left-5 top-18 sm:top-20 bottom-4 z-30 w-68 sm:w-78 bg-[#07173F]/92 backdrop-blur-md border-2 border-[#2E96F5] rounded-2xl p-3.5 shadow-2xl flex flex-col transition-all duration-200">
           <div className="flex items-start justify-between gap-2 pb-2.5 mb-2.5 border-b border-[#2E96F5]/30">
             <div>
               <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-[#EAFE07] block">
@@ -623,7 +635,7 @@ export default function MarsGlobe3D({ onZoneSelected }) {
         activeRegion &&
         !isTransitioning &&
         isSidebarOpen && (
-          <aside className="fixed left-3 sm:left-5 top-18 sm:top-20 z-30 w-68 sm:w-80 bg-[#07173F]/95 backdrop-blur-md border-2 border-[#2E96F5] rounded-2xl p-4 shadow-2xl transition-all duration-200">
+          <aside className="absolute left-3 sm:left-5 top-18 sm:top-20 z-30 w-68 sm:w-80 bg-[#07173F]/95 backdrop-blur-md border-2 border-[#2E96F5] rounded-2xl p-4 shadow-2xl transition-all duration-200">
             <div className="flex items-start justify-between gap-2 pb-2.5 mb-3 border-b border-[#2E96F5]/30">
               <div>
                 <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-[#EAFE07] block">

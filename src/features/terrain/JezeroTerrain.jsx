@@ -28,7 +28,7 @@ function makeMaterial(data, contours, spacing) {
 }
 
 /** Standalone local view. POIs require verified longitude/latitude and a source URL. */
-export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfInterest = EMPTY_POIS, onPointSelect }) {
+export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfInterest = EMPTY_POIS, onPointSelect, initialPointId = 'jezero' }) {
   const container = useRef(null)
   const viewerRef = useRef(null)
   const selectCallback = useRef(onPointSelect)
@@ -37,7 +37,7 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
   const [contours, setContours] = useState(true)
   const [spacing, setSpacing] = useState(100)
   const [inspection, setInspection] = useState(null)
-  const [selectedPoint, setSelectedPoint] = useState('jezero')
+  const [selectedPoint, setSelectedPoint] = useState(initialPointId)
   const [refining, setRefining] = useState(false)
   useEffect(() => { selectCallback.current = onPointSelect }, [onPointSelect])
 
@@ -87,8 +87,9 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
         viewer.resolutionScale = 1
         viewerRef.current = { viewer, data, ellipsoid }
         // Set the regional camera immediately; never render an initial global/flat view.
-        const centerHeight = sampleHeight(data, region.center.longitude, region.center.latitude)
-        viewer.camera.lookAt(Cesium.Cartesian3.fromDegrees(region.center.longitude, region.center.latitude, centerHeight, ellipsoid), new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-48), 75000))
+        const initial = initialPointId === 'wildcat-ridge' ? pointsOfInterest.find(point => point.id === initialPointId) ?? region.center : region.center
+        const centerHeight = sampleHeight(data, initial.longitude, initial.latitude)
+        viewer.camera.lookAt(Cesium.Cartesian3.fromDegrees(initial.longitude, initial.latitude, centerHeight, ellipsoid), new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-48), initialPointId === 'wildcat-ridge' ? 3500 : 75000))
         viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY)
         cleanups.push(viewer.scene.postUpdate.addEventListener(() => {
           const position = viewer.camera.positionCartographic
@@ -138,7 +139,7 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
     }
     start()
     return () => { controller.abort(); cleanups.forEach(remove => remove()); viewerRef.current = null; if (viewer && !viewer.isDestroyed()) viewer.destroy() }
-  }, [terrainUrl, attempt])
+  }, [terrainUrl, attempt, initialPointId, pointsOfInterest])
 
   useEffect(() => {
     const context = viewerRef.current

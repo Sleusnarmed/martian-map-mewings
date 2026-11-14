@@ -1,11 +1,9 @@
 import { useState } from 'react';
 import './home.css';
 
-const ASSETS = {
-  orbits: 'https://lh3.googleusercontent.com/aida-public/AB6AXuClMkKfJpq2LhbfywuDt-8mRVr0KfP1hVJlggWP5k-ScpF2mPPsvecAS4PxYiMG-m7bB9Xb84Jt-FBoxzN1I3PCBSivnpcPmIYOXXGNHfj2JJlwLOiuHGVzhu9DOHVllv-Na37dQHSBy-Ud2ZpwNUwBP1gxawugKHP7DfX0UN7wqsVJEd-UshNz0COZNVEwke7tAK7dA97vV3G7innkMbBgZINqofm6Bfj2mDxu4bPEdu8UTDlVGUtQ',
-  spaceApps: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA_GQFNHjUVpjRwuXLUrfc1j7Vju3CWJIzP44eSWVzuVkqlWyOUTUzc7vBLjXd_PNybqs6ZGOLPsumbr22YaOBWbFTWQeGl37FPMZQWiKE5i_w4mW60rcKMASGEUa5frHHLcu8IhWqpALWaE5tP9u3sM2NFb9aPdRd9vKdesjje4j10qk_S5cJ3mK5jVzo-ctEtXT21GNQPmo4g8pwKOFURZZ8xd3EQ3AU5PSaaxl1sBkilek5gU41Q',
-  nasa: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAz_2TGlttew0fXJvsYkr3I9oZd_E5EtMHC1SQcDv1GcJXW2a8LwXQ3_W9D9t-EAE6sZXHxc1yK3SdxPSCrzFQNBReMnQcewOGJgY0G7d7Sfher4LiLgKhHBFoEkk-KloaJgaGr0G5-EU2Arg-NCn9UgE0WGBMyWc4I0xWU9RL11j67MRmh6f5ItQBCIZKAkYTc4WfKDW09EpTNWznHthNG1qtiZ0ZistLFodXnw92qo558H3VdoGm5'
-};
+import spaceApps from '../../NASA Space Apps Logos - 2026/Space Apps Logo Color and White.svg';
+import orbits from '../../Patterns/Orbits.png';
+const ASSETS = {spaceApps, orbits};
 
 const WORLDS = [
   { number: '01', name: 'Mercurio', system: 'PLANETA ROCOSO', style: 'mercury', description: 'El planeta más cercano al Sol.', image: '/assets/planets/mercury.jpg', source: 'https://science.nasa.gov/solar-system/mercury/' },
@@ -18,10 +16,9 @@ const WORLDS = [
   { number: '08', name: 'Neptuno', system: 'GIGANTE HELADO', style: 'neptune', description: 'Un planeta de vientos extremos.', image: '/assets/planets/neptune.jpg', source: 'https://science.nasa.gov/solar-system/neptune/' },
 ];
 
-function App() {
+function App({ onMarsSelected }) {
   const [worldIndex, setWorldIndex] = useState(3);
   const [modalOpen, setModalOpen] = useState(false);
-  const [show404, setShow404] = useState(false);
   const world = WORLDS[worldIndex];
   const previousWorld = WORLDS[(worldIndex - 1 + WORLDS.length) % WORLDS.length];
   const nextWorld = WORLDS[(worldIndex + 1) % WORLDS.length];
@@ -29,21 +26,6 @@ function App() {
   const moveWorld = (direction) => {
     setWorldIndex((current) => (current + direction + WORLDS.length) % WORLDS.length);
   };
-
-  if (show404) {
-    return (
-      <div className="cosmic-canvas error-screen relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 text-center text-white">
-        <div className="stars-layer pointer-events-none fixed inset-0" />
-        <div className="error-content relative z-10 max-w-2xl">
-          <div className="error-code">404</div>
-          <p className="mb-3 text-xs font-bold uppercase tracking-[0.28em] text-neon-lime">SEÑAL PERDIDA</p>
-          <h1 className="mb-4 font-display text-2xl font-bold sm:text-4xl">The cosmic object you were looking for has disappeared beyond the event horizon.</h1>
-          <p className="mb-8 text-sm text-text-light-blue">La misión hacia {world.name} no está disponible todavía.</p>
-          <button onClick={() => setShow404(false)} className="neon-pill-glow rounded-full bg-neon-lime px-7 py-3 text-sm font-extrabold text-black transition hover:scale-105">Volver al sistema solar</button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="cosmic-canvas relative flex min-h-screen flex-col justify-between overflow-x-hidden text-white selection:bg-[#e6ff00] selection:text-[#081326]">
@@ -57,20 +39,17 @@ function App() {
           <section className="flex h-full flex-col justify-between space-y-12 py-4 lg:col-span-5 lg:space-y-0 lg:py-8">
             <div className="space-y-6 pt-4">
               <p className="font-sans text-xs font-bold uppercase tracking-[0.2em] text-neon-lime sm:text-sm">NASA SPACE APPS CHALLENGE</p>
-              <h1 className="font-display text-5xl font-extrabold leading-[1.08] tracking-tight text-white sm:text-6xl xl:text-7xl">Nombre<br />Proyecto</h1>
+              <h1 className="font-display text-5xl font-extrabold leading-[1.08] tracking-tight text-white sm:text-6xl xl:text-7xl">Martian<br />Map</h1>
               <div className="mt-4 h-1 w-12 rounded-full bg-neon-lime" />
-              <p className="pt-1 text-lg font-normal tracking-wide text-text-light-blue sm:text-xl">Slogan</p>
+              <p className="pt-1 text-lg font-normal tracking-wide text-text-light-blue sm:text-xl">Explora Marte. Descubre Jezero.</p>
             </div>
 
             <div className="pb-2 pt-8 lg:pt-16">
               <div className="flex items-center gap-6 sm:gap-8">
                 <a href="https://www.spaceappschallenge.org/" target="_blank" rel="noopener noreferrer" aria-label="Visitar NASA Space Apps Challenge" className="flex h-20 items-center sm:h-24">
-                  <img alt="NASA Space Apps Challenge" className="h-16 w-auto object-contain opacity-95 invert transition duration-300 hover:scale-105 hover:opacity-100 sm:h-20" src={ASSETS.spaceApps} />
+                  <img alt="NASA Space Apps Challenge" className="h-16 w-auto object-contain opacity-95 transition duration-300 hover:scale-105 hover:opacity-100 sm:h-20" src={ASSETS.spaceApps} />
                 </a>
-                <div className="h-16 w-px bg-white/20" />
-                <a href="https://www.nasa.gov/" target="_blank" rel="noopener noreferrer" aria-label="Visitar NASA" className="flex h-20 items-center sm:h-24">
-                  <img alt="NASA" className="h-16 w-auto object-contain drop-shadow-[0_0_12px_rgba(11,61,145,0.4)] transition-transform duration-300 hover:scale-105 sm:h-20" src={ASSETS.nasa} />
-                </a>
+
               </div>
             </div>
           </section>
@@ -84,7 +63,7 @@ function App() {
             <div className="relative flex w-full items-center justify-center">
               <button aria-label="Planeta anterior" onClick={() => moveWorld(-1)} className="orbital-arrow absolute left-0 z-20 sm:left-4"><span className="material-symbols-outlined text-[26px]">chevron_left</span></button>
               <div className="relative flex h-64 w-64 items-center justify-center sm:h-80 sm:w-80 md:h-96 md:w-96 lg:h-[420px] lg:w-[420px]">
-                <div key={world.style} className={`planet-glow planet-${world.style} relative h-full w-full select-none overflow-hidden rounded-full`} role="img" aria-label={`Fotografía de ${world.name}, imagen de NASA`}>
+                <div key={world.style} className={`planet-glow planet-${world.style} relative h-full w-full select-none overflow-hidden rounded-full`} role={world.style === 'mars' ? 'button' : 'img'} tabIndex={world.style === 'mars' ? 0 : undefined} onClick={() => { if (world.style === 'mars') onMarsSelected?.() }} onKeyDown={event => { if (world.style === 'mars' && ['Enter', ' '].includes(event.key)) { event.preventDefault(); onMarsSelected?.() } }} aria-label={world.style === 'mars' ? 'Explorar Marte' : `Vista de ${world.name}`}>
                   <div className="planet-surface" />
                   <img
                     src={world.image}
@@ -111,8 +90,8 @@ function App() {
                   Imagen y datos: NASA
                 </a>
               </div>
-              <button onClick={() => setShow404(true)} className="neon-pill-glow inline-flex cursor-pointer items-center justify-center gap-2.5 rounded-full bg-neon-lime px-8 py-3 text-sm font-extrabold tracking-wide text-black transition-all duration-300 hover:scale-[1.03] hover:bg-[#efff33] active:scale-95 sm:px-10 sm:text-base">
-                <span>Iniciar</span><span className="material-symbols-outlined text-[20px] font-bold">arrow_forward</span>
+              <button disabled={world.style !== 'mars'} onClick={() => onMarsSelected?.()} className="neon-pill-glow inline-flex cursor-pointer items-center justify-center gap-2.5 rounded-full bg-neon-lime px-8 py-3 text-sm font-extrabold tracking-wide text-black transition-all duration-300 hover:scale-[1.03] hover:bg-[#efff33] active:scale-95 sm:px-10 sm:text-base">
+                <span>{world.style === 'mars' ? 'Explorar Marte' : 'Próximamente'}</span><span className="material-symbols-outlined text-[20px] font-bold">arrow_forward</span>
               </button>
             </div>
           </section>

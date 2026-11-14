@@ -16,8 +16,8 @@ export const MARS_REGIONS = [
         id: "jezero",
         name: "Cráter Jezero",
         subtitle: "Zona de Aterrizaje · Misión Mars 2020",
-        lat: 18.38,
-        lon: 77.58,
+        lat: 18.41,
+        lon: 77.69,
         altitude: 45000,
         color: "#2E96F5",
         summary:
@@ -26,9 +26,9 @@ export const MARS_REGIONS = [
       {
         id: "wildcat-ridge",
         name: "Jezero – Wildcat Ridge",
-        subtitle: "Parada Científica · Muestreo Sol 518",
-        lat: 18.458,
-        lon: 77.405,
+        subtitle: "Parada Científica · Wildcat Ridge / Hazeltop",
+        lat: 18.45863707,
+        lon: 77.40588851,
         altitude: 12000,
         color: "#EAFE07",
         summary:
