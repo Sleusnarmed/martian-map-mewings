@@ -66,5 +66,16 @@ The primary view should make the *local* mission decision understandable. A 3D g
 
 ## Status
 
-**Concept only.** This README records preliminary discussion. It contains no application code, design mockups, processed data, validated predictions, or completed project deliverables.
+The `main` branch now integrates Héctor’s planetary home, the Mars globe, and the Jezero cartography demo. The planning discussion above describes future work; route planning is not implemented.
+
+Run `npm install` and `npm run dev`. Select **Marte → Explorar Marte**, then the **Syrtis Major** globe marker, then **Cráter Jezero** or **Jezero – Wildcat Ridge**. Other planets have no destination. The home screen embeds the real Cesium globe; Explorar Marte expands that same viewer without a URL change. Sistema solar collapses it. Terrain navigation still uses hash links and browser history. The Space Apps loader is indeterminate, not download progress. The globe renders on demand at up to 30 FPS, with capped pixel density and no automatic rotation.
+
+Direct routes: `/#/`, `/#/mars`, `/#/mars/jezero`, and `/#/mars/wildcat-ridge`. Terrain always opens in 2.5D, with Wildcat Ridge centered in a close-up. Globe imagery requires NASA Trek connectivity; the prepared regional DEM is local.
+
+Integration checkpoints, in order:
+- `c824565`: import Héctor’s home from `~/Documents/NAsa/cosmic-voyager-react`.
+- `06fc7b1`: merge `origin/feat/mars-3d-globe` (locally available `a93eb79`).
+- `4e43d96`: merge `cartography` and reconcile Cesium build assets.
+
+The original branches and Héctor’s source folder are preserved. GitHub DNS was unavailable during integration, so the remote branch could not be refreshed. Validate with `npm run build`, `npm run lint`, `node tests/navigation.test.js`, and `node tests/terrain.test.js`. Browser/WebGL interaction still needs a manual check on a machine with a browser.
 

@@ -21,4 +21,10 @@ dist-ssr
 *.ntvs*
 *.njsproj
 *.sln
+data/raw/*
+!data/raw/.gitkeep
+public/cesium/
 *.sw?
+
+.venv/
+__pycache__/

@@ -1,113 +1,60 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
+/* NASA Space Apps Brand Guidelines, May 23 2025, pp. 7–13.
+   https://www.spaceappschallenge.org/brand/ */
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
-
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
-
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
+  --space-deep: #07173f;
+  --space-electric: #0042a6;
+  --space-neon-blue: #0960e1;
+  --space-yonder: #2e96f5;
+  --space-yellow: #eafe07;
+  --space-rocket: #e43700;
+  --space-martian: #8e1100;
+  --space-white: #ffffff;
+  --space-line: #2e96f5;
+  font-family: 'Overpass', Arial, sans-serif;
+  color: var(--space-white);
+  background: var(--space-deep);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+}
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; }
+button, input, select { font: inherit; }
+button, a, input, select { -webkit-tap-highlight-color: transparent; }
+:where(button, a, input, select, summary):focus-visible {
+  outline: 3px solid var(--space-yellow);
+  outline-offset: 4px;
+}
+button { cursor: pointer; }
+button:disabled { cursor: default; opacity: .55; }
+a { color: var(--space-yellow); text-underline-offset: 4px; }
+button, a, select { touch-action: manipulation; }
+::selection { color: var(--space-deep); background: var(--space-yellow); }
 
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
+@theme {
+  --color-neon-lime: #eafe07;
+  --color-text-light-blue: #ccd9ef;
+  --font-display: 'Fira Sans', Arial, sans-serif;
+  --font-sans: 'Overpass', Arial, sans-serif;
 }
+.journey-nav { height: 44px; display:flex; align-items:center; gap:16px; padding:0 20px; background:var(--space-deep); font-size:13px; border-bottom:1px solid var(--space-yonder); }
+.journey-screen { height:calc(100dvh - 44px); }
+.journey-screen .terrain-app { height:100%; }
+.journey-loading { padding:32px; }
+@media(max-width:700px) { .journey-nav { gap:8px; font-size:11px; padding:0 10px; } .journey-screen .terrain-app { height:auto; } }
+.space-loader { height:100%; min-height:220px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:24px; background:#07173f; color:#fff; font-size:13px; }
+.space-loader-logo { position:relative; width:180px; }
+.space-loader-logo img { width:100%; opacity:.2; }
+.space-loader-logo .space-loader-fill { position:absolute; inset:0; opacity:1; animation:space-fill 2s ease-in-out infinite; }
+@keyframes space-fill { 0% { clip-path:inset(100% 0 0); } 80%,100% { clip-path:inset(0); } }
+.home-globe { width:100%; height:100%; overflow:hidden; border-radius:50%; position:relative; background:#030919; }
+.home-globe-expanded { position:fixed; inset:0; width:100vw; height:100dvh; border-radius:0; z-index:100; animation:globe-open .35s ease-out; }
+.globe-expand-hit { position:absolute; inset:0; width:100%; border:0; background:transparent; cursor:zoom-in; }
+.globe-home-back { position:absolute; right:16px; bottom:16px; z-index:60; background:#07173f; color:#eafe07; border:1px solid #2e96f5; border-radius:8px; padding:12px 18px; }
+@keyframes globe-open { from { opacity:.7; transform:scale(.92); } to { opacity:1; transform:scale(1); } }
+@media(prefers-reduced-motion:reduce) { .space-loader-logo .space-loader-fill, .home-globe-expanded { animation:none; } }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
-}
-
-body {
-  margin: 0;
-}
-
-#root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-}
-
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
-}
-
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
-}
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
-}
-p {
-  margin: 0;
-}
-
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
-}
-
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
-}
+/* Let the home artwork show through the WebGL canvas around Mars. */
+.home-globe:not(.home-globe-expanded), .mars-globe-view .cesium-widget, .mars-globe-view .cesium-widget canvas { background:transparent; }
+.home-globe:not(.home-globe-expanded) .space-loader { background:transparent; }
