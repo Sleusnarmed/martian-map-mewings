@@ -15,7 +15,7 @@ export default function VoiceControls({ text, noticeId, lang = 'en-US' }) {
   const showStatus = unavailable || !speechAvailable || ['blocked', 'error'].includes(status)
   return (
     <div className="field-voice">
-      <button className="md-button md-button-outline" data-mission-voice="true" onClick={toggle} disabled={unavailable || !text} aria-pressed={muted} aria-label={active ? 'Mute alert audio' : muted ? 'Unmute and read current notice' : status === 'blocked' ? 'Enable alert audio' : 'Read current notice'}>
+      <button className="md-button md-button-outline" data-mission-voice="true" data-audio-state={status} onClick={toggle} disabled={unavailable || !text} aria-pressed={muted} aria-label={active ? 'Mute alert audio' : muted ? 'Unmute and read current notice' : status === 'blocked' ? 'Enable alert audio' : 'Read current notice'}>
         <MissionIcon name={muted || active ? 'speaker-muted' : 'speaker'} /><span>{label}</span>
       </button>
       <span className={showStatus ? 'field-audio-error' : 'field-sr-only'} role="status">{message}</span>

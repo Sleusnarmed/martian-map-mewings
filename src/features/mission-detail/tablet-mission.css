@@ -1,7 +1,7 @@
 /* Map-first tablet controls. Surfaces use alpha; text and focus stay opaque. */
 .field-shell { position: relative; isolation: isolate; width: 100%; height: 100dvh; min-height: 560px; overflow: hidden; background: #000000; }
 .field-map { position: absolute; inset: 0; z-index: 0; background: #000000; }
-.field-map > p { position: absolute; top: 47%; left: 32%; transform: translate(-50%, -50%); color: var(--md-muted); font-size: 12px; }
+.field-map > p { position: absolute; top: 47%; left: 20%; transform: translate(-50%, -50%); color: var(--md-muted); font-size: 12px; }
 .field-regions { position: absolute; z-index: 2; top: 22px; left: 24px; display: flex; align-items: center; gap: 10px; }
 .field-regions button { min-width: 48px; min-height: 48px; padding: 10px 0; color: var(--md-white); background: transparent; border: none; border-radius: 0; font-size: 14px; font-weight: 600; }
 .field-regions button[aria-current] { color: var(--md-neon-yellow); text-decoration: underline; text-underline-offset: 7px; }
@@ -51,7 +51,7 @@
 .mt-telemetry-table { margin: 16px 0 0; }
 .mt-telemetry-table > div { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 6px 0; border-bottom: 1px solid var(--md-overlay-border); }
 .mt-telemetry-table dt { font-size: 13px; line-height: 20px; }
-.mt-telemetry-table dd { margin: 0; font-family: 'Mission DM Mono',monospace; font-size: 17px; line-height: 20px; white-space: nowrap; }
+.mt-telemetry-table dd { margin: 0; font-family: 'Mission DM Mono',monospace; font-size: 18px; line-height: 20px; white-space: nowrap; }
 .mt-page-controls { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 6px 14px; border-top: 1px solid var(--md-overlay-border); }
 .mt-page-controls .md-button { padding-inline: 8px; font-size: 13px !important; }
 .mt-page-controls > span { color: var(--md-muted); font-family: 'Mission DM Mono',monospace; font-size: 12px; }
@@ -125,6 +125,7 @@
   .mt-evidence img { max-height: 110px; }
 }
 @media (max-width: 699px) {
+  .field-map > p { top: 180px; left: 24%; }
   .field-regions { top: 16px; left: 16px; right: 16px; justify-content: space-between; gap: 4px; }
   .field-regions button { font-size: 13px; }
   .field-regions > span { padding: 0 4px; }

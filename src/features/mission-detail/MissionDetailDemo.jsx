@@ -19,7 +19,7 @@ function readPreviewLocation() {
   const lastPage = activeTab === 'science' ? 2 : 0
   const requestedPage = Number(query.get('page') || 0)
   const page = Number.isInteger(requestedPage) ? Math.max(0, Math.min(lastPage, requestedPage)) : 0
-  return { scenarioId, activeTab, page, panel: query.get('tab') === 'alerts' || query.get('panel') === 'alerts' || scenarioId.includes('delay') ? 'alerts' : query.get('panel') === 'closed' ? null : 'information' }
+  return { scenarioId, activeTab, page, panel: query.get('panel') === 'closed' ? null : query.get('tab') === 'alerts' || query.get('panel') === 'alerts' || scenarioId.includes('delay') ? 'alerts' : 'information' }
 }
 
 export default function MissionDetailDemo() {
@@ -44,7 +44,10 @@ export default function MissionDetailDemo() {
   useMissionPanelMotion(overlayRef, openPanel, mission.notice?.id)
 
   function changeTab(tab) { setActiveTab(tab); setPage(0) }
-  function openInformation(tab) { changeTab(tab); setOpenPanel('information') }
+  function openInformation(tab) {
+    changeTab(tab); setOpenPanel('information')
+    window.requestAnimationFrame(() => document.getElementById(`mission-tab-${tab}`)?.focus())
+  }
   function selectRegion(id) { setSelectedRegionId(id); openInformation('science') }
   function selectScenario(id) {
     setScenarioId(id); setReturning(false); setHideData(false); setPage(0)
@@ -66,7 +69,7 @@ export default function MissionDetailDemo() {
       </nav>
       <details className="field-demo">
         <summary>Simulation</summary>
-        <div className="field-demo-content"><label htmlFor="exercise-scenario">Exercise scenario</label><select id="exercise-scenario" value={scenarioId} onChange={(event) => selectScenario(event.target.value)}>{demoScenarios.map((scenario) => <option key={scenario.id} value={scenario.id}>{scenario.label}</option>)}</select><button className="md-button md-button-outline" aria-pressed={hideData} onClick={() => { setHideData(!hideData); setReturning(false); setPage(0) }}>No data</button><p>Static test inputs. No suit sensors connected.</p></div>
+        <div className="field-demo-content"><label htmlFor="exercise-scenario">Exercise scenario</label><select id="exercise-scenario" value={scenarioId} onChange={(event) => selectScenario(event.target.value)}>{demoScenarios.map((scenario) => <option key={scenario.id} value={scenario.id}>{scenario.label}</option>)}</select><button className="md-button md-button-outline" aria-pressed={hideData} onClick={() => { setHideData(!hideData); setReturning(false); setPage(0); setOpenPanel(!hideData || scenarioId.includes('delay') ? 'alerts' : 'information') }}>No data</button><p>Static test inputs. No suit sensors connected.</p></div>
       </details>
       <div className="field-information" ref={overlayRef}>
         <MissionInfoPanel mission={mission} region={regions[selectedRegionId]} image={wildcatImage} activeTab={activeTab} page={page} onTabChange={changeTab} onPageChange={setPage} onReturn={() => { setReturning(true); openInformation('route') }} onInspectStop={() => selectRegion('wildcat-ridge')} collapsed={openPanel !== 'information'} />
