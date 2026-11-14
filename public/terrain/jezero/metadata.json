@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "width": 1025,
+  "height": 1025,
+  "bounds": [
+    77.15,
+    18.05,
+    77.85,
+    18.75
+  ],
+  "radius": 3396190.0,
+  "heightFile": "heights.f32",
+  "encoding": "float32-little-endian",
+  "minimumHeight": -2710.657470703125,
+  "maximumHeight": -1380.4969482421875,
+  "sourceResolutionMeters": 20,
+  "displayResolutionMeters": 41,
+  "coordinateConvention": "planetocentric latitude; east-positive longitude; degrees",
+  "verticalReference": "MOLA; source heights retained in metres",
+  "source": "https://astrogeology.usgs.gov/search/map/mars_2020_science_investigation_ctx_dem_mosaic",
+  "sourceFilename": "M20_JezeroCrater_CTXDEM_20m.tif",
+  "sourceSha256": "ba7f706ea1b5d63a562f28a7dcf7a7f3c79bce7f048e6974b57e8a33c30d1ba2",
+  "sourceCrs": {
+    "projection": "spherical equirectangular",
+    "radius": 3396190.0,
+    "standardParallel": 18.4663,
+    "centralMeridian": 0.0,
+    "latitudeOrigin": 0.0,
+    "falseEasting": 0.0,
+    "falseNorthing": 0.0
+  },
+  "processing": "Geographic crop; bilinear resampling; no gap filling; no vertical exaggeration"
+}
