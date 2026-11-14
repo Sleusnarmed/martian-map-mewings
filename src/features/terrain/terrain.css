@@ -1,0 +1,78 @@
+.terrain-app { height: 100dvh; display: flex; flex-direction: column; }
+.terrain-header {
+  min-height: 94px; flex-shrink: 0; padding: 18px 28px;
+  display: flex; align-items: center; gap: 24px;
+  background: linear-gradient(135deg, var(--space-electric), var(--space-deep));
+  border-bottom: 1px solid var(--space-yonder);
+}
+.project-signature { border-right: 1px solid var(--space-yonder); padding-right: 24px; }
+.project-signature strong { display: block; font: 900 18px/1.2 'Fira Sans', Arial, sans-serif; letter-spacing: .05em; }
+.project-signature span { display: block; font-size: 12px; margin-top: 5px; }
+.eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; margin: 0 0 10px; }
+.terrain-header .eyebrow { margin-bottom: 5px; }
+.terrain-header h1 { font: 900 25px/1.15 'Fira Sans', Arial, sans-serif; letter-spacing: .05em; margin: 0; text-transform: uppercase; }
+.mode-tag { margin-left: auto; font-size: 12px; display: flex; gap: 9px; align-items: center; }
+.mode-tag::before { content: ''; width: 7px; height: 7px; border: 1px solid var(--space-yellow); border-radius: 50%; }
+.terrain-workspace { display: flex; flex: 1; min-height: 0; }
+.terrain-panel { width: 310px; flex-shrink: 0; padding: 28px 24px; overflow: auto; background: var(--space-deep); border-right: 1px solid var(--space-yonder); }
+.terrain-panel h2 { font: 700 26px/1.2 'Fira Sans', Arial, sans-serif; margin: 0 0 10px; }
+.panel-intro { font-size: 14px; line-height: 1.6; margin: 0 0 26px; }
+.panel-section { border: 0; padding: 0; margin: 0 0 26px; min-width: 0; }
+.panel-section legend { width: 100%; padding: 0; }
+.poi-list { display: grid; gap: 8px; }
+.poi-list button { position: relative; display: flex; align-items: center; gap: 12px; width: 100%; min-height: 76px; padding: 14px; border: 1px solid var(--space-yonder); background: var(--space-deep); color: white; text-align: left; }
+.poi-list button:hover:not(:disabled), .poi-list button[aria-pressed=true] { background: var(--space-electric); }
+.poi-list button[aria-pressed=true] { border-left: 4px solid var(--space-yellow); padding-left: 11px; }
+.poi-number { font-size: 12px; font-variant-numeric: tabular-nums; }
+.poi-list strong { font-size: 16px; font-weight: 700; }
+.poi-list small { display: block; font-size: 12px; margin-top: 5px; font-weight: 400; }
+.poi-arrow { margin-left: auto; width: 20px; height: 20px; color: var(--space-yellow); flex-shrink: 0; }
+.view-buttons { display: flex; border: 1px solid var(--space-yonder); margin: 3px 0 18px; }
+.view-buttons button { flex: 1; min-height: 44px; background: var(--space-deep); color: white; border: 0; font-weight: 700; font-size: 14px; }
+.view-buttons button + button { border-left: 1px solid var(--space-yonder); }
+.view-buttons button[aria-pressed=true] { background: var(--space-electric); box-shadow: inset 0 -3px var(--space-yellow); }
+.view-buttons button:hover:not(:disabled) { background: var(--space-electric); }
+.control-row { display: flex; align-items: center; justify-content: space-between; font-size: 14px; min-height: 48px; gap: 10px; }
+.control-row input { accent-color: var(--space-yellow); width: 18px; height: 18px; cursor: pointer; }
+.control-row select { background: var(--space-deep); color: white; min-height: 44px; padding: 8px 10px; border: 1px solid var(--space-yonder); }
+.source-card { border-top: 1px solid var(--space-yonder); padding-top: 20px; font-size: 13px; line-height: 1.6; }
+.source-card summary { cursor: pointer; font-weight: 700; padding: 5px 0; }
+.source-card p { margin: 12px 0; }
+.source-card a { display: inline-block; padding: 4px 0; }
+.map-shell { position: relative; flex: 1; min-width: 0; overflow: hidden; background: var(--space-deep); }
+.cesium-host { position: absolute; inset: 0 0 60px; }
+.map-placeholder { position: absolute; inset: 0 0 60px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; text-align: center; background: linear-gradient(135deg, var(--space-electric), var(--space-deep)); }
+.contour-symbol { width: 80px; height: 80px; color: var(--space-white); opacity: .25; margin-bottom: 22px; }
+.map-placeholder h2 { font: 700 30px/1.2 'Fira Sans', Arial, sans-serif; margin: 8px 0; max-width: 500px; }
+.map-placeholder p:not(.eyebrow) { max-width: 440px; font-size: 15px; line-height: 1.6; }
+.empty-actions { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; margin-top: 18px; font-size: 14px; }
+.empty-actions button { min-height: 44px; padding: 10px 18px; background: var(--space-deep); border: 1px solid var(--space-yellow); color: var(--space-yellow); font-weight: 700; }
+.map-footer { position: absolute; bottom: 0; left: 0; right: 0; height: 60px; background: var(--space-deep); border-top: 1px solid var(--space-yonder); display: flex; gap: 12px; justify-content: space-between; align-items: center; padding: 10px 20px; font-size: 12px; font-variant-numeric: tabular-nums; }
+.map-footer .navigation-help { font-size: 11px; max-width: 235px; text-align: right; }
+.map-badge { position: absolute; left: 20px; top: 20px; padding: 12px 16px; background: var(--space-deep); border-left: 3px solid var(--space-yellow); font-size: 12px; pointer-events: none; display: flex; align-items: center; gap: 20px; }
+.map-badge strong { text-transform: uppercase; letter-spacing: .08em; }
+.map-legend { position: absolute; bottom: 104px; right: 20px; padding: 16px; width: 242px; background: var(--space-deep); border: 1px solid var(--space-yonder); pointer-events: none; }
+.map-legend p { font-size: 13px; margin: 0 0 12px; }
+.elevation-ramp { height: 8px; background: linear-gradient(90deg,#07173f,#0042a6,#0960e1,#2e96f5,#ffffff); }
+.legend-values { display: flex; justify-content: space-between; font-size: 12px; margin-top: 7px; font-variant-numeric: tabular-nums; }
+.map-legend small { display: block; font-size: 11px; margin-top: 12px; line-height: 1.5; }
+.map-reset { position: absolute; top: 20px; right: 20px; min-height: 44px; padding: 10px 14px; border: 1px solid var(--space-yonder); background: var(--space-deep); color: var(--space-yellow); font-size: 13px; font-weight: 700; }
+.map-reset:hover { background: var(--space-electric); }
+@media(max-width:1000px) { .terrain-panel { width: 275px; padding: 24px 18px; } .map-footer { flex-direction: column; align-items: flex-start; justify-content: center; gap: 4px; font-size: 11px; } .map-footer .navigation-help { max-width: none; text-align: left; font-size: 10px; } }
+@media(max-width:700px) {
+  .terrain-app { height: auto; min-height: 100dvh; }
+  .terrain-header { padding: 16px; gap: 16px; min-height: 84px; }
+  .project-signature { padding-right: 16px; }.project-signature strong { font-size: 14px; }.project-signature span { font-size: 10px; }
+  .terrain-header h1 { font-size: 22px; }.terrain-header .eyebrow { font-size: 10px; }.mode-tag { display: none; }
+  .terrain-workspace { flex-direction: column; overflow: visible; }
+  .terrain-panel { width: 100%; padding: 20px 16px; border-right: 0; border-bottom: 1px solid var(--space-yonder); display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .panel-intro-block { grid-column: 1 / -1; }.terrain-panel h2 { font-size: 22px; }.panel-intro { margin-bottom: 0; }
+  .panel-section { margin: 0; }.poi-list button { min-height: 70px; padding: 10px; }.poi-list button[aria-pressed=true] { padding-left: 7px; }.poi-number { display: none; }.poi-list strong { font-size: 14px; }.poi-list small { font-size: 11px; }.poi-arrow { width: 16px; }
+  .control-row { font-size: 12px; }.source-card { grid-column: 1 / -1; padding-top: 10px; }
+  .map-shell { flex: none; height: 70dvh; min-height: 440px; }.map-badge { top: 12px; left: 12px; font-size: 10px; padding: 10px; gap: 8px; }.map-reset { top: 62px; right: 12px; }
+  .map-legend { right: 12px; bottom: 100px; width: 205px; padding: 12px; }.map-placeholder { padding: 20px; }.map-placeholder h2 { font-size: 24px; }
+}
+@media(prefers-reduced-motion:no-preference) { .poi-list button,.view-buttons button,.map-reset { transition: background-color 120ms ease; } }
+
+.terrain-load-status { position: absolute; top: 24px; left: 24px; right: 24px; width: fit-content; padding: 14px 18px; background: var(--space-deep); color: white; border: 1px solid var(--space-yonder); pointer-events: none; }
+.detail-retry { position: absolute; right: 20px; bottom: 110px; background: var(--space-deep); color: var(--space-yellow); border: 1px solid var(--space-yellow); padding: 12px; }
