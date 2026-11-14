@@ -17,13 +17,14 @@
 .field-demo-content button[aria-pressed=true] { color: var(--md-neon-yellow); border-color: var(--md-neon-yellow); }
 .field-demo-content p { color: var(--md-muted); font-size: 12px; }
 
-.field-information { position: absolute; top: 24px; right: 24px; width: 400px; z-index: 3; }
+.field-information { position: absolute; top: 24px; right: 164px; width: 400px; z-index: 3; }
 .field-information.is-collapsed { width: auto; }
-.field-deck { display: grid; grid-template-rows: 56px minmax(0,1fr) 64px; height: min(500px, calc(100dvh - 224px)); border: 1px solid var(--md-border); border-radius: 12px; background: var(--md-deep-blue); overflow: hidden; }
+.field-deck { display: grid; grid-template-rows: 56px minmax(0,1fr); height: min(500px, calc(100dvh - 224px)); border: 1px solid var(--md-border); border-radius: 12px; background: var(--md-deep-blue); overflow: hidden; }
+.field-deck.has-pages { grid-template-rows: 56px minmax(0,1fr) 64px; }
 .field-panel-toggle { position: absolute; top: 5px; right: 4px; display: flex; align-items: center; justify-content: center; gap: 8px; min-width: 48px; min-height: 48px; padding: 12px; border: none; border-radius: 4px; background: transparent; color: var(--md-muted); font-size: 14px; }
 .field-panel-toggle:hover { background: var(--md-electric-blue); color: var(--md-white); }
 .is-collapsed .field-panel-toggle { position: static; background: var(--md-deep-blue); border: 1px solid var(--md-border); color: var(--md-white); padding-inline: 16px; }
-.mt-tabs { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); padding-right: 52px; border-bottom: 1px solid var(--md-border); }
+.mt-tabs { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); border-bottom: 1px solid var(--md-border); }
 .mt-tabs button { display: inline-flex; align-items: center; justify-content: center; gap: 4px; min-width: 0; padding: 8px 3px; color: var(--md-muted); background: transparent; border: none; border-bottom: 2px solid transparent; border-radius: 0; font-size: 13px; font-weight: 600; }
 .mt-tabs button[aria-selected=true] { color: var(--md-neon-yellow); border-bottom-color: var(--md-neon-yellow); }
 .mt-tabs button:hover { color: var(--md-white); }
@@ -43,7 +44,7 @@
 .mt-waypoints strong { display: block; font-weight: 600; font-size: 15px; }
 .mt-waypoints span { display: block; color: var(--md-muted); font-size: 12px; margin-top: 3px; }
 .mt-telemetry-table { margin: 20px 0 0; }
-.mt-telemetry-table > div { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--md-border); }
+.mt-telemetry-table > div { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 7px 0; border-bottom: 1px solid var(--md-border); }
 .mt-telemetry-table dt { font-size: 13px; }
 .mt-telemetry-table dd { margin: 0; font-family: 'Mission DM Mono',monospace; font-size: 18px; }
 .mt-explanation { margin: 24px 0 0; padding-left: 18px; font-size: 15px; line-height: 1.65; }
@@ -63,7 +64,7 @@
 .mt-source-list dt { font-size: 12px; color: var(--md-muted); }
 .mt-source-list dd { margin: 5px 0 0; font-size: 14px; line-height: 1.55; }
 
-.field-hud { position: absolute; z-index: 4; left: 24px; right: 24px; bottom: 24px; display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 6px 16px; align-items: stretch; pointer-events: none; }
+.field-hud { position: absolute; z-index: 4; left: 24px; right: 24px; bottom: 24px; display: grid; grid-template-columns: minmax(0,1fr); gap: 6px 16px; align-items: stretch; pointer-events: none; }
 .field-hud > * { pointer-events: auto; }
 .field-notice { grid-column: 1/-1; justify-self: start; display: flex; align-items: center; gap: 10px; max-width: 100%; min-height: 48px; padding: 10px 0; color: var(--md-white); border: none; background: transparent; font-size: 13px !important; text-align: left; }
 .field-notice:hover { text-decoration: underline; text-underline-offset: 4px; }
@@ -119,7 +120,7 @@
   .field-regions button { font-size: 13px; }
   .field-regions > span { padding: 0 4px; }
   .field-demo { top: 70px; left: 16px; }
-  .field-information { top: 126px; left: 16px; right: 16px; width: auto; }
+  .field-information { top: 250px; left: 16px; right: 16px; width: auto; }
   .field-information.is-collapsed { left: auto; top: 76px; }
   .field-deck { height: min(440px,calc(100dvh - 376px)); min-height: 250px; }
   .mt-tabpanel { padding: 16px; }
@@ -146,3 +147,18 @@
   .field-return { min-height: 52px; flex: 1; }
   .field-voice .md-button { min-height: 52px; width: 76px; flex-direction: row; gap: 6px; }
 }
+.field-control-rail { position: absolute; z-index: 4; top: 24px; right: 24px; width: 128px; display: grid; gap: 8px; }
+.field-rail-button { display: flex; align-items: center; gap: 8px; min-height: 52px; padding: 12px; color: var(--md-white); background: var(--md-deep-blue); border: 1px solid var(--md-border); border-radius: 8px; font-size: 13px !important; }
+.field-rail-button:hover { background: var(--md-electric-blue); }
+.field-rail-button[aria-expanded=true] { color: var(--md-neon-yellow); border-color: var(--md-neon-yellow); }
+.field-rail-button.has-warning { color: var(--md-neon-yellow); }
+.field-control-rail .field-voice .md-button { width: 100%; min-height: 52px; flex-direction: row; border-radius: 8px; gap: 8px; padding: 12px; font-size: 13px !important; justify-content: start; }
+.field-control-rail .field-voice svg { width: 18px; height: 18px; }
+.mt-route-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
+.field-alerts { max-height: min(500px, calc(100dvh - 224px)); overflow-y: auto; border: 1px solid var(--md-border); border-radius: 12px; background: var(--md-deep-blue); }
+.field-alert-heading { display: flex; align-items: center; gap: 8px; padding: 16px 22px; border-bottom: 1px solid var(--md-border); font-size: 13px; }
+.is-warning .field-alert-heading { color: var(--md-neon-yellow); }
+.field-alert-source { margin-left: auto; color: var(--md-muted); font-size: 11px; }
+.field-alert-content { padding: 22px; }
+.field-alert-content .md-button { margin-top: 20px; }
+@media (max-width: 699px) { .field-control-rail { top: 76px; right: 16px; } }

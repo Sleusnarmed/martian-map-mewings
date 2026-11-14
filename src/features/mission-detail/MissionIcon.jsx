@@ -13,6 +13,7 @@ export default function MissionIcon({ name, size = 18 }) {
     return: <path d="m9 14-5-5 5-5M4 9h10a6 6 0 0 1 6 6v5" />,
     speaker: <><path d="m11 5-6 4H2v6h3l6 4V5Z" /><path d="M15 8a6 6 0 0 1 0 8M18 5a10 10 0 0 1 0 14" /></>,
     stop: <rect x="6" y="6" width="12" height="12" rx="1" />,
+    alert: <><path d="M12 3 2 21h20L12 3Z" /><path d="M12 9v5m0 3v.5" /></>,
   }
   return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{paths[name]}</svg>
 }

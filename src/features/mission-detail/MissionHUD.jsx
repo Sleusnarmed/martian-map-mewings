@@ -1,12 +1,10 @@
 import MissionIcon from './MissionIcon.jsx'
-import VoiceControls from './VoiceControls.jsx'
-import { formatMeters, formatMinutes, getReturnState, isAvailable } from './missionPresentation.js'
+import { formatMeters, formatMinutes, getReturnState } from './missionPresentation.js'
 
-export default function MissionHUD({ mission, onReturn, onOpenRoute, onOpenAlerts }) {
+export default function MissionHUD({ mission, onOpenRoute, onOpenAlerts }) {
   if (!mission) return <section className="field-hud" aria-label="Mission controls">Mission data unavailable.</section>
   const { known, margin, belowReserve } = getReturnState(mission)
   const returning = mission.mode === 'return'
-  const hasReturnRoute = isAvailable(mission.returnDurationSeconds) && mission.returnDurationSeconds >= 0
   return (
     <section className={`field-hud ${belowReserve ? 'is-warning' : ''}`} aria-label="Persistent mission controls">
       <button className="field-notice" onClick={onOpenAlerts} aria-label={`Open current notice: ${mission.notice?.title || 'No current notice'}`}><span className="field-status-dot" aria-hidden="true" /><span role="status" aria-live="polite">{!known ? 'Mission data unavailable' : belowReserve ? `Below reserve · ${mission.notice?.title || 'Review return'}` : mission.notice?.title || 'No current notice'}</span><MissionIcon name="chevron" size={16} /></button>
@@ -18,7 +16,6 @@ export default function MissionHUD({ mission, onReturn, onOpenRoute, onOpenAlert
           <div><dt>O₂ autonomy</dt><dd>{formatMinutes(mission.oxygenRemainingSeconds)}</dd><small>Simulated estimate</small></div>
         </dl>
       </div>
-      <div className="field-actions"><VoiceControls key={`${mission.id}-${mission.notice?.id}-${mission.notice?.text}`} text={mission.notice?.text} compact /><button className="md-button md-button-primary field-return" disabled={!onReturn || returning || !hasReturnRoute} onClick={onReturn}><MissionIcon name="return" size={22} /><span>{returning ? 'Returning to base' : 'Return to base'}</span></button></div>
     </section>
   )
 }
