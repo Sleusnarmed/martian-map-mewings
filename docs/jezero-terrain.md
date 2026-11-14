@@ -44,3 +44,13 @@ Run `npm run build`. Once real data is prepared, check in a WebGL-capable browse
 ## Verification completed
 
 The supplied GeoTIFF was converted successfully to 1,050,625 finite samples. The selected crop ranges from −2710.7 to −1380.5 m. Corner/centre interpolation and out-of-coverage checks passed, and the generated binary matches its metadata. The converter uses Pillow to read GeoTIFF tags and the spherical equirectangular equations with NumPy; it rejects other projections. Production build passed. WebGL interaction still needs browser verification: this session cannot bind the preview port (EPERM). Run `npm run dev` from your own terminal and open its Local URL.
+
+## Navigation stability
+
+The finite terrain provider advertises levels 0–4 for the 1025-square grid (65 samples per tile), rather than advertising unlimited child tiles. Leaf tiles have no children and report zero further refinement error. Adjacent tiles sample identical raster-space coordinates. Source tile buffers are cached separately from Cesium’s disposable mesh buffers, with a 341-entry cap (~5.5 MiB). Rendered terrain uses a 160-tile cache and retains parent coverage during refinement.
+
+The camera limits fast gesture increments and reduces zoom/pan inertia. Tilt is constrained; a separate camera guard uses the complete DEM to maintain at least 300 m of surface clearance even while tiles load. The camera may stand beyond the cropped map for an oblique view but cannot escape arbitrarily far from the region. The terrain remains at 1× elevation. Reset view returns to the crater overview, and switching view modes retains the most recently focused point.
+
+Contour controls update existing material uniforms instead of rebuilding the material/texture. Rendering is demand-driven when idle. These changes target excessive refinement, rapid camera overshoot, and repeated material allocation; they do not constitute a browser frame-rate measurement.
+
+Regression checks: `node tests/terrain.test.js`. They cover finite tile availability, matching tile edges, preservation of the source raster at maximum detail, worker-buffer ownership, and rapid camera clearance/tilt inputs. The production build is also checked. A WebGL-capable browser should still be used to exercise fast scroll, drag and Ctrl-drag on the target device; local preview remains unavailable to this session.

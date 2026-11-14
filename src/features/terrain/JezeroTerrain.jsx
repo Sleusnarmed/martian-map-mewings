@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import * as Cesium from 'cesium'
 import 'cesium/Build/Cesium/Widgets/widgets.css'
 import { DEM_SOURCE, DEM_DOWNLOAD, loadTerrain, sampleHeight } from './terrainData'
+import { createTerrainProvider } from './createTerrainProvider.js'
+import { constrainCamera, MIN_CLEARANCE, MAX_CAMERA_HEIGHT } from './cameraLimits.js'
 import './terrain.css'
 
 const EMPTY_POIS = []
@@ -28,6 +30,7 @@ function makeMaterial(data, contours, spacing) {
 export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfInterest = EMPTY_POIS, onPointSelect }) {
   const container = useRef(null)
   const viewerRef = useRef(null)
+  const focusRef = useRef(null)
   const selectCallback = useRef(onPointSelect)
   const [state, setState] = useState({ status: 'loading' })
   const [attempt, setAttempt] = useState(0)
@@ -36,37 +39,20 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
   const [overhead, setOverhead] = useState(false)
   const [inspection, setInspection] = useState(null)
   const [selectedPoint, setSelectedPoint] = useState('jezero')
+  const [refining, setRefining] = useState(false)
   useEffect(() => { selectCallback.current = onPointSelect }, [onPointSelect])
 
   useEffect(() => {
     const controller = new AbortController()
     let viewer
+    const cleanups = []
     async function start() {
       try {
         const data = await loadTerrain(terrainUrl, controller.signal)
         if (controller.signal.aborted) return
         window.CESIUM_BASE_URL = `${import.meta.env.BASE_URL}cesium/`
-        const ellipsoid = new Cesium.Ellipsoid(data.radius, data.radius, data.radius)
-        const rectangle = Cesium.Rectangle.fromDegrees(...data.bounds)
-        const scheme = new Cesium.GeographicTilingScheme({ ellipsoid, rectangle, numberOfLevelZeroTilesX: 1, numberOfLevelZeroTilesY: 1 })
-        const terrainProvider = new Cesium.CustomHeightmapTerrainProvider({
-          tilingScheme: scheme, width: 65, height: 65,
-          credit: 'NASA / JPL / USGS · MRO CTX elevation · MOLA reference',
-          callback(x, y, level) {
-            const rect = scheme.tileXYToRectangle(x, y, level)
-            const tile = new Float32Array(65 * 65)
-            for (let row = 0; row < 65; row++) for (let col = 0; col < 65; col++) {
-              const lon = Cesium.Math.toDegrees(rect.west + (rect.east - rect.west) * col / 64)
-              const lat = Cesium.Math.toDegrees(rect.north - (rect.north - rect.south) * row / 64)
-              // Roundoff at the tile perimeter must not manufacture missing samples.
-              tile[row * 65 + col] = sampleHeight(data, Math.max(data.bounds[0], Math.min(data.bounds[2], lon)), Math.max(data.bounds[1], Math.min(data.bounds[3], lat)))
-            }
-            return tile
-          },
-        })
-        // The provider default assumes global coverage; this crop spans only 0.7°.
-        const baseError = data.radius * Math.max(rectangle.width, rectangle.height) / 64
-        terrainProvider.getLevelMaximumGeometricError = level => baseError / (2 ** level)
+        const terrainProvider = createTerrainProvider(data)
+        const { ellipsoid, rectangle } = terrainProvider.tilingScheme
         viewer = new Cesium.Viewer(container.current, {
           ellipsoid, depthPlaneEllipsoidOffset: -10000,
           globe: new Cesium.Globe(ellipsoid), terrainProvider, baseLayer: false,
@@ -75,16 +61,53 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
           fullscreenButton: false, selectionIndicator: false, infoBox: false,
           skyBox: false, skyAtmosphere: false, scene3DOnly: true,
           mapProjection: new Cesium.GeographicProjection(ellipsoid), requestRenderMode: true,
+          maximumRenderTimeChange: Infinity, msaaSamples: 1,
         })
         viewer.scene.globe.cartographicLimitRectangle = rectangle
         viewer.scene.globe.showGroundAtmosphere = false
         viewer.scene.globe.enableLighting = false
         viewer.scene.globe.depthTestAgainstTerrain = true
         viewer.scene.backgroundColor = Cesium.Color.fromCssColorString('#07173f')
-        viewer.scene.screenSpaceCameraController.minimumZoomDistance = 150
-        viewer.scene.screenSpaceCameraController.maximumZoomDistance = 180000
+        const controls = viewer.scene.screenSpaceCameraController
+        controls.minimumZoomDistance = MIN_CLEARANCE
+        controls.maximumZoomDistance = MAX_CAMERA_HEIGHT
+        controls.maximumMovementRatio = 0.035
+        controls.inertiaSpin = 0.2
+        controls.inertiaTranslate = 0.2
+        controls.inertiaZoom = 0.15
+        controls.maximumTiltAngle = Cesium.Math.toRadians(65)
+        controls.enableCollisionDetection = true
+        controls.minimumCollisionTerrainHeight = MAX_CAMERA_HEIGHT
         viewer.scene.globe.maximumScreenSpaceError = 3
+        viewer.scene.globe.tileCacheSize = 160
+        viewer.scene.globe.loadingDescendantLimit = 8
+        viewer.scene.globe.preloadAncestors = true
+        viewer.scene.globe.preloadSiblings = false
+        viewer.resolutionScale = 1
         viewerRef.current = { viewer, data, ellipsoid }
+        focusRef.current = null
+        cleanups.push(viewer.scene.postUpdate.addEventListener(() => {
+          const position = viewer.camera.positionCartographic
+          const pose = {
+            longitude: Cesium.Math.toDegrees(position.longitude),
+            latitude: Cesium.Math.toDegrees(position.latitude),
+            height: position.height, pitch: viewer.camera.pitch,
+          }
+          const safe = constrainCamera(data, pose)
+          if (!safe) return
+          if (Math.abs(safe.longitude - pose.longitude) > 1e-7 || Math.abs(safe.latitude - pose.latitude) > 1e-7 ||
+              Math.abs(safe.height - pose.height) > 0.1 || Math.abs(safe.pitch - pose.pitch) > 1e-5) {
+            viewer.camera.setView({
+              destination: Cesium.Cartesian3.fromDegrees(safe.longitude, safe.latitude, safe.height, ellipsoid),
+              orientation: { heading: viewer.camera.heading, pitch: safe.pitch, roll: 0 },
+            })
+            viewer.scene.requestRender()
+          }
+        }))
+        cleanups.push(viewer.scene.globe.tileLoadProgressEvent.addEventListener(pending => setRefining(pending > 0)))
+        cleanups.push(viewer.scene.renderError.addEventListener(() => {
+          setState({ status: 'error', message: 'The map renderer stopped. Reload the terrain to resume exploring.' })
+        }))
         viewer.screenSpaceEventHandler.setInputAction((click) => {
           const picked = viewer.scene.pick(click.position)
           if (picked?.id?.properties?.poiId) {
@@ -110,13 +133,18 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
       }
     }
     start()
-    return () => { controller.abort(); viewerRef.current = null; if (viewer && !viewer.isDestroyed()) viewer.destroy() }
+    return () => { controller.abort(); cleanups.forEach(remove => remove()); viewerRef.current = null; if (viewer && !viewer.isDestroyed()) viewer.destroy() }
   }, [terrainUrl, attempt])
 
   useEffect(() => {
     const context = viewerRef.current
     if (!context || state.status !== 'ready') return
-    context.viewer.scene.globe.material = makeMaterial(context.data, contours, spacing)
+    const globe = context.viewer.scene.globe
+    if (!globe.material) globe.material = makeMaterial(context.data, contours, spacing)
+    else {
+      globe.material.materials.contour.uniforms.width = contours ? 1 : 0
+      globe.material.materials.contour.uniforms.spacing = spacing
+    }
     context.viewer.scene.requestRender()
   }, [state, contours, spacing])
 
@@ -125,6 +153,7 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
     if (!context) return
     const height = sampleHeight(context.data, lon, lat)
     if (height === null) return
+    focusRef.current = { lon, lat, range }
     const target = Cesium.Cartesian3.fromDegrees(lon, lat, height, context.ellipsoid)
     context.viewer.camera.lookAt(target, new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(top ? -90 : -48), range))
     context.viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY)
@@ -135,9 +164,9 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
     const context = viewerRef.current
     if (!context || state.status !== 'ready') return
     const [west, south, east, north] = context.data.bounds
-    const lon = (west + east) / 2, lat = (south + north) / 2
+    const { lon, lat, range } = focusRef.current ?? { lon: (west + east) / 2, lat: (south + north) / 2, range: 65000 }
     const height = sampleHeight(context.data, lon, lat)
-    context.viewer.camera.lookAt(Cesium.Cartesian3.fromDegrees(lon, lat, height, context.ellipsoid), new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(overhead ? -90 : -48), 65000))
+    context.viewer.camera.lookAt(Cesium.Cartesian3.fromDegrees(lon, lat, height, context.ellipsoid), new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(overhead ? -90 : -48), range))
     context.viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY)
   }, [state, overhead])
 
@@ -153,7 +182,7 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
         position: Cesium.Cartesian3.fromDegrees(poi.longitude, poi.latitude, height + 25, context.ellipsoid),
         properties: { poiId: poi.id },
         point: { pixelSize: 10, color: Cesium.Color.fromCssColorString('#eafe07'), outlineColor: Cesium.Color.BLACK, outlineWidth: 2 },
-        label: { text: poi.name, font: '14px sans-serif', pixelOffset: new Cesium.Cartesian2(0, -24), showBackground: true },
+        label: { text: poi.name, font: '14px Overpass, sans-serif', backgroundColor: Cesium.Color.fromCssColorString('#07173f'), backgroundPadding: new Cesium.Cartesian2(10, 8), pixelOffset: new Cesium.Cartesian2(0, -24), showBackground: true },
       }))
     }
     return () => { if (!context.viewer.isDestroyed()) entities.forEach(entity => context.viewer.entities.remove(entity)) }
@@ -180,7 +209,7 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
       <section className="map-shell" aria-label="Interactive Jezero terrain">
         <div className="cesium-host" ref={container} />
         {!ready && <div className="map-placeholder"><svg className="contour-symbol" viewBox="0 0 80 80" fill="none" stroke="currentColor" aria-hidden="true"><circle cx="40" cy="40" r="32"/><circle cx="40" cy="40" r="23"/><circle cx="40" cy="40" r="14"/><path d="M0 40h80M40 0v80"/></svg><p className="eyebrow">JEZERO / ELEVATION DATA</p><h2>{state.status === 'error' ? 'Terrain unavailable' : 'Opening the terrain…'}</h2><p role="status">{state.message || 'Loading the local elevation grid.'}</p>{state.status === 'error' && <><p>The elevation data could not be opened. Try loading the map again.</p><div className="empty-actions"><a href={DEM_DOWNLOAD}>Download USGS DEM ↗</a><button onClick={() => { setState({status:'loading'}); setAttempt(n => n+1) }}>Reload data</button></div></>}</div>}
-        {ready && <><div className="map-badge"><strong>Jezero crater</strong><span>True-scale relief</span></div><div className="map-legend"><p>Elevation · m, MOLA reference</p><div className="elevation-ramp"/><div className="legend-values"><span>{Math.round(state.data.minimumHeight)}</span><span>{Math.round(state.data.maximumHeight)}</span></div><small>Display grid ≈ {state.data.displayResolutionMeters} m · source 20 m</small></div></>}
+        {ready && <><div className="map-badge"><strong>Jezero crater</strong><span role="status">{refining ? 'Refining terrain…' : 'True-scale relief'}</span></div><button className="map-reset" onClick={() => { setSelectedPoint('jezero'); const b = state.data.bounds; focus((b[0]+b[2])/2, (b[1]+b[3])/2, 65000) }}>Reset view</button><div className="map-legend"><p>Elevation · m, MOLA reference</p><div className="elevation-ramp"/><div className="legend-values"><span>{Math.round(state.data.minimumHeight)}</span><span>{Math.round(state.data.maximumHeight)}</span></div><small>Display grid ≈ {state.data.displayResolutionMeters} m · source 20 m</small></div></>}
         <footer className="map-footer"><span>{inspection ? `${inspection.lat.toFixed(5)}° N · ${inspection.lon.toFixed(5)}° E · ${inspection.elevation.toFixed(0)} m` : 'Click terrain to inspect elevation'}</span><span className="navigation-help">Drag to pan · Scroll to zoom · Ctrl + drag to tilt</span></footer>
       </section>
     </div>
