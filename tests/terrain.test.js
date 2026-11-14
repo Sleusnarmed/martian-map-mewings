@@ -4,6 +4,9 @@ import fs from 'node:fs'
 import { buildHeightTile, createTerrainProvider, TILE_SIZE } from '../src/features/terrain/createTerrainProvider.js'
 import { constrainCamera, MIN_CLEARANCE, MAX_PITCH } from '../src/features/terrain/cameraLimits.js'
 import { sampleHeight } from '../src/features/terrain/terrainData.js'
+import { boundedZoomDistance } from '../src/features/terrain/terrainZoom.js'
+import { Cartesian3, Math as CesiumMath } from 'cesium'
+import { MAX_CAMERA_HEIGHT } from '../src/features/terrain/cameraLimits.js'
 
 const data = JSON.parse(fs.readFileSync(new URL('../public/terrain/jezero/metadata.json', import.meta.url)))
 const bytes = fs.readFileSync(new URL('../public/terrain/jezero/heights.f32', import.meta.url))
@@ -78,4 +81,43 @@ test('normal close views retain negative MOLA heights; escaped views are bounded
   assert.ok(escaped.height>=data.maximumHeight+MIN_CLEARANCE)
   assert.equal(escaped.pitch,-Math.PI/2)
   assert.equal(constrainCamera(data,{...pose,height:NaN}),null)
+})
+
+test('zoom stops at both altitude limits without reversing, and can leave either limit immediately', () => {
+  const ellipsoid = createTerrainProvider(data).tilingScheme.ellipsoid
+  const lon = 77.40588851, lat = 18.45863707
+  const ground = sampleHeight(data, lon, lat)
+  const position = Cartesian3.fromDegrees(lon, lat, ground + 3500, ellipsoid)
+  const direction = Cartesian3.negate(ellipsoid.geodeticSurfaceNormal(position, new Cartesian3()), new Cartesian3())
+  const step = delta => {
+    const distance = boundedZoomDistance(data, ellipsoid, position, direction, -Math.PI / 2, delta)
+    Cartesian3.add(position, Cartesian3.multiplyByScalar(direction, distance, new Cartesian3()), position)
+    return distance
+  }
+  for (let i = 0; i < 150; i++) assert.ok(step(240) >= 0)
+  assert.equal(step(240), 0)
+  assert.ok(Math.abs(ellipsoid.cartesianToCartographic(position).height - ground - MIN_CLEARANCE) < .1)
+  assert.ok(step(-120) < 0)
+  for (let i = 0; i < 150; i++) assert.ok(step(-240) <= 0)
+  assert.equal(step(-240), 0)
+  assert.ok(Math.abs(ellipsoid.cartesianToCartographic(position).height - MAX_CAMERA_HEIGHT) < .1)
+  assert.ok(step(120) > 0)
+})
+
+test('oblique zoom respects DEM clearance and geographic limits before applying a camera move', () => {
+  const ellipsoid = createTerrainProvider(data).tilingScheme.ellipsoid
+  const position = Cartesian3.fromDegrees(77.4, 18.45, 2000, ellipsoid)
+  const down = Cartesian3.negate(ellipsoid.geodeticSurfaceNormal(position, new Cartesian3()), new Cartesian3())
+  const east = Cartesian3.normalize(Cartesian3.cross(Cartesian3.UNIT_Z, down, new Cartesian3()), new Cartesian3())
+  const pitch = -.4
+  const direction = Cartesian3.normalize(Cartesian3.add(down, east, new Cartesian3()), new Cartesian3())
+  for (let i = 0; i < 200; i++) {
+    const distance = boundedZoomDistance(data, ellipsoid, position, direction, pitch, 240)
+    assert.ok(distance >= 0)
+    Cartesian3.add(position, Cartesian3.multiplyByScalar(direction, distance, new Cartesian3()), position)
+    const coordinate = ellipsoid.cartesianToCartographic(position)
+    const pose = { longitude: CesiumMath.toDegrees(coordinate.longitude), latitude: CesiumMath.toDegrees(coordinate.latitude), height: coordinate.height, pitch }
+    assert.ok(Math.abs(constrainCamera(data, pose).height - pose.height) < .001)
+  }
+  assert.equal(boundedZoomDistance(data, ellipsoid, position, direction, pitch, NaN), 0)
 })

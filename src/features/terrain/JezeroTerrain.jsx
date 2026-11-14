@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import * as Cesium from 'cesium'
 import 'cesium/Build/Cesium/Widgets/widgets.css'
 import { DEM_SOURCE, loadTerrain, sampleHeight } from './terrainData'
 import { createTerrainProvider } from './createTerrainProvider.js'
 import { constrainCamera, MIN_CLEARANCE, MAX_CAMERA_HEIGHT } from './cameraLimits.js'
+import { boundedZoomDistance } from './terrainZoom.js'
 import region from './region.json'
 import './terrain.css'
 
@@ -72,6 +73,7 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
           skyBox: false, skyAtmosphere: false, scene3DOnly: true,
           mapProjection: new Cesium.GeographicProjection(ellipsoid), requestRenderMode: true,
           maximumRenderTimeChange: Infinity, msaaSamples: 1,
+          useBrowserRecommendedResolution: false,
         })
         viewer.scene.globe.cartographicLimitRectangle = rectangle
         viewer.scene.globe.showGroundAtmosphere = false
@@ -84,10 +86,12 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
         controls.maximumMovementRatio = 0.035
         controls.inertiaSpin = 0.2
         controls.inertiaTranslate = 0.2
-        controls.inertiaZoom = 0.15
+        controls.inertiaZoom = 0
         controls.maximumTiltAngle = Cesium.Math.toRadians(65)
-        controls.enableCollisionDetection = true
-        controls.minimumCollisionTerrainHeight = MAX_CAMERA_HEIGHT
+        // One source of camera limits: the complete local DEM, not still-refining tiles.
+        controls.enableCollisionDetection = false
+        controls.enableZoom = false
+        controls.tiltEventTypes = [Cesium.CameraEventType.MIDDLE_DRAG, { eventType: Cesium.CameraEventType.LEFT_DRAG, modifier: Cesium.KeyboardEventModifier.CTRL }]
         viewer.scene.globe.maximumScreenSpaceError = 3
         viewer.scene.globe.tileCacheSize = 160
         // Load and display each coarse level before requesting finer descendants.
@@ -95,8 +99,26 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
         viewer.scene.globe.loadingDescendantLimit = 0
         viewer.scene.globe.preloadAncestors = true
         viewer.scene.globe.preloadSiblings = true
-        viewer.resolutionScale = 1
+        viewer.resolutionScale = Math.min(1, 2 / (window.devicePixelRatio || 1))
         viewerRef.current = { viewer, data, ellipsoid }
+        const zoomHandler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas)
+        const zoom = delta => {
+          const distance = boundedZoomDistance(data, ellipsoid, viewer.camera.position, viewer.camera.direction, viewer.camera.pitch, delta)
+          if (distance === 0) return
+          viewer.camera.move(viewer.camera.direction, distance)
+          viewer.scene.requestRender()
+        }
+        let rightDragY = null
+        zoomHandler.setInputAction(zoom, Cesium.ScreenSpaceEventType.WHEEL)
+        zoomHandler.setInputAction(event => { rightDragY = event.position.y }, Cesium.ScreenSpaceEventType.RIGHT_DOWN)
+        zoomHandler.setInputAction(() => { rightDragY = null }, Cesium.ScreenSpaceEventType.RIGHT_UP)
+        zoomHandler.setInputAction(event => {
+          if (rightDragY === null) return
+          zoom((event.endPosition.y - rightDragY) * 4)
+          rightDragY = event.endPosition.y
+        }, Cesium.ScreenSpaceEventType.MOUSE_MOVE)
+        zoomHandler.setInputAction(event => zoom((event.distance.endPosition.y - event.distance.startPosition.y) * 4), Cesium.ScreenSpaceEventType.PINCH_MOVE)
+        cleanups.push(() => zoomHandler.destroy())
         // Set the regional camera immediately; never render an initial global/flat view.
         const initial = initialPointId === 'wildcat-ridge' ? pointsOfInterest.find(point => point.id === initialPointId) ?? region.center : region.center
         const centerHeight = sampleHeight(data, initial.longitude, initial.latitude)
@@ -119,6 +141,9 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
             })
             viewer.scene.requestRender()
           }
+          container.current.dataset.cameraHeight = String(viewer.camera.positionCartographic.height)
+          container.current.dataset.cameraLongitude = String(viewer.camera.positionCartographic.longitude)
+          container.current.dataset.cameraLatitude = String(viewer.camera.positionCartographic.latitude)
         }))
         cleanups.push(viewer.scene.globe.tileLoadProgressEvent.addEventListener(pending => setRefining(pending > 0)))
         cleanups.push(viewer.scene.renderError.addEventListener(() => {
@@ -174,36 +199,35 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
     if (point) focusTerrain(viewerRef.current, point.longitude, point.latitude, focusPointId === 'jezero' ? 75000 : 3500)
   }, [state, focusPointId, focusRevision, pointsOfInterest])
 
-  useEffect(() => {
-    const context = viewerRef.current
-    if (!embedded || !controlsTarget || !context || state.status !== 'ready') return
+  useLayoutEffect(() => {
+    if (!embedded || !controlsTarget) return
     const host = container.current
     const viewport = host.parentElement
     const panel = controlsTarget.parentElement
     const update = () => {
-      if (context.viewer.isDestroyed()) return
       const view = viewport.getBoundingClientRect()
       const overlay = panel.getBoundingClientRect()
-      let left = 0, top = 0
-      if (overlay.height > 0 && view.width >= 700 && view.width > view.height) left = -(view.width - Math.max(96, overlay.left - view.left))
-      else if (overlay.height > 0) {
+      let left, top = 0
+      if (view.width >= 700 && view.width > view.height) left = -(view.width - Math.max(96, overlay.left - view.left))
+      else {
         left = view.width < 700 ? -Math.min(144, Math.max(0, view.width - 160)) : 0
         top = 2 * Math.max(80, Math.min(view.height / 2, overlay.top - view.top - 40)) - view.height
       }
-      // Render through the exposed map area while keeping the canvas across the full screen.
-      // Camera coordinates and the terrain safety limits remain untouched.
+      // Reserve the same focus area whether panels are open or closed. Only a
+      // viewport resize changes this frame; toggling HUD panels never resizes the map.
       host.style.left = `${left}px`; host.style.top = `${top}px`
       host.style.setProperty('--terrain-credit-offset', `${-left}px`)
-      const pixelBudget = view.width * view.height / ((view.width - left) * (view.height - top))
-      context.viewer.resolutionScale = Math.min(1, Math.sqrt(pixelBudget))
-      context.viewer.resize()
-      context.viewer.scene.requestRender()
+      const context = viewerRef.current
+      if (context && !context.viewer.isDestroyed()) {
+        context.viewer.resize()
+        context.viewer.scene.requestRender()
+      }
     }
     const observer = new ResizeObserver(update)
-    observer.observe(viewport); observer.observe(panel)
+    observer.observe(viewport)
     update()
     return () => { observer.disconnect(); host.style.removeProperty('left'); host.style.removeProperty('top'); host.style.removeProperty('--terrain-credit-offset') }
-  }, [embedded, controlsTarget, state])
+  }, [embedded, controlsTarget])
 
   useEffect(() => {
     const context = viewerRef.current

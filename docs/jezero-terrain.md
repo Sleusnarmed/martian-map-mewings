@@ -6,6 +6,10 @@ The application now uses the component's `embedded` mode below Gerardo's `Missio
 
 The elevation-ramp canvas is serialized to a PNG data URL before entering Cesium's material cache. This preserves the same palette and avoids cloning a DOM canvas when the terrain is mounted again after returning from the globe.
 
+The embedded renderer reserves the same focus frame whether HUD panels are visible or collapsed. Only viewport changes resize it; panel height is not observed. Device pixels are enabled (capped at 2×), avoiding low-resolution labels. The logo is hidden only in this local-data view; Data attribution and Map view sources remain accessible. This viewer uses no ion terrain, imagery, geocoder or other ion service.
+
+`terrainZoom.js` bounds each wheel, pinch or right-drag move along the requested camera ray before applying it. It samples the complete DEM and stops at the first clearance/geographic/altitude limit. A blocked input moves zero, and reversing direction works immediately. Native zoom, zoom inertia and the tile-dependent native collision correction are disabled to avoid two competing limit systems; the existing DEM guard still protects panning and tilt.
+
 ## Prepare the real data
 
 Download the [USGS CTX DEM](https://planetarymaps.usgs.gov/mosaic/mars2020_trn/CTX/ScienceInvestigationMaps_JPL/M20_JezeroCrater_CTXDEM_20m.tif) into `data/raw/`. Raw files are ignored by Git.

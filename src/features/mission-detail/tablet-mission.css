@@ -107,6 +107,7 @@
 .terrain-embedded .map-shell { position: absolute; inset: 0; height: 100%; min-height: 0; }
 .terrain-embedded .cesium-host { inset: 0; }
 .terrain-embedded .cesium-viewer-bottom { left: calc(var(--terrain-credit-offset, 0px) + 5px) !important; }
+.terrain-embedded .cesium-credit-logoContainer { display: none !important; }
 .has-terrain .field-hud { bottom: 32px; }
 .has-terrain .field-deck { height: min(500px, calc(100dvh - 228px)); }
 .field-globe-back { position: absolute; z-index: 2; top: 16px; left: 24px; display: flex; align-items: center; gap: 4px; min-height: 44px; padding: 4px 8px; color: var(--md-muted); background: var(--md-overlay); border: none; border-radius: 4px; font-size: 12px !important; }
