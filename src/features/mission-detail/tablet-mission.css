@@ -1,0 +1,144 @@
+/* Tablet workspace: dedicated rows keep the HUD visible without covering content. */
+.mt-shell { height: 100dvh; min-height: 520px; padding: 0; display: grid; grid-template-rows: 72px auto minmax(0, 1fr) auto; overflow: hidden; }
+.mt-header { display: flex; align-items: center; gap: 32px; padding: 10px 24px; background: var(--md-electric-blue); }
+.mt-header .md-event-brand { padding: 0 16px 0 0; }
+.mt-header .md-event-brand img { width: 112px; height: auto; }
+.mt-project-name { display: grid; gap: 1px; }
+.mt-project-name strong { font-size: 20px; letter-spacing: .04em; }
+.mt-project-name span { font-size: 12px; }
+.mt-header > .md-tag { margin-left: auto; border-color: #8eb7ee; }
+.mt-mission-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 6px 20px; border-bottom: 1px solid var(--md-border); }
+.mt-region-nav { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+.mt-region-nav > span { color: var(--md-muted); }
+.mt-region-nav > svg { color: var(--md-blue-yonder); }
+.mt-region-nav button { min-height: 44px; padding: 8px 10px; background: transparent; color: var(--md-text); border: 1px solid transparent; border-radius: 4px; font-weight: 600; }
+.mt-region-nav button[aria-current] { color: var(--md-neon-yellow); border-color: var(--md-neon-yellow); }
+.mt-region-nav button:hover { background: var(--md-electric-blue); }
+.mt-demo-controls { display: flex; align-items: center; gap: 10px; font-size: 12px; }
+.mt-demo-controls label { color: var(--md-muted); }
+.mt-demo-controls select { min-height: 44px; max-width: 210px; padding: 8px 28px 8px 10px; border: 1px solid var(--md-border); border-radius: 4px; font: inherit; color: var(--md-white); background: var(--md-deep-blue); }
+.mt-data-toggle { min-height: 44px; padding: 8px 12px; border: 1px solid var(--md-border); border-radius: 4px; color: var(--md-white); background: transparent; }
+.mt-data-toggle[aria-pressed=true] { border-color: var(--md-neon-yellow); color: var(--md-neon-yellow); text-decoration: underline; text-underline-offset: 4px; }
+.mt-shell main.mt-workspace { width: 100%; max-width: none; min-height: 0; margin: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(360px, 38%); gap: 16px; padding: 16px 20px; }
+.mt-map { min-width: 0; min-height: 0; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; border: 1px solid var(--md-border); border-radius: 12px; overflow: hidden; }
+.mt-map-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 18px; }
+.mt-map-heading h1 { font-family: 'Mission Fira Sans', sans-serif; font-size: 24px; font-weight: 900; line-height: 1.2; letter-spacing: -.02em; }
+.mt-map-heading p { margin-top: 4px; font-size: 12px; color: var(--md-muted); }
+.mt-map-stage { position: relative; min-height: 0; overflow: hidden; }
+.mt-route-svg { display: block; width: 100%; height: 100%; }
+.mt-map-point-label { font-family: 'Mission Overpass', sans-serif; font-size: 20px; fill: #ffffff; }
+.mt-crew-label, .mt-map-alert-label { font-family: 'Mission Overpass', sans-serif; font-size: 17px; fill: #eafe07; font-weight: 700; }
+.mt-map-tools { position: absolute; top: 8px; right: 12px; display: grid; gap: 8px; }
+.mt-map-tools .md-button { width: 44px; padding: 10px; background: var(--md-deep-blue); }
+.mt-map-tools .md-button:hover:enabled { background: var(--md-electric-blue); }
+.mt-position-unavailable { position: absolute; left: 16px; top: 16px; padding: 8px 12px; background: var(--md-deep-blue); border: 1px solid var(--md-border); border-radius: 4px; font-size: 14px; }
+.mt-map-bottom { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; padding: 12px 18px; border-top: 1px solid var(--md-border); }
+.mt-map-bottom > span { font-size: 12px; }
+.mt-map-bottom i { display: inline-block; width: 20px; height: 3px; margin: 0 7px 3px 0; background: var(--md-blue-yonder); }
+.mt-map-bottom small { display: block; color: var(--md-muted); font-size: 11px; margin-top: 3px; }
+.mt-map-bottom > div { display: flex; gap: 8px; }
+.mt-map-bottom .md-button { font-size: 12px !important; padding: 8px 10px; }
+.mt-info-slot { min-width: 0; min-height: 0; }
+.mt-info.md-panel { height: 100%; min-height: 0; display: grid; grid-template-rows: 52px minmax(0, 1fr) 64px; padding: 0; overflow: hidden; }
+.mt-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-bottom: 1px solid var(--md-border); }
+.mt-tabs button { display: inline-flex; align-items: center; justify-content: center; gap: 5px; min-width: 0; padding: 8px 5px; color: var(--md-muted); border: none; border-bottom: 3px solid transparent; background: var(--md-white); font-size: 14px; font-weight: 600; }
+.mt-tabs button[aria-selected=true] { color: var(--md-electric-blue); border-bottom-color: var(--md-electric-blue); }
+.mt-tabs button:hover { color: var(--md-electric-blue); text-decoration: underline; text-underline-offset: 3px; }
+.mt-tabs :focus-visible { outline-offset: -5px; }
+.mt-alert-count { display: inline-grid; place-items: center; min-width: 16px; height: 16px; border-radius: 4px; background: var(--md-martian-red); color: var(--md-white); font-size: 11px; }
+.mt-tabpanel { min-height: 0; padding: 20px; overflow-y: auto; overscroll-behavior: contain; scrollbar-color: var(--md-electric-blue) var(--md-white); }
+.mt-tabpanel h2 { font-family: 'Mission Fira Sans', sans-serif; font-size: 25px; letter-spacing: -.02em; line-height: 1.15; font-weight: 900; }
+.mt-panel-description { margin-top: 7px !important; color: var(--md-muted); font-size: 12px; }
+.mt-next-reference { display: flex; align-items: center; gap: 12px; margin-top: 26px; color: var(--md-electric-blue); }
+.mt-next-reference strong { font-size: 22px; font-weight: 700; }
+.mt-summary-data { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 22px 0 0; }
+.mt-summary-data dt { color: var(--md-muted); font-size: 12px; }
+.mt-summary-data dd { margin: 4px 0 0; font-size: 24px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.mt-body-note { margin-top: 18px !important; color: var(--md-muted); font-size: 13px; line-height: 1.5; }
+.mt-waypoints { margin: 20px 0; padding-left: 24px; }
+.mt-waypoints li { padding: 0 0 16px 6px; }
+.mt-waypoints strong { display: block; font-size: 16px; }
+.mt-waypoints span { display: block; color: var(--md-muted); font-size: 12px; }
+.mt-info .md-button-outline:hover:enabled { color: var(--md-white); }
+.mt-info .md-button-quiet:hover:enabled { color: var(--md-electric-blue); }
+.mt-telemetry-table { margin: 20px 0 0; }
+.mt-telemetry-table > div { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--md-border); }
+.mt-telemetry-table dt { font-size: 14px; }
+.mt-telemetry-table dd { margin: 0; font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.mt-explanation { margin: 20px 0 0; padding-left: 20px; font-size: 15px; }
+.mt-explanation li + li { margin-top: 14px; }
+.mt-full-notice { margin-top: 22px !important; font-size: 17px; line-height: 1.65; }
+.mt-page-controls { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 0 20px; border-top: 1px solid var(--md-border); }
+.mt-page-controls > span { font-size: 13px; font-variant-numeric: tabular-nums; color: var(--md-muted); }
+.mt-page-controls .md-button { font-size: 13px !important; padding-inline: 10px; }
+.mt-info .md-voice { margin: 0; padding: 12px 20px; border-top: 1px solid var(--md-border); gap: 4px; }
+.mt-info .md-voice .md-button { min-height: 40px; padding-block: 8px; font-size: 13px !important; }
+.mt-info .md-voice .md-muted { font-size: 11px; }
+.mt-science-description { margin-top: 20px !important; font-size: 15px; line-height: 1.6; }
+.mt-science h3 { margin-top: 22px; color: var(--md-electric-blue); font-size: 14px; }
+.mt-science h3 + p { margin-top: 7px; font-size: 15px; line-height: 1.6; }
+.mt-evidence { margin: 18px 0 0; }
+.mt-evidence img { display: block; width: 100%; max-height: 150px; object-fit: contain; background: #07173f; border-radius: 4px; }
+.mt-evidence figcaption { display: grid; gap: 3px; margin-top: 8px; color: var(--md-muted); font-size: 11px; }
+.mt-source-list { margin: 16px 0; }
+.mt-source-list > div + div { margin-top: 14px; }
+.mt-source-list dt { font-size: 12px; color: var(--md-muted); }
+.mt-source-list dd { margin: 4px 0 0; font-size: 14px; line-height: 1.5; }
+.mt-hud { min-width: 0; padding: 0 24px 12px; border-top: 1px solid var(--md-border); background: var(--md-deep-blue); }
+.mt-status-strip { display: flex; align-items: center; justify-content: space-between; gap: 20px; min-height: 40px; }
+.mt-notice-short { display: flex; align-items: center; gap: 8px; min-height: 44px; min-width: 0; padding: 4px 0; background: transparent; border: none; color: var(--md-white); text-align: left; font-size: 13px !important; }
+.mt-notice-short:hover { text-decoration: underline; text-underline-offset: 4px; }
+.mt-notice-light { display: block; width: 7px; height: 7px; background: var(--md-blue-yonder); border-radius: 50%; flex-shrink: 0; }
+.mt-hud-warning .mt-notice-short, .mt-warning-value { color: var(--md-neon-yellow); }
+.mt-hud-warning .mt-notice-light { background: var(--md-neon-yellow); }
+.mt-reserve-label { flex-shrink: 0; color: var(--md-muted); font-size: 12px; }
+.mt-hud-main { display: grid; grid-template-columns: minmax(120px, 1fr) minmax(300px, 1.9fr) auto; align-items: center; gap: 24px; }
+.mt-hud-destination { display: grid; gap: 2px; }
+.mt-hud-destination span { font-size: 11px; color: var(--md-muted); }
+.mt-hud-destination strong { font-size: 16px; font-weight: 600; }
+.mt-hud-metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin: 0; }
+.mt-hud-metrics dt { font-size: 11px; color: var(--md-muted); }
+.mt-hud-metrics dd { margin: 1px 0 0; font-size: 24px; line-height: 1.2; font-weight: 600; font-variant-numeric: tabular-nums; }
+.mt-hud-actions { display: flex; gap: 8px; }
+.mt-hud-actions .md-button { min-height: 48px; }
+@media (max-width: 1100px) { .mt-shell main.mt-workspace { grid-template-columns: minmax(0, 1fr) minmax(350px, 42%); } .mt-hud-main { grid-template-columns: minmax(110px, 1fr) minmax(290px, 1.9fr) auto; gap: 16px; } .mt-hud-actions .md-button { padding-inline: 10px; font-size: 13px !important; } .mt-map-heading { padding: 14px; flex-wrap: wrap; } .mt-map-heading h1 { font-size: 22px; } .mt-map-bottom { padding: 10px 14px; } }
+@media (max-height: 700px) and (min-width: 901px) { .mt-shell { grid-template-rows: 64px auto minmax(0,1fr) auto; } .mt-tabpanel { padding: 16px; } .mt-tabpanel h2 { font-size: 23px; } .mt-next-reference { margin-top: 16px; } .mt-summary-data { margin-top: 16px; } .mt-body-note { margin-top: 12px !important; font-size: 12px; } .mt-telemetry-table { margin-top: 12px; } .mt-telemetry-table > div { padding: 8px 0; } .mt-evidence img { max-height: 140px; } .mt-full-notice { font-size: 15px; line-height: 1.5; margin-top: 16px !important; } .mt-science-description { margin-top: 12px !important; } .mt-science h3 { margin-top: 14px; } }
+@media (max-width: 699px) { .mt-shell { grid-template-rows: 64px auto minmax(0,1fr) auto; } .mt-shell main.mt-workspace { grid-template-columns: minmax(0,1fr); grid-template-rows: minmax(190px, .9fr) minmax(300px, 1fr); padding: 12px 16px; gap: 12px; overflow-y: auto; } .mt-info.md-panel { grid-template-rows: 48px minmax(0,1fr) 56px; } .mt-tabpanel { padding: 16px; } .mt-info .md-voice { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 16px; } .mt-info .md-voice > .md-muted { max-width: 160px; } .mt-map-heading { padding: 10px 14px; flex-wrap: nowrap; } .mt-map-heading h1 { font-size: 20px; } .mt-map-bottom { padding-block: 6px; align-items: center; } .mt-map-bottom .md-button { min-height: 40px; } .mt-hud-main { grid-template-columns: minmax(0,1fr) auto; } .mt-hud-destination { display: none; } .mt-mission-toolbar { flex-wrap: wrap; gap: 4px; padding-block: 4px; } .mt-demo-controls { margin-left: auto; } .mt-full-notice { font-size: 15px; } .mt-evidence { margin-top: 10px; } .mt-evidence img { max-height: 130px; } .mt-science-description { margin-top: 12px !important; font-size: 14px; } .mt-science h3 { margin-top: 14px; } .mt-science h3 + p { font-size: 14px; } .mt-summary-data { margin-top: 16px; } .mt-next-reference { margin-top: 16px; } .mt-telemetry-table { margin-top: 12px; } .mt-telemetry-table > div { padding: 7px 0; } }
+@media (max-width: 600px) { .mt-header { padding-inline: 16px; gap: 20px; } .mt-header > .md-tag { display: none; } .mt-project-name { margin-left: auto; } .mt-project-name strong { font-size: 18px; } .mt-project-name span { font-size: 11px; } .mt-mission-toolbar { padding-inline: 12px; } .mt-region-nav { width: 100%; justify-content: space-between; font-size: 12px; gap: 3px; } .mt-region-nav button { font-size: 13px; padding: 6px; } .mt-demo-controls { width: 100%; justify-content: space-between; gap: 8px; } .mt-demo-controls select { flex: 1; min-width: 0; max-width: none; } .mt-shell main.mt-workspace { padding: 8px 12px; grid-template-rows: 210px minmax(310px,1fr); } .mt-map-heading .md-tag { display: none; } .mt-map-heading p { font-size: 10px; } .mt-map-tools { top: 0; right: 6px; grid-template-columns: repeat(2,1fr); gap: 4px; } .mt-map-tools .md-button { width: 40px; min-height: 40px; padding: 8px; } .mt-map-bottom > span { display: none; } .mt-map-bottom { justify-content: start; } .mt-info .md-voice { display: grid; grid-template-columns: 1fr; gap: 2px; } .mt-info .md-voice > .md-muted { max-width: none; font-size: 10px; } .mt-tabpanel h2 { font-size: 23px; } .mt-hud { padding-inline: 12px; } .mt-status-strip { flex-wrap: wrap; gap: 0; padding-bottom: 4px; } .mt-notice-short { font-size: 11px !important; min-height: 32px; } .mt-reserve-label { font-size: 10px; } .mt-hud-main { grid-template-columns: minmax(0,1fr); gap: 10px; } .mt-hud-metrics { gap: 10px; } .mt-hud-metrics dd { font-size: 22px; } .mt-hud-metrics dt { font-size: 10px; } .mt-hud-actions { justify-content: stretch; } .mt-hud-actions > button { flex: 1; min-height: 44px; } }
+.mt-hud-actions { align-items: flex-start; }
+.mt-hud-actions .md-voice { margin: 0; gap: 2px; }
+.mt-hud-actions .md-voice .md-muted { font-size: 10px; }
+.mt-hud-actions .md-button { min-height: 44px; }
+@media (min-width: 700px) and (max-width: 900px) {
+  .mt-header { gap: 16px; }
+  .mt-header .md-tag { font-size: 10px; }
+  .mt-mission-toolbar { gap: 8px; padding-inline: 16px; }
+  .mt-region-nav { gap: 3px; font-size: 12px; }
+  .mt-region-nav button { padding-inline: 6px; font-size: 13px; }
+  .mt-demo-controls { gap: 6px; }
+  .mt-demo-controls label { display: none; }
+  .mt-demo-controls select { max-width: 165px; }
+  .mt-shell main.mt-workspace { grid-template-columns: minmax(0,1fr) 350px; padding-inline: 16px; gap: 12px; }
+  .mt-map-heading .md-tag { display: none; }
+  .mt-map-heading p { font-size: 10px; }
+  .mt-map-tools { grid-template-columns: repeat(2,1fr); gap: 5px; }
+  .mt-map-bottom > span { display: none; }
+  .mt-map-heading { padding: 12px; }
+  .mt-hud { padding-inline: 16px; }
+  .mt-hud-destination { display: none; }
+  .mt-hud-main { grid-template-columns: minmax(0,1fr) auto; gap: 16px; }
+  .mt-hud-metrics { gap: 12px; }
+  .mt-hud-metrics dd { font-size: 22px; }
+  .mt-hud-actions .md-button { padding-inline: 8px; font-size: 12px !important; }
+  .mt-tabpanel { padding: 16px; }
+  .mt-map-point-label { font-size: 23px; }
+}
+.mt-hud-destination { background: transparent; border: none; color: var(--md-white); text-align: left; padding: 0; min-height: 44px; align-content: center; }
+.mt-hud-destination:hover strong { text-decoration: underline; text-underline-offset: 4px; }
+/* The map controls have their own row, never an overlay on route labels. */
+.mt-map { grid-template-rows: auto minmax(0,1fr) auto auto; }
+.mt-map-tools { position: static; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 8px 14px; border-top: 1px solid var(--md-border); }
+.mt-map-tools > span { margin-right: auto; font-size: 12px; color: var(--md-muted); }
+.mt-next-compact { display: none; }
+@media (max-width: 900px) { .mt-next-compact { display: flex; align-items: baseline; gap: 6px; color: var(--md-muted); font-size: 12px; } .mt-next-compact strong { color: var(--md-white); font-weight: 600; } .mt-status-strip { gap: 12px; } }
+@media (max-width: 600px) { .mt-map-tools { padding-block: 4px; gap: 6px; } .mt-next-compact { font-size: 10px; } }
