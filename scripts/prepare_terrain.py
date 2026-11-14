@@ -14,7 +14,7 @@ parser.add_argument('dem', type=Path)
 parser.add_argument('--output', type=Path, default=Path('public/terrain/jezero'))
 parser.add_argument('--size', type=int, default=1025)
 # This is a display crop around the crater, not a claimed geologic boundary.
-parser.add_argument('--bounds', nargs=4, type=float, default=[77.15, 18.05, 77.85, 18.75], metavar=('WEST','SOUTH','EAST','NORTH'))
+parser.add_argument('--bounds', nargs=4, type=float, default=json.loads((Path(__file__).resolve().parents[1] / 'src/features/terrain/region.json').read_text())['bounds'], metavar=('WEST','SOUTH','EAST','NORTH'))
 args = parser.parse_args()
 if not 65 <= args.size <= 2048:
     parser.error('--size must be between 65 and 2048')
