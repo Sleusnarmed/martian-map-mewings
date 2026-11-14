@@ -4,14 +4,13 @@ import 'cesium/Build/Cesium/Widgets/widgets.css'
 import { DEM_SOURCE, loadTerrain, sampleHeight } from './terrainData'
 import { createTerrainProvider } from './createTerrainProvider.js'
 import { constrainCamera, MIN_CLEARANCE, MAX_CAMERA_HEIGHT } from './cameraLimits.js'
-import TerrainPreview from './TerrainPreview'
 import region from './region.json'
 import './terrain.css'
 
 const EMPTY_POIS = []
 const DEFAULT_URL = `${import.meta.env.BASE_URL}terrain/jezero/metadata.json`
 
-function makeMaterial(data, contours, spacing, textured) {
+function makeMaterial(data, contours, spacing) {
   const canvas = document.createElement('canvas')
   canvas.width = 256; canvas.height = 1
   const ctx = canvas.getContext('2d')
@@ -24,7 +23,7 @@ function makeMaterial(data, contours, spacing, textured) {
       elevation: { type: 'ElevationRamp', uniforms: { image: canvas, minimumHeight: data.minimumHeight, maximumHeight: data.maximumHeight } },
       contour: { type: 'ElevationContour', uniforms: { spacing, width: contours ? 1 : 0, color: Cesium.Color.fromCssColorString(region.contourColor).withAlpha(0.45) } },
     },
-    components: { diffuse: textured ? 'contour.diffuse' : 'mix(elevation.diffuse, contour.diffuse, contour.alpha)', alpha: textured ? 'contour.alpha' : '1.0' },
+    components: { diffuse: 'mix(elevation.diffuse, contour.diffuse, contour.alpha)', alpha: '1.0' },
   } })
 }
 
@@ -32,18 +31,14 @@ function makeMaterial(data, contours, spacing, textured) {
 export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfInterest = EMPTY_POIS, onPointSelect }) {
   const container = useRef(null)
   const viewerRef = useRef(null)
-  const focusRef = useRef(null)
   const selectCallback = useRef(onPointSelect)
   const [state, setState] = useState({ status: 'loading' })
   const [attempt, setAttempt] = useState(0)
   const [contours, setContours] = useState(true)
   const [spacing, setSpacing] = useState(100)
-  const [overhead, setOverhead] = useState(false)
   const [inspection, setInspection] = useState(null)
   const [selectedPoint, setSelectedPoint] = useState('jezero')
   const [refining, setRefining] = useState(false)
-  const [terrainVisible, setTerrainVisible] = useState(false)
-  const [fast2D, setFast2D] = useState(false)
   useEffect(() => { selectCallback.current = onPointSelect }, [onPointSelect])
 
   useEffect(() => {
@@ -90,30 +85,11 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
         viewer.scene.globe.preloadAncestors = true
         viewer.scene.globe.preloadSiblings = true
         viewer.resolutionScale = 1
-        let textured = false
-        try {
-          const imagery = await Cesium.SingleTileImageryProvider.fromUrl(`${import.meta.env.BASE_URL}terrain/jezero/preview.webp`, { rectangle, ellipsoid })
-          if (controller.signal.aborted) return
-          viewer.imageryLayers.addImageryProvider(imagery)
-          textured = true
-        } catch {
-          // Elevation colors still work if the optional shaded texture fails.
-          if (controller.signal.aborted) return
-        }
-        viewerRef.current = { viewer, data, ellipsoid, textured, viewInitialized: false }
-        let settledFrames = 0
-        let revealed = false
-        cleanups.push(viewer.scene.postRender.addEventListener(() => {
-          if (revealed || !viewerRef.current?.viewInitialized) return
-          const center = new Cesium.Cartesian2(viewer.canvas.clientWidth / 2, viewer.canvas.clientHeight / 2)
-          const ray = viewer.camera.getPickRay(center)
-          const hasSurface = ray && viewer.scene.globe.pick(ray, viewer.scene)
-          // Reveal the first usable coarse surface, without waiting for all detail.
-          settledFrames = hasSurface ? settledFrames + 1 : 0
-          if (settledFrames >= 2) { revealed = true; setTerrainVisible(true) }
-          else if (settledFrames) viewer.scene.requestRender()
-        }))
-        focusRef.current = null
+        viewerRef.current = { viewer, data, ellipsoid }
+        // Set the regional camera immediately; never render an initial global/flat view.
+        const centerHeight = sampleHeight(data, region.center.longitude, region.center.latitude)
+        viewer.camera.lookAt(Cesium.Cartesian3.fromDegrees(region.center.longitude, region.center.latitude, centerHeight, ellipsoid), new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-48), 75000))
+        viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY)
         cleanups.push(viewer.scene.postUpdate.addEventListener(() => {
           const position = viewer.camera.positionCartographic
           const pose = {
@@ -168,7 +144,7 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
     const context = viewerRef.current
     if (!context || state.status !== 'ready') return
     const globe = context.viewer.scene.globe
-    if (!globe.material) globe.material = makeMaterial(context.data, contours, spacing, context.textured)
+    if (!globe.material) globe.material = makeMaterial(context.data, contours, spacing)
     else {
       globe.material.materials.contour.uniforms.width = contours ? 1 : 0
       globe.material.materials.contour.uniforms.spacing = spacing
@@ -176,36 +152,16 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
     context.viewer.scene.requestRender()
   }, [state, contours, spacing])
 
-  function focus(lon, lat, range, top = overhead) {
+  function focus(lon, lat, range) {
     const context = viewerRef.current
     if (!context) return
     const height = sampleHeight(context.data, lon, lat)
     if (height === null) return
-    setFast2D(false)
-    focusRef.current = { lon, lat, range }
     const target = Cesium.Cartesian3.fromDegrees(lon, lat, height, context.ellipsoid)
-    context.viewer.camera.lookAt(target, new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(top ? -90 : -48), range))
+    context.viewer.camera.lookAt(target, new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-48), range))
     context.viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY)
     context.viewer.scene.requestRender()
   }
-
-  useEffect(() => {
-    const context = viewerRef.current
-    if (!context || state.status !== 'ready') return
-    const { lon, lat, range } = focusRef.current ?? { lon: region.center.longitude, lat: region.center.latitude, range: 75000 }
-    const height = sampleHeight(context.data, lon, lat)
-    context.viewer.camera.lookAt(Cesium.Cartesian3.fromDegrees(lon, lat, height, context.ellipsoid), new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(overhead ? -90 : -48), range))
-    context.viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY)
-    context.viewInitialized = true
-    context.viewer.scene.requestRender()
-  }, [state, overhead])
-
-  useEffect(() => {
-    const context = viewerRef.current
-    if (!context || state.status !== 'ready') return
-    context.viewer.useDefaultRenderLoop = !fast2D
-    if (!fast2D) context.viewer.scene.requestRender()
-  }, [state, fast2D])
 
   useEffect(() => {
     const context = viewerRef.current
@@ -243,7 +199,6 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
     return () => { if (!context.viewer.isDestroyed()) entities.forEach(entity => context.viewer.entities.remove(entity)) }
   }, [state, pointsOfInterest])
 
-  const showPreview = fast2D || !terrainVisible || state.status === 'error'
   const ready = state.status === 'ready'
   const wildcat = ready && pointsOfInterest.find(p => p.id === 'wildcat-ridge' && p.source && Number.isFinite(p.longitude) && Number.isFinite(p.latitude) && sampleHeight(state.data, p.longitude, p.latitude) !== null)
   return <main className="terrain-app">
@@ -256,19 +211,17 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
           <button disabled={!wildcat} aria-pressed={selectedPoint === 'wildcat-ridge'} onClick={() => { setSelectedPoint('wildcat-ridge'); focus(wildcat.longitude, wildcat.latitude, 3500); selectCallback.current?.(wildcat.id) }}><span className="poi-number">02</span><strong>Wildcat Ridge<small>{wildcat ? 'Hazeltop sampling location' : 'Position awaiting verification'}</small></strong><svg className="poi-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M5 19 19 5M5 5h14v14" /></svg></button></div>
         </fieldset>
         <fieldset className="panel-section"><legend className="eyebrow">Map layers & view</legend>
-        <button className="fast-map-toggle" aria-pressed={fast2D} onClick={() => setFast2D(value => !value)}>{fast2D ? 'Open 2.5D relief' : 'Fast 2D map'}</button>
-        <div className="view-buttons"><button disabled={!ready || fast2D} aria-pressed={!overhead} onClick={() => setOverhead(false)}>Tilted view</button><button disabled={!ready || fast2D} aria-pressed={overhead} onClick={() => setOverhead(true)}>Top down</button></div>
-        <label className="control-row"><span>Contour lines</span><input type="checkbox" checked={contours} disabled={!ready || showPreview} onChange={e => setContours(e.target.checked)} /></label>
-        <label className="control-row">Contour interval<select disabled={!ready || !contours || showPreview} value={spacing} onChange={e => setSpacing(Number(e.target.value))}><option value="50">50 m</option><option value="100">100 m</option><option value="250">250 m</option></select></label>
+        <label className="control-row"><span>Contour lines</span><input type="checkbox" checked={contours} disabled={!ready} onChange={e => setContours(e.target.checked)} /></label>
+        <label className="control-row">Contour interval<select disabled={!ready || !contours} value={spacing} onChange={e => setSpacing(Number(e.target.value))}><option value="50">50 m</option><option value="100">100 m</option><option value="250">250 m</option></select></label>
         </fieldset>
         <details className="source-card"><summary>Data & sources</summary><strong>MRO · Context Camera</strong><p>NASA / JPL / USGS<br />Source DEM: 20 m per pixel<br />Vertical reference: MOLA</p><a href={DEM_SOURCE} target="_blank" rel="noreferrer">View source dataset ↗</a>{wildcat && <p><a href={wildcat.source} target="_blank" rel="noreferrer">Wildcat Ridge coordinates ↗</a></p>}<p>Prepared from historical NASA data. Colors and shading are derived from elevation, not a surface photograph.</p><p>The cyan arrow is a mock position and heading, not live tracking. Syrtis Major is the regional context.</p><a href={region.center.source} target="_blank" rel="noreferrer">Jezero center · USGS ↗</a></details>
       </aside>
       <section className="map-shell" aria-label="Interactive Jezero terrain">
-        <div className="cesium-host" ref={container} aria-hidden={showPreview} style={{ pointerEvents: showPreview ? 'none' : 'auto' }} />
-        {showPreview && <TerrainPreview message={fast2D ? 'Fast 2D · Detailed rendering paused' : 'Preparing the first terrain surface…'} error={state.status === 'error' ? state.message : null} onOpenDetail={fast2D ? () => setFast2D(false) : undefined}/>}
-        {ready && !showPreview && <><div className="map-badge"><strong>Syrtis Major / Jezero</strong><span role="status">{refining ? 'Refining terrain…' : 'True-scale relief'}</span></div><button className="map-reset" onClick={() => { setSelectedPoint('jezero'); focus(region.center.longitude, region.center.latitude, 75000) }}>Reset view</button><div className="map-legend"><p>Elevation · m, MOLA reference</p><div className="elevation-ramp" style={{background: `linear-gradient(90deg, ${region.palette.join(',')})`}}/><div className="legend-values"><span>{Math.round(state.data.minimumHeight)}</span><span>{Math.round(state.data.maximumHeight)}</span></div><small>Display grid ≈ {state.data.displayResolutionMeters} m · source 20 m</small></div></>}
-        {state.status === 'error' && <button className="detail-retry" onClick={() => { setTerrainVisible(false); setState({status: 'loading'}); setAttempt(n => n + 1) }}>Retry detailed view</button>}
-        <footer className="map-footer"><span>{showPreview ? 'Shaded relief · Mock position, not live tracking' : inspection ? `${inspection.lat.toFixed(5)}° N · ${inspection.lon.toFixed(5)}° E · ${inspection.elevation.toFixed(0)} m` : 'Click terrain to inspect elevation'}</span><span className="navigation-help">{showPreview ? '2D: drag to pan · Use + / − to zoom' : 'Drag to pan · Scroll to zoom · Ctrl + drag to tilt'}</span></footer>
+        <div className="cesium-host" ref={container} />
+        {!ready && <div className="terrain-load-status" role="status">{state.status === 'error' ? state.message : 'Loading Jezero’s 2.5D terrain…'}</div>}
+        {ready && <><div className="map-badge"><strong>Syrtis Major / Jezero</strong><span role="status">{refining ? 'Refining terrain…' : 'True-scale relief'}</span></div><button className="map-reset" onClick={() => { setSelectedPoint('jezero'); focus(region.center.longitude, region.center.latitude, 75000) }}>Reset view</button><div className="map-legend"><p>Elevation · m, MOLA reference</p><div className="elevation-ramp" style={{background: `linear-gradient(90deg, ${region.palette.join(',')})`}}/><div className="legend-values"><span>{Math.round(state.data.minimumHeight)}</span><span>{Math.round(state.data.maximumHeight)}</span></div><small>Display grid ≈ {state.data.displayResolutionMeters} m · source 20 m</small></div></>}
+        {state.status === 'error' && <button className="detail-retry" onClick={() => { setState({status: 'loading'}); setAttempt(n => n + 1) }}>Retry detailed view</button>}
+        <footer className="map-footer"><span>{inspection ? `${inspection.lat.toFixed(5)}° N · ${inspection.lon.toFixed(5)}° E · ${inspection.elevation.toFixed(0)} m` : 'Click terrain to inspect elevation'}</span><span className="navigation-help">Drag to pan · Scroll to zoom · Ctrl + drag to tilt</span></footer>
       </section>
     </div>
   </main>
