@@ -4,6 +4,11 @@ import { JEZERO_POINTS } from './features/terrain/pointsOfInterest'
 import { normalizeRoute, routeForZone } from './navigation'
 import SpaceLoader from './components/SpaceLoader'
 const Terrain = lazy(() => import('./features/terrain/JezeroTerrain'))
+const MissionWorkspace = lazy(() => import('./features/mission-detail/MissionWorkspace'))
+
+function MissionTerrain(props) {
+  return <Suspense fallback={<SpaceLoader />}><Terrain {...props} embedded pointsOfInterest={JEZERO_POINTS} /></Suspense>
+}
 
 export default function App() {
   const [route, setRoute] = useState(() => normalizeRoute(window.location.hash))
@@ -14,11 +19,9 @@ export default function App() {
   }, [])
   const go = useCallback(path => { window.location.hash = path }, [])
   const openZone = useCallback(zone => { const path = routeForZone(zone); if (path) go(path) }, [go])
-  if (route === '/' || route === '/mars') return <Home onZoneSelected={openZone} initiallyExpanded={route === '/mars'} />
-  return <>
-    <nav className="journey-nav" aria-label="Mission navigation"><a href="#/">← Sistema solar</a><a href="#/mars">← Globo de Marte</a></nav>
-    <div className="journey-screen"><Suspense fallback={<SpaceLoader />}>
-      <Terrain key={route} pointsOfInterest={JEZERO_POINTS} initialPointId={route.endsWith('wildcat-ridge') ? 'wildcat-ridge' : 'jezero'} />
-    </Suspense></div>
-  </>
+  if (route === '/' || route === '/mars') return <Home onZoneSelected={openZone} expanded={route === '/mars'} onExpandedChange={expanded => go(expanded ? '/mars' : '/')} />
+  const initialPointId = route.endsWith('wildcat-ridge') ? 'wildcat-ridge' : 'jezero'
+  return <Suspense fallback={<SpaceLoader />}>
+    <MissionWorkspace key={route} integrated initialRegionId={initialPointId} onBackToGlobe={() => go('/mars')} MapComponent={MissionTerrain} />
+  </Suspense>
 }

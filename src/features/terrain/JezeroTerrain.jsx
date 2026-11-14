@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import * as Cesium from 'cesium'
 import 'cesium/Build/Cesium/Widgets/widgets.css'
 import { DEM_SOURCE, loadTerrain, sampleHeight } from './terrainData'
@@ -10,6 +11,16 @@ import './terrain.css'
 const EMPTY_POIS = []
 const DEFAULT_URL = `${import.meta.env.BASE_URL}terrain/jezero/metadata.json`
 
+function focusTerrain(context, longitude, latitude, range) {
+  if (!context || context.viewer.isDestroyed()) return
+  const height = sampleHeight(context.data, longitude, latitude)
+  if (height === null) return
+  const target = Cesium.Cartesian3.fromDegrees(longitude, latitude, height, context.ellipsoid)
+  context.viewer.camera.lookAt(target, new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-48), range))
+  context.viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY)
+  context.viewer.scene.requestRender()
+}
+
 function makeMaterial(data, contours, spacing) {
   const canvas = document.createElement('canvas')
   canvas.width = 256; canvas.height = 1
@@ -20,7 +31,7 @@ function makeMaterial(data, contours, spacing) {
   return new Cesium.Material({ fabric: {
     type: 'JezeroElevation',
     materials: {
-      elevation: { type: 'ElevationRamp', uniforms: { image: canvas, minimumHeight: data.minimumHeight, maximumHeight: data.maximumHeight } },
+      elevation: { type: 'ElevationRamp', uniforms: { image: canvas.toDataURL('image/png'), minimumHeight: data.minimumHeight, maximumHeight: data.maximumHeight } },
       contour: { type: 'ElevationContour', uniforms: { spacing, width: contours ? 1 : 0, color: Cesium.Color.fromCssColorString(region.contourColor).withAlpha(0.45) } },
     },
     components: { diffuse: 'mix(elevation.diffuse, contour.diffuse, contour.alpha)', alpha: '1.0' },
@@ -28,7 +39,7 @@ function makeMaterial(data, contours, spacing) {
 }
 
 /** Standalone local view. POIs require verified longitude/latitude and a source URL. */
-export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfInterest = EMPTY_POIS, onPointSelect, initialPointId = 'jezero' }) {
+export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfInterest = EMPTY_POIS, onPointSelect, initialPointId = 'jezero', embedded = false, focusPointId, focusRevision = 0, controlsTarget }) {
   const container = useRef(null)
   const viewerRef = useRef(null)
   const selectCallback = useRef(onPointSelect)
@@ -154,15 +165,45 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
   }, [state, contours, spacing])
 
   function focus(lon, lat, range) {
-    const context = viewerRef.current
-    if (!context) return
-    const height = sampleHeight(context.data, lon, lat)
-    if (height === null) return
-    const target = Cesium.Cartesian3.fromDegrees(lon, lat, height, context.ellipsoid)
-    context.viewer.camera.lookAt(target, new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-48), range))
-    context.viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY)
-    context.viewer.scene.requestRender()
+    focusTerrain(viewerRef.current, lon, lat, range)
   }
+
+  useEffect(() => {
+    if (state.status !== 'ready' || !focusPointId) return
+    const point = focusPointId === 'jezero' ? region.center : pointsOfInterest.find(item => item.id === focusPointId)
+    if (point) focusTerrain(viewerRef.current, point.longitude, point.latitude, focusPointId === 'jezero' ? 75000 : 3500)
+  }, [state, focusPointId, focusRevision, pointsOfInterest])
+
+  useEffect(() => {
+    const context = viewerRef.current
+    if (!embedded || !controlsTarget || !context || state.status !== 'ready') return
+    const host = container.current
+    const viewport = host.parentElement
+    const panel = controlsTarget.parentElement
+    const update = () => {
+      if (context.viewer.isDestroyed()) return
+      const view = viewport.getBoundingClientRect()
+      const overlay = panel.getBoundingClientRect()
+      let left = 0, top = 0
+      if (overlay.height > 0 && view.width >= 700 && view.width > view.height) left = -(view.width - Math.max(96, overlay.left - view.left))
+      else if (overlay.height > 0) {
+        left = view.width < 700 ? -Math.min(144, Math.max(0, view.width - 160)) : 0
+        top = 2 * Math.max(80, Math.min(view.height / 2, overlay.top - view.top - 40)) - view.height
+      }
+      // Render through the exposed map area while keeping the canvas across the full screen.
+      // Camera coordinates and the terrain safety limits remain untouched.
+      host.style.left = `${left}px`; host.style.top = `${top}px`
+      host.style.setProperty('--terrain-credit-offset', `${-left}px`)
+      const pixelBudget = view.width * view.height / ((view.width - left) * (view.height - top))
+      context.viewer.resolutionScale = Math.min(1, Math.sqrt(pixelBudget))
+      context.viewer.resize()
+      context.viewer.scene.requestRender()
+    }
+    const observer = new ResizeObserver(update)
+    observer.observe(viewport); observer.observe(panel)
+    update()
+    return () => { observer.disconnect(); host.style.removeProperty('left'); host.style.removeProperty('top'); host.style.removeProperty('--terrain-credit-offset') }
+  }, [embedded, controlsTarget, state])
 
   useEffect(() => {
     const context = viewerRef.current
@@ -181,10 +222,12 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
     }
     const centerHeight = sampleHeight(context.data, region.center.longitude, region.center.latitude)
     entities.push(context.viewer.entities.add({
+      properties: { poiId: 'jezero' },
       position: Cesium.Cartesian3.fromDegrees(region.center.longitude, region.center.latitude, centerHeight + 40, context.ellipsoid),
       point: { pixelSize: 9, color: Cesium.Color.WHITE, outlineColor: Cesium.Color.fromCssColorString('#35291e'), outlineWidth: 2, disableDepthTestDistance: Number.POSITIVE_INFINITY },
       label: { text: 'JEZERO CRATER\nPublished center', font: '16px Overpass, sans-serif', fillColor: Cesium.Color.WHITE, showBackground: true, backgroundColor: Cesium.Color.fromCssColorString('#35291e').withAlpha(.85), pixelOffset: new Cesium.Cartesian2(0, -35), disableDepthTestDistance: Number.POSITIVE_INFINITY },
     }))
+    if (!embedded) {
     const mock = region.mockPosition
     const arrow = document.createElement('canvas')
     arrow.width = 64; arrow.height = 64
@@ -197,11 +240,29 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
       billboard: { image: arrow, width: 42, height: 42, disableDepthTestDistance: Number.POSITIVE_INFINITY },
       label: { text: 'YOU ARE HERE · MOCK', font: '13px Overpass, sans-serif', fillColor: Cesium.Color.WHITE, showBackground: true, backgroundColor: Cesium.Color.fromCssColorString('#142a31'), pixelOffset: new Cesium.Cartesian2(0, 35), disableDepthTestDistance: Number.POSITIVE_INFINITY },
     }))
+    }
     return () => { if (!context.viewer.isDestroyed()) entities.forEach(entity => context.viewer.entities.remove(entity)) }
-  }, [state, pointsOfInterest])
+  }, [state, pointsOfInterest, embedded])
 
   const ready = state.status === 'ready'
   const wildcat = ready && pointsOfInterest.find(p => p.id === 'wildcat-ridge' && p.source && Number.isFinite(p.longitude) && Number.isFinite(p.latitude) && sampleHeight(state.data, p.longitude, p.latitude) !== null)
+  if (embedded) return <div className="terrain-embedded">
+    <section id="map-viewport" className="map-shell" aria-label="Interactive Jezero terrain" tabIndex={-1}>
+      <div className="cesium-host" ref={container} />
+      {!ready && <div className="terrain-load-status" role="status">{state.status === 'error' ? state.message : 'Loading Jezero terrain…'}</div>}
+      {state.status === 'error' && <button className="detail-retry" onClick={() => { setState({status:'loading'}); setAttempt(n => n + 1) }}>Retry map</button>}
+    </section>
+    {controlsTarget && createPortal(<aside className="md-panel field-map-panel" aria-label="Map view and layers">
+      <h2>Map view</h2>
+      <p className="mt-panel-description" role="status">{ready ? refining ? 'Refining terrain…' : 'Jezero · true-scale relief' : state.status === 'error' ? 'Map unavailable' : 'Loading terrain…'}</p>
+      <div className="field-map-actions"><button className="md-button md-button-outline" disabled={!ready} onClick={() => { focus(region.center.longitude, region.center.latitude, 75000); selectCallback.current?.('jezero') }}>Jezero</button><button className="md-button md-button-outline" disabled={!wildcat} onClick={() => { focus(wildcat.longitude, wildcat.latitude, 3500); selectCallback.current?.('wildcat-ridge') }}>Wildcat Ridge</button></div>
+      <label className="control-row"><span>Contour lines</span><input type="checkbox" checked={contours} disabled={!ready} onChange={e => setContours(e.target.checked)} /></label>
+      <label className="control-row">Contour interval<select disabled={!ready || !contours} value={spacing} onChange={e => setSpacing(Number(e.target.value))}><option value="50">50 m</option><option value="100">100 m</option><option value="250">250 m</option></select></label>
+      {ready && <div className="field-map-elevation"><p>Elevation · m, MOLA</p><div className="elevation-ramp" style={{background:`linear-gradient(90deg, ${region.palette.join(',')})`}} /><div className="legend-values"><span>{Math.round(state.data.minimumHeight)}</span><span>{Math.round(state.data.maximumHeight)}</span></div></div>}
+      <output className="field-map-inspection">{inspection ? `${inspection.lat.toFixed(5)}° N · ${inspection.lon.toFixed(5)}° E · ${inspection.elevation.toFixed(0)} m` : 'Tap terrain to inspect elevation.'}</output>
+      <details className="field-map-sources"><summary>Data & sources</summary><p>MRO · CTX / NASA / JPL / USGS<br />Source DEM: 20 m per pixel<br />Vertical reference: MOLA</p><a href={DEM_SOURCE} target="_blank" rel="noreferrer">Source dataset</a>{wildcat && <a href={wildcat.source} target="_blank" rel="noreferrer">Wildcat Ridge position</a>}<p>Colors show elevation from historical terrain data. Surface imagery and the mission resource cases are separate data sources.</p></details>
+    </aside>, controlsTarget)}
+  </div>
   return <main className="terrain-app">
     <header className="terrain-header"><div className="project-signature"><strong>MARTIAN MAP</strong><span>Space Apps Challenge · 2026</span></div><div><p className="eyebrow">Mars / Terrain explorer</p><h1>Jezero</h1></div><span className="mode-tag">Regional cartography</span></header>
     <div className="terrain-workspace">

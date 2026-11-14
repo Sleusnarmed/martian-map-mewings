@@ -103,11 +103,41 @@
 .field-readout:hover > strong { text-decoration: underline; text-underline-offset: 4px; }
 .field-next:focus-visible, .field-readout:focus-visible { outline-offset: -2px; }
 .field-warning-value { color: var(--md-neon-yellow); }
+.terrain-embedded { position: absolute; inset: 0; }
+.terrain-embedded .map-shell { position: absolute; inset: 0; height: 100%; min-height: 0; }
+.terrain-embedded .cesium-host { inset: 0; }
+.terrain-embedded .cesium-viewer-bottom { left: calc(var(--terrain-credit-offset, 0px) + 5px) !important; }
+.has-terrain .field-hud { bottom: 32px; }
+.has-terrain .field-deck { height: min(500px, calc(100dvh - 228px)); }
+.field-globe-back { position: absolute; z-index: 2; top: 16px; left: 24px; display: flex; align-items: center; gap: 4px; min-height: 44px; padding: 4px 8px; color: var(--md-muted); background: var(--md-overlay); border: none; border-radius: 4px; font-size: 12px !important; }
+.field-globe-back:hover { color: var(--md-white); text-decoration: underline; }
+.has-terrain .field-regions { top: 64px; background: var(--md-overlay); border-radius: 8px; padding-inline: 8px; }
+.has-terrain .field-demo { top: 118px; }
+.has-terrain .field-demo summary { padding-inline: 12px; background: var(--md-overlay); border-radius: 4px; }
+.field-map-toggle { position: absolute; z-index: 4; top: 176px; left: 24px; }
+.has-terrain .field-route-progress { padding: 4px 16px; gap: 4px; background: var(--md-overlay); border-radius: 8px; }
+.terrain-embedded .terrain-load-status { top: 45%; max-width: 300px; }
+.terrain-embedded .detail-retry { right: auto; left: 24px; bottom: 200px; }
+.field-map-panel { max-height: min(500px, calc(100dvh - 196px)); padding: 22px; overflow-y: auto; background: var(--md-overlay); border: 1px solid var(--md-overlay-border); border-radius: 12px; }
+.field-map-actions { display: flex; gap: 8px; margin: 20px 0 16px; }
+.field-map-panel .control-row { font-size: 13px; }
+.field-map-panel select { background: var(--md-deep-blue); color: var(--md-white); border-radius: 4px; }
+.field-map-elevation { margin-top: 20px; }
+.field-map-elevation p, .field-map-inspection { color: var(--md-muted); font-size: 12px; }
+.field-map-elevation .elevation-ramp { margin-top: 8px; }
+.field-map-inspection { display: block; margin-top: 20px; }
+.field-map-sources { margin-top: 20px; padding-top: 8px; border-top: 1px solid var(--md-overlay-border); font-size: 12px; }
+.field-map-sources summary { min-height: 44px; align-content: center; cursor: pointer; }
+.field-map-sources p { margin-top: 12px; }
+.field-map-sources a { display: block; padding-block: 8px; }
 
 @media (min-width: 700px) and (max-width: 950px) {
   .field-information { top: 88px; width: 380px; }
+  .has-terrain .field-information { top: 128px; }
   .field-deck { height: min(500px, calc(100dvh - 270px)); }
   .field-alerts { max-height: calc(100dvh - 270px); }
+  .has-terrain .field-deck { height: min(500px, calc(100dvh - 330px)); }
+  .has-terrain .field-alerts, .has-terrain .field-map-panel { max-height: calc(100dvh - 330px); }
   .mt-tabpanel, .field-alert-content { padding: 18px; }
   .mt-science-description { margin-top: 16px !important; font-size: 14px; }
   .mt-science h3 { margin-top: 18px; }
@@ -127,6 +157,11 @@
   .mt-body-note { margin-top: 12px !important; }
   .mt-evidence img { max-height: 110px; }
 }
+@media (min-width: 700px) and (orientation: portrait) {
+  .has-terrain .field-information { top: 40dvh; left: 24px; right: 164px; width: auto; }
+  .has-terrain .field-deck { height: min(360px, calc(60dvh - 228px)); }
+  .has-terrain .field-alerts, .has-terrain .field-map-panel { max-height: min(360px, calc(60dvh - 228px)); }
+}
 @media (max-width: 699px) {
   .field-map > p { top: 180px; left: 24%; }
   .field-regions { top: 16px; left: 16px; right: 16px; justify-content: space-between; gap: 4px; }
@@ -135,6 +170,14 @@
   .field-demo { top: 70px; left: 16px; }
   .field-control-rail { top: 76px; right: 16px; }
   .field-information { top: 264px; left: 16px; right: 16px; width: auto; }
+  .field-globe-back { top: 12px; left: 16px; }
+  .has-terrain .field-regions { top: 60px; }
+  .has-terrain .field-demo { top: 110px; }
+  .has-terrain .field-control-rail { top: 112px; }
+  .field-map-toggle { left: 16px; }
+  .has-terrain .field-information { top: 336px; }
+  .has-terrain .field-deck { height: calc(100dvh - 528px); }
+  .has-terrain .field-alerts, .has-terrain .field-map-panel { max-height: max(120px, calc(100dvh - 528px)); }
   .field-deck { height: calc(100dvh - 440px); min-height: 120px; }
   .field-deck.has-pages { grid-template-rows: 48px minmax(0,1fr) 56px; }
   .field-alerts { max-height: calc(100dvh - 440px); }

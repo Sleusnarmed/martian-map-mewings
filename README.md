@@ -66,16 +66,18 @@ The primary view should make the *local* mission decision understandable. A 3D g
 
 ## Status
 
-The `main` branch now integrates Héctor’s planetary home, the Mars globe, and the Jezero cartography demo. The planning discussion above describes future work; route planning is not implemented.
+`master` integrates the planetary home, Mars globe, Jezero cartography and Gerardo’s mission HUD. The planning discussion above describes future work; geographic route planning is not implemented.
 
-Run `npm install` and `npm run dev`. Select **Marte → Explorar Marte**, then the **Syrtis Major** globe marker, then **Cráter Jezero** or **Jezero – Wildcat Ridge**. Other planets have no destination. The home screen embeds the real Cesium globe; Explorar Marte expands that same viewer without a URL change. Sistema solar collapses it. Terrain navigation still uses hash links and browser history. The Space Apps loader is indeterminate, not download progress. The globe renders on demand at up to 30 FPS, with capped pixel density and no automatic rotation.
+Run `npm install` and `npm run dev`. Select **Marte → Explorar Marte**, then the **Syrtis Major** globe marker, then **Cráter Jezero** or **Jezero – Wildcat Ridge**. Other planets have no destination. The selected Mars view starts further out, rotates slowly, and stops on touch, camera input or selection. A blank tap moves closer once; valid markers keep their own focus/entry behavior. Going back to Regions or returning to the globe restarts the overview; inactivity never restarts it. Reduced motion keeps the overview still. Navigation uses hash links and browser history, including the solar-system back button. The Space Apps loader is indeterminate, not download progress.
 
 Direct routes: `/#/`, `/#/mars`, `/#/mars/jezero`, and `/#/mars/wildcat-ridge`. Terrain always opens in 2.5D, with Wildcat Ridge centered in a close-up. Globe imagery requires NASA Trek connectivity; the prepared regional DEM is local.
+
+The terrain routes mount one Cesium Viewer beneath `MissionWorkspace`: Route, Telemetry, Science, independent Alerts, Voice/Mute and the A–B HUD. There is no Placeholder in the integrated view. Jezero/Wildcat Ridge controls focus the existing camera, and map POIs open the matching brief. **Map view** opens contours, elevation inspection and source records in the same overlay slot. The renderer is framed through the area clear of the HUD without changing geographic camera limits; pixel density is capped to keep the rendering budget bounded. The base position has not been supplied, so no invented base coordinate or geographic A–B line is drawn. Resource values remain explicit fixtures; they are not computed from the terrain or connected suit sensors. `/mission-demo.html` keeps the independent black-canvas preview for component work.
 
 Integration checkpoints, in order:
 - `c824565`: import Héctor’s home from `~/Documents/NAsa/cosmic-voyager-react`.
 - `06fc7b1`: merge `origin/feat/mars-3d-globe` (locally available `a93eb79`).
 - `4e43d96`: merge `cartography` and reconcile Cesium build assets.
 
-The original branches and Héctor’s source folder are preserved. GitHub DNS was unavailable during integration, so the remote branch could not be refreshed. Validate with `npm run build`, `npm run lint`, `node tests/navigation.test.js`, and `node tests/terrain.test.js`. Browser/WebGL interaction still needs a manual check on a machine with a browser.
+The original branches are preserved. Validate with `npm run build`, `npm run lint`, and `node --test tests/*.test.js src/features/mission-detail/*.test.js`. The optional independent HUD build uses `npx vite build --config vite.mission.config.js`. Check the complete globe → terrain → globe flow in a WebGL-capable browser, including touch, marker picking, rotation pause/restart, map layers and HUD navigation.
 

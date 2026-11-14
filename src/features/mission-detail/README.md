@@ -1,6 +1,6 @@
 # Gerardo · Full-screen mission interface
 
-Contexto principal: `Context.md`. Rama local: `codex/gerardo-ficha-hud-voz`.
+Contexto principal: `Context.md`. Integración en `master`, a partir de `feat/gerardo-ficha-hud-voz`.
 
 ## Ejecutar
 
@@ -8,7 +8,7 @@ Contexto principal: `Context.md`. Rama local: `codex/gerardo-ficha-hud-voz`.
 npm run dev -- --host 127.0.0.1
 ```
 
-Abrir **http://127.0.0.1:5173/mission-demo.html**. Es una entrada independiente; la app común conserva su entrada.
+Abrir **http://127.0.0.1:5173/#/mars/jezero** o **http://127.0.0.1:5173/#/mars/wildcat-ridge** para el HUD sobre el terreno. **http://127.0.0.1:5173/mission-demo.html** conserva la vista independiente con fondo negro.
 
 ```sh
 npm run lint
@@ -45,7 +45,11 @@ Ver `assets/SOURCES.md` para fuentes y `DESIGN.md` para la identidad tipográfic
 
 ## Integración
 
-`MissionDetailDemo.jsx` conecta únicamente las muestras. Los componentes reciben props:
+`MissionWorkspace.jsx` contiene el estado compartido de interfaz y los casos de recursos. `MissionDetailDemo.jsx` es un wrapper que aporta el fondo negro; `App.jsx` aporta el componente de terreno a través de `MapComponent`. Se conserva un solo Viewer: cambiar pestaña, página, región o panel no monta otro mapa. La selección del HUD solicita foco a la cámara existente; seleccionar un POI del mapa abre Science sin iniciar un segundo Viewer. Los controles del terreno se presentan mediante un portal en el mismo slot de overlays.
+
+`Syrtis Major` y `Globo de Marte` vuelven al globo. `Map view` agrupa capas, escala de elevación, inspección y fuentes; evita superponer el antiguo header/sidebar/footer del terreno al HUD. El foco del mapa se encuadra en el área libre de los overlays con un viewport de render ampliado, manteniendo intactas las coordenadas y los límites de cámara. La densidad de render se ajusta al presupuesto original de píxeles. No se dibuja la base: falta su posición verificada. La demo independiente sigue usando únicamente las muestras.
+
+Los componentes de información reciben props:
 
 ```jsx
 <MissionInfoPanel

@@ -18,9 +18,8 @@ const WORLDS = [
   { number: '08', name: 'Neptuno', system: 'GIGANTE HELADO', style: 'neptune', description: 'Un planeta de vientos extremos.', image: '/assets/planets/neptune.jpg', source: 'https://science.nasa.gov/solar-system/neptune/' },
 ];
 
-function App({ onZoneSelected, initiallyExpanded = false }) {
-  const [expanded, setExpanded] = useState(initiallyExpanded);
-  const onMarsSelected = () => setExpanded(true);
+function App({ onZoneSelected, expanded = false, onExpandedChange }) {
+  const onMarsSelected = () => onExpandedChange?.(true);
   const [worldIndex, setWorldIndex] = useState(3);
   const [modalOpen, setModalOpen] = useState(false);
   const world = WORLDS[worldIndex];
@@ -30,6 +29,11 @@ function App({ onZoneSelected, initiallyExpanded = false }) {
   const moveWorld = (direction) => {
     setWorldIndex((current) => (current + direction + WORLDS.length) % WORLDS.length);
   };
+
+  if (expanded) return <main className="home-globe home-globe-expanded">
+    <Suspense fallback={<SpaceLoader />}><MarsGlobe onZoneSelected={onZoneSelected} /></Suspense>
+    <button className="globe-home-back" onClick={() => onExpandedChange?.(false)}>← Sistema solar</button>
+  </main>;
 
   return (
     <div className="cosmic-canvas relative flex min-h-screen flex-col justify-between overflow-x-hidden text-white selection:bg-[#e6ff00] selection:text-[#081326]">
@@ -67,9 +71,9 @@ function App({ onZoneSelected, initiallyExpanded = false }) {
             <div className="relative flex w-full items-center justify-center">
               <button aria-label="Planeta anterior" onClick={() => moveWorld(-1)} className="orbital-arrow absolute left-0 z-20 sm:left-4"><span className="material-symbols-outlined text-[26px]">chevron_left</span></button>
               <div className="relative flex h-64 w-64 items-center justify-center sm:h-80 sm:w-80 md:h-96 md:w-96 lg:h-[420px] lg:w-[420px]">
-                {world.style === 'mars' ? <div className={expanded ? 'home-globe home-globe-expanded' : 'home-globe'}>
-                  <Suspense fallback={<SpaceLoader />}><MarsGlobe onZoneSelected={onZoneSelected} compact={!expanded} /></Suspense>
-                  {expanded ? <button className="globe-home-back" onClick={() => setExpanded(false)}>← Sistema solar</button> : <button className="globe-expand-hit" aria-label="Explorar Marte" onClick={onMarsSelected} />}
+                {world.style === 'mars' ? <div className="home-globe">
+                  <Suspense fallback={<SpaceLoader />}><MarsGlobe onZoneSelected={onZoneSelected} compact /></Suspense>
+                  <button className="globe-expand-hit" aria-label="Explorar Marte" onClick={onMarsSelected} />
                 </div> : <>
                 <div key={world.style} className={`planet-glow planet-${world.style} relative h-full w-full select-none overflow-hidden rounded-full`} role={world.style === 'mars' ? 'button' : 'img'} tabIndex={world.style === 'mars' ? 0 : undefined} onClick={() => { if (world.style === 'mars') onMarsSelected?.() }} onKeyDown={event => { if (world.style === 'mars' && ['Enter', ' '].includes(event.key)) { event.preventDefault(); onMarsSelected?.() } }} aria-label={world.style === 'mars' ? 'Explorar Marte' : `Vista de ${world.name}`}>
                   <div className="planet-surface" />

@@ -1,6 +1,7 @@
 // Small line icons following the Space Apps lightweight symbol guidance.
 export default function MissionIcon({ name, size = 18 }) {
   const paths = {
+    layers: <><path d="m3 7 9-4 9 4-9 4-9-4Zm0 5 9 4 9-4M3 17l9 4 9-4" /></>,
     'arrow-up-right': <><path d="M7 17 17 7M7 7h10v10" /></>,
     chevron: <path d="m9 5 7 7-7 7" />,
     'chevron-left': <path d="m15 5-7 7 7 7" />,

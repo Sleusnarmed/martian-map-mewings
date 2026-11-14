@@ -2,6 +2,10 @@
 
 Scope: local Cesium terrain, tilted 2.5D navigation, elevation shading, contour lines and points of interest. Starts at Jezero. No routes, movement simulation, Delta marker, or globe transition. The colors encode elevation; they are not orbital imagery or geological classifications.
 
+The application now uses the component's `embedded` mode below Gerardo's `MissionWorkspace`. This mode removes the standalone header/sidebar/footer, exposes layers and sources in the workspace's Map view portal, and omits the mock crew arrow. `focusPointId`/`focusRevision` refocus the existing camera; `onPointSelect` opens the corresponding science brief. `controlsTarget` is the portal destination. Only the component's original terrain provider, geographic camera limits and verified POIs are used. The A–B mission readouts remain fixtures; a base coordinate and a validated geographic route are not supplied by this integration.
+
+The elevation-ramp canvas is serialized to a PNG data URL before entering Cesium's material cache. This preserves the same palette and avoids cloning a DOM canvas when the terrain is mounted again after returning from the globe.
+
 ## Prepare the real data
 
 Download the [USGS CTX DEM](https://planetarymaps.usgs.gov/mosaic/mars2020_trn/CTX/ScienceInvestigationMaps_JPL/M20_JezeroCrater_CTXDEM_20m.tif) into `data/raw/`. Raw files are ignored by Git.
