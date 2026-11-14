@@ -3,14 +3,14 @@ const nasaSource = 'https://science.nasa.gov/resource/sample-collection-and-rock
 export const regions = {
   'syrtis-major': {
     id: 'syrtis-major', name: 'Syrtis Major', eyebrow: 'Regional context',
-    description: 'Regional overview for the Jezero excursion. The local demonstration focuses on Jezero and the Wildcat Ridge science stop.',
+    description: 'Regional overview of the Jezero excursion and the Wildcat Ridge science destination.',
     objective: 'Locate the mission region before reviewing the local science destination.',
     geology: 'Regional layers pending integration.',
     source: 'https://trek.nasa.gov/mars/',
   },
   jezero: {
     id: 'jezero', name: 'Jezero crater', eyebrow: 'Mission region',
-    description: 'An ancient lake basin with a preserved river delta. This local mission follows a simulated route to a scientific stop within Jezero.',
+    description: 'An ancient lake basin with a preserved river delta. The mission connects the base to Wildcat Ridge within Jezero.',
     objective: 'Explore the relationship between the delta landscape and the rocks observed at Wildcat Ridge.',
     geology: 'Ancient lake and river-delta setting.',
     source: nasaSource,
@@ -39,14 +39,14 @@ export const wildcatImage = {
 export const demoScenarios = [
   {
     id: 'normal', label: 'Normal traverse', shortLabel: '01 / Traverse',
-    description: 'A normal traverse with time and oxygen autonomy above the exercise reserve.',
-    mode: 'outbound', status: 'in-progress', nextWaypointName: 'Delta lookout', routeProgress: 0.23,
+    description: 'A normal traverse with time and oxygen autonomy above the required reserve.',
+    mode: 'outbound', status: 'in-progress', nextWaypointName: 'Wildcat Ridge', routeProgress: 0.23,
     remainingDistanceMeters: 420, returnDistanceMeters: 600, returnDurationSeconds: 1200,
     elapsedSeconds: 1200, delaySeconds: 0, budgetSeconds: 3600,
     returnMarginSeconds: 1200, oxygenRemainingSeconds: 2400, oxygenReturnMarginSeconds: 1200,
     reserveSeconds: 300,
-    notice: { id: 'normal-notice', level: 'info', title: 'Continue to the next waypoint',
-      text: 'Continue to Delta lookout. Time and assumed oxygen return margins are twenty minutes. The exercise requires a five-minute reserve.', provenance: 'simulation' },
+    notice: { id: 'normal-notice', level: 'info', title: 'Continue to Wildcat Ridge',
+      text: 'Continue to point B, Wildcat Ridge. Time and oxygen return margins are twenty minutes. Maintain a five-minute reserve.', provenance: 'simulation' },
   },
   {
     id: 'delay', label: 'Low return margin', shortLabel: '02 / Delay',
@@ -57,7 +57,7 @@ export const demoScenarios = [
     returnMarginSeconds: 120, oxygenRemainingSeconds: 1320, oxygenReturnMarginSeconds: 120,
     reserveSeconds: 300,
     notice: { id: 'delay-notice', level: 'warning', title: 'Review your return',
-      text: 'After an eight-minute delay, time and assumed oxygen return margins are two minutes. The exercise requires five. Review your return route.', provenance: 'simulation' },
+      text: 'After an eight-minute delay, time and oxygen return margins are two minutes. The required reserve is five minutes. Review your return route.', provenance: 'simulation' },
   },
   {
     id: 'arrival', label: 'Science stop reached', shortLabel: '03 / Arrival',
@@ -68,7 +68,7 @@ export const demoScenarios = [
     returnMarginSeconds: 1200, oxygenRemainingSeconds: 2100, oxygenReturnMarginSeconds: 900,
     reserveSeconds: 300,
     notice: { id: 'arrival-notice', level: 'info', title: 'Wildcat Ridge reached',
-      text: 'You have reached Wildcat Ridge in the simulation. Review the Mastcam-Z image and its source. Your assumed oxygen return margin is fifteen minutes.', provenance: 'simulation' },
+      text: 'You have reached point B, Wildcat Ridge. Review the Mastcam-Z image and its source. Your oxygen return margin is fifteen minutes.', provenance: 'simulation' },
   },
   {
     id: 'seismic-delay', label: 'Delay + seismic alert', shortLabel: '04 / Hazard',
@@ -78,8 +78,8 @@ export const demoScenarios = [
     elapsedSeconds: 2280, delaySeconds: 480, budgetSeconds: 3600,
     returnMarginSeconds: 120, oxygenRemainingSeconds: 1260, oxygenReturnMarginSeconds: 60,
     reserveSeconds: 300,
-    notice: { id: 'seismic-notice', level: 'warning', title: 'Simulated seismic alert',
-      text: 'Exercise only. A simulated seismic alert affects this segment. After the delay, your time return margin is two minutes and your assumed oxygen return margin is one minute. Review the return route.', provenance: 'simulation' },
+    notice: { id: 'seismic-notice', level: 'warning', title: 'Seismic advisory',
+      text: 'Seismic advisory on the current route. After the delay, your time return margin is two minutes and your oxygen return margin is one minute. Review the return route.', provenance: 'simulation' },
   },
 ]
 
@@ -88,5 +88,5 @@ export const missingMission = {
   remainingDistanceMeters: null, returnDurationSeconds: null, returnMarginSeconds: null,
   oxygenRemainingSeconds: null, oxygenReturnMarginSeconds: null, reserveSeconds: null,
   notice: { id: 'missing-notice', level: 'unknown', title: 'Mission data unavailable',
-    text: 'Route and oxygen estimates are unavailable. Review the missing data before making an exercise decision.', provenance: 'simulation' },
+    text: 'Route and oxygen estimates are unavailable. Check mission data before continuing.', provenance: 'simulation' },
 }

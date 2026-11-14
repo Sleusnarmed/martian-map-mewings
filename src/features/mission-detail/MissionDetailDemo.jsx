@@ -36,10 +36,10 @@ export default function MissionDetailDemo() {
   const baseMission = hideData ? missingMission : selectedScenario
   // Demo adapter only: no telemetry stream or navigation hardware is connected.
   const mission = returning && !hideData ? {
-    ...baseMission, mode: 'return', status: 'in-progress', nextWaypointName: 'Simulated base',
+    ...baseMission, mode: 'return', status: 'in-progress', nextWaypointName: 'Base',
     remainingDistanceMeters: baseMission.returnDistanceMeters,
     notice: { ...baseMission.notice, id: `${baseMission.notice.id}-return`, title: 'Return route selected',
-      text: `Return mode selected in the exercise. Follow the route back to the simulated base. ${baseMission.notice.text}` },
+      text: 'Return to point A, Base. Follow the return route and monitor your time and oxygen margins.' },
   } : baseMission
   useMissionPanelMotion(overlayRef, openPanel, mission.notice?.id)
 
@@ -68,8 +68,8 @@ export default function MissionDetailDemo() {
         <button aria-current={selectedRegionId === 'wildcat-ridge' ? 'location' : undefined} onClick={() => selectRegion('wildcat-ridge')}>Wildcat Ridge</button>
       </nav>
       <details className="field-demo">
-        <summary>Simulation</summary>
-        <div className="field-demo-content"><label htmlFor="exercise-scenario">Exercise scenario</label><select id="exercise-scenario" value={scenarioId} onChange={(event) => selectScenario(event.target.value)}>{demoScenarios.map((scenario) => <option key={scenario.id} value={scenario.id}>{scenario.label}</option>)}</select><button className="md-button md-button-outline" aria-pressed={hideData} onClick={() => { setHideData(!hideData); setReturning(false); setPage(0); setOpenPanel(!hideData || scenarioId.includes('delay') ? 'alerts' : 'information') }}>No data</button><p>Static test inputs. No suit sensors connected.</p></div>
+        <summary>Mission case</summary>
+        <div className="field-demo-content"><label htmlFor="mission-case">Mission case</label><select id="mission-case" value={scenarioId} onChange={(event) => selectScenario(event.target.value)}>{demoScenarios.map((scenario) => <option key={scenario.id} value={scenario.id}>{scenario.label}</option>)}</select><button className="md-button md-button-outline" aria-pressed={hideData} onClick={() => { setHideData(!hideData); setReturning(false); setPage(0); setOpenPanel(!hideData || scenarioId.includes('delay') ? 'alerts' : 'information') }}>No data</button></div>
       </details>
       <div className="field-information" ref={overlayRef}>
         <MissionInfoPanel mission={mission} region={regions[selectedRegionId]} image={wildcatImage} activeTab={activeTab} page={page} onTabChange={changeTab} onPageChange={setPage} onReturn={() => { setReturning(true); openInformation('route') }} onInspectStop={() => selectRegion('wildcat-ridge')} collapsed={openPanel !== 'information'} />
@@ -77,11 +77,11 @@ export default function MissionDetailDemo() {
       </div>
       <div className="field-control-rail" role="group" aria-label="Mission panels and audio">
         <button className="field-rail-button" aria-expanded={openPanel === 'information'} aria-controls="mission-information" onClick={() => setOpenPanel(openPanel === 'information' ? null : 'information')}><MissionIcon name={openPanel === 'information' ? 'panel-close' : 'panel-open'} /><span>Information</span></button>
-        <button className={`field-rail-button ${mission.notice?.level === 'warning' ? 'has-warning' : ''}`} aria-expanded={openPanel === 'alerts'} aria-controls="mission-alerts" onClick={() => setOpenPanel(openPanel === 'alerts' ? null : 'alerts')}><MissionIcon name="alert" /><span>Alerts</span>{mission.notice?.level === 'warning' && <span className="mt-alert-count" aria-label="1 exercise alert">1</span>}</button>
+        <button className={`field-rail-button ${mission.notice?.level === 'warning' ? 'has-warning' : ''}`} aria-expanded={openPanel === 'alerts'} aria-controls="mission-alerts" onClick={() => setOpenPanel(openPanel === 'alerts' ? null : 'alerts')}><MissionIcon name="alert" /><span>Alerts</span>{mission.notice?.level === 'warning' && <span className="mt-alert-count" aria-label="1 mission alert">1</span>}</button>
         <VoiceControls noticeId={mission.notice?.id} text={mission.notice?.text} />
       </div>
       <span className="field-sr-only" role="status" aria-live="polite">{mission.notice?.title}</span>
-      <MissionHUD mission={mission} onOpenRoute={() => openInformation('route')} />
+      <MissionHUD mission={mission} onOpenRoute={() => openInformation('route')} onOpenTelemetry={() => openInformation('telemetry')} />
     </div>
   )
 }

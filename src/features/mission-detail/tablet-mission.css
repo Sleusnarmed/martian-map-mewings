@@ -39,6 +39,8 @@
 .mt-tabs button:hover { color: var(--md-white); }
 .mt-tabs button:focus-visible { outline-offset: -5px; }
 .mt-tabpanel { padding: 22px; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.mt-tabpanel[data-overflowing=false] { scrollbar-width: none; }
+.mt-tabpanel[data-overflowing=false]::-webkit-scrollbar { display: none; }
 .mt-panel-description { margin-top: 8px !important; font-size: 12px; color: var(--md-muted); }
 .mt-next-reference { display: flex; align-items: center; gap: 12px; margin-top: 24px; color: var(--md-white); }
 .mt-next-reference > svg { color: var(--md-blue-yonder); }
@@ -84,21 +86,23 @@
 .field-route-point > span { font-size: 11px; white-space: nowrap; color: var(--md-muted); line-height: 14px; }
 .field-route-point:first-child > span { justify-self: start; }
 .field-route-point:first-child { transform: none; justify-items: start; }
-.field-route-point:nth-child(3) { transform: translateX(-100%); justify-items: end; }
-.field-route-point:nth-child(3) > span { justify-self: end; }
+.field-route-point:nth-child(2) { transform: translateX(-100%); justify-items: end; }
+.field-route-point:nth-child(2) > span { justify-self: end; }
 .field-route-point.is-passed > i { background: var(--md-blue-yonder); border-color: var(--md-blue-yonder); }
 .field-route-position { position: absolute; top: -5px; transform: translateX(-50%); }
 .field-route-position > i { display: block; width: 9px; height: 9px; transform: rotate(45deg); border: 1px solid var(--md-neon-yellow); background: var(--md-neon-yellow); }
 .field-route-progress:hover .field-route-point > span { color: var(--md-white); text-decoration: underline; text-underline-offset: 3px; }
 .field-instruments { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 3fr); align-items: stretch; min-width: 0; padding: 8px 16px; border: 1px solid var(--md-overlay-border); border-radius: 12px; background: var(--md-overlay); }
 .field-next { min-width: 0; display: grid; grid-template-rows: 14px 26px 12px; gap: 4px; text-align: left; padding: 0 16px 0 0; border: none; background: transparent; color: var(--md-white); }
-.field-next > span, .field-readouts dt { color: var(--md-muted); font-size: 11px; line-height: 14px; }
+.field-next > span, .field-readout > span { color: var(--md-muted); font-size: 11px; line-height: 14px; }
 .field-next > strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: 'Mission Inter',sans-serif; font-size: 18px; line-height: 26px; font-weight: 600; }
 .field-next > small, .field-readouts small { color: var(--md-muted); font-size: 10px; line-height: 12px; }
 .field-next:hover strong { text-decoration: underline; text-underline-offset: 4px; }
 .field-readouts { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); margin: 0; min-width: 0; }
-.field-readouts > div { display: grid; grid-template-rows: 14px 26px 12px; gap: 4px; padding-left: 20px; border-left: 1px solid var(--md-overlay-border); }
-.field-readouts dd { margin: 0; font-family: 'Mission DM Mono',monospace; font-size: 24px; line-height: 26px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.field-readout { display: grid; grid-template-rows: 14px 26px 12px; gap: 4px; min-width: 0; padding: 0 0 0 20px; text-align: left; color: var(--md-white); border: none; border-left: 1px solid var(--md-overlay-border); background: transparent; }
+.field-readout > strong { margin: 0; font-family: 'Mission DM Mono',monospace; font-weight: 400; font-size: 24px; line-height: 26px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.field-readout:hover > strong { text-decoration: underline; text-underline-offset: 4px; }
+.field-next:focus-visible, .field-readout:focus-visible { outline-offset: -2px; }
 .field-warning-value { color: var(--md-neon-yellow); }
 
 @media (min-width: 700px) and (max-width: 950px) {
@@ -112,8 +116,8 @@
   .mt-source-list { margin-block: 16px; }
   .mt-source-list > div + div { margin-top: 12px; }
   .field-next > strong { font-size: 16px; }
-  .field-readouts > div { padding-left: 12px; }
-  .field-readouts dd { font-size: 22px; }
+  .field-readout { padding-left: 12px; }
+  .field-readout > strong { font-size: 22px; }
 }
 @media (max-height: 700px) and (min-width: 951px) {
   .field-information { top: 20px; }
@@ -151,9 +155,9 @@
   .field-hud { left: 16px; right: 16px; bottom: 16px; }
   .field-instruments { grid-template-columns: minmax(0,1fr); padding: 8px 12px; }
   .field-next { display: none; }
-  .field-readouts > div { padding-left: 10px; }
-  .field-readouts > div:first-child { padding-left: 0; border-left: none; }
-  .field-readouts dd { font-size: 21px; }
+  .field-readout { padding-left: 10px; }
+  .field-readout:first-child { padding-left: 0; border-left: none; }
+  .field-readout > strong { font-size: 21px; }
   .field-readouts small { font-size: 9px; }
   .field-route-progress { padding-inline: 4px; }
 }
