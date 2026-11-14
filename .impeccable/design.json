@@ -1,0 +1,270 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-14T20:54:21.693Z",
+  "title": "Design System: VISTA Mars · Full-screen mission interface",
+  "extensions": {
+    "colorMeta": {
+      "deep-blue": {
+        "role": "primary",
+        "displayName": "Deep Blue",
+        "tonalRamp": [
+          "oklch(15% 0.0096 264.12)",
+          "oklch(27% 0.0319 264.12)",
+          "oklch(39% 0.0574 264.12)",
+          "oklch(51% 0.0701 264.12)",
+          "oklch(63% 0.0701 264.12)",
+          "oklch(75% 0.0574 264.12)",
+          "oklch(87% 0.0335 264.12)",
+          "oklch(95% 0.0128 264.12)"
+        ]
+      },
+      "electric-blue": {
+        "role": "primary",
+        "displayName": "Electric Blue",
+        "tonalRamp": [
+          "oklch(15% 0.0206 260.32)",
+          "oklch(27% 0.0687 260.32)",
+          "oklch(39% 0.1236 260.32)",
+          "oklch(51% 0.1511 260.32)",
+          "oklch(63% 0.1511 260.32)",
+          "oklch(75% 0.1236 260.32)",
+          "oklch(87% 0.0721 260.32)",
+          "oklch(95% 0.0275 260.32)"
+        ]
+      },
+      "white": {
+        "role": "neutral",
+        "displayName": "White",
+        "tonalRamp": [
+          "oklch(15% 0.0000 0.00)",
+          "oklch(27% 0.0000 0.00)",
+          "oklch(39% 0.0000 0.00)",
+          "oklch(51% 0.0000 0.00)",
+          "oklch(63% 0.0000 0.00)",
+          "oklch(75% 0.0000 0.00)",
+          "oklch(87% 0.0000 0.00)",
+          "oklch(95% 0.0000 0.00)"
+        ]
+      },
+      "neon-yellow": {
+        "role": "secondary",
+        "displayName": "Neon Yellow",
+        "tonalRamp": [
+          "oklch(15% 0.0258 115.43)",
+          "oklch(27% 0.0861 115.43)",
+          "oklch(39% 0.1550 115.43)",
+          "oklch(51% 0.1894 115.43)",
+          "oklch(63% 0.1894 115.43)",
+          "oklch(75% 0.1550 115.43)",
+          "oklch(87% 0.0904 115.43)",
+          "oklch(95% 0.0344 115.43)"
+        ]
+      },
+      "blue-yonder": {
+        "role": "secondary",
+        "displayName": "Blue Yonder",
+        "tonalRamp": [
+          "oklch(15% 0.0202 250.65)",
+          "oklch(27% 0.0674 250.65)",
+          "oklch(39% 0.1214 250.65)",
+          "oklch(51% 0.1484 250.65)",
+          "oklch(63% 0.1484 250.65)",
+          "oklch(75% 0.1214 250.65)",
+          "oklch(87% 0.0708 250.65)",
+          "oklch(95% 0.0270 250.65)"
+        ]
+      },
+      "martian-red": {
+        "role": "secondary",
+        "displayName": "Martian Red",
+        "tonalRamp": [
+          "oklch(15% 0.0192 31.34)",
+          "oklch(27% 0.0639 31.34)",
+          "oklch(39% 0.1150 31.34)",
+          "oklch(51% 0.1405 31.34)",
+          "oklch(63% 0.1405 31.34)",
+          "oklch(75% 0.1150 31.34)",
+          "oklch(87% 0.0671 31.34)",
+          "oklch(95% 0.0255 31.34)"
+        ]
+      },
+      "muted-on-dark": {
+        "role": "neutral",
+        "displayName": "Muted on dark",
+        "tonalRamp": [
+          "oklch(15% 0.0054 259.94)",
+          "oklch(27% 0.0181 259.94)",
+          "oklch(39% 0.0325 259.94)",
+          "oklch(51% 0.0398 259.94)",
+          "oklch(63% 0.0398 259.94)",
+          "oklch(75% 0.0325 259.94)",
+          "oklch(87% 0.0190 259.94)",
+          "oklch(95% 0.0072 259.94)"
+        ]
+      },
+      "border-on-dark": {
+        "role": "neutral",
+        "displayName": "Border on dark",
+        "tonalRamp": [
+          "oklch(15% 0.0109 260.16)",
+          "oklch(27% 0.0362 260.16)",
+          "oklch(39% 0.0652 260.16)",
+          "oklch(51% 0.0796 260.16)",
+          "oklch(63% 0.0796 260.16)",
+          "oklch(75% 0.0652 260.16)",
+          "oklch(87% 0.0380 260.16)",
+          "oklch(95% 0.0145 260.16)"
+        ]
+      },
+      "map-black": {
+        "role": "neutral",
+        "displayName": "Map Black",
+        "tonalRamp": [
+          "oklch(15% 0.0000 0.00)",
+          "oklch(27% 0.0000 0.00)",
+          "oklch(39% 0.0000 0.00)",
+          "oklch(51% 0.0000 0.00)",
+          "oklch(63% 0.0000 0.00)",
+          "oklch(75% 0.0000 0.00)",
+          "oklch(87% 0.0000 0.00)",
+          "oklch(95% 0.0000 0.00)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "Panel heading",
+        "purpose": "Inter semibold panel h2; mobile uses 22px."
+      },
+      "body": {
+        "displayName": "Interface body",
+        "purpose": "Public Sans baseline; scoped source is mission-detail.css."
+      },
+      "metric": {
+        "displayName": "Dock measurement",
+        "purpose": "DM Mono readouts with tabular numerals; tablet-mission.css defines responsive reductions."
+      },
+      "metadata": {
+        "displayName": "Evidence and dock metadata",
+        "purpose": "Auxiliary captions and labels; never promote compact 8–10px metadata into reading copy."
+      }
+    },
+    "shadows": [],
+    "motion": [],
+    "breakpoints": [
+      {
+        "name": "compact-dock",
+        "value": "1100px"
+      },
+      {
+        "name": "compact-tablet",
+        "value": "700px–950px"
+      },
+      {
+        "name": "mobile",
+        "value": "699px"
+      },
+      {
+        "name": "short-viewport",
+        "value": "max-height: 700px and min-width: 951px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Return action",
+      "kind": "button",
+      "refersTo": "return-action",
+      "description": "MissionHUD.jsx: persistent primary return control; fixture navigation is supplied by onReturn. Runtime returning/unavailable states disable it.",
+      "html": "<button class=\"ds-return\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m9 14-5-5 5-5M4 9h10a6 6 0 0 1 6 6v5\"/></svg><span>Return to base</span></button>",
+      "css": ".ds-return{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-width:168px;min-height:72px;padding:18px;border:1px solid transparent;border-radius:12px;background:var(--md-neon-yellow, #eafe07);color:var(--md-deep-blue, #07173f);font-family:'Mission Public Sans','Segoe UI',sans-serif;font-size:14px;font-weight:600;line-height:1.5;cursor:pointer;touch-action:manipulation}.ds-return:hover:enabled{background:var(--md-white, #ffffff)}.ds-return:focus-visible{outline:2px solid var(--md-neon-yellow, #eafe07);outline-offset:4px}.ds-return:disabled{opacity:.5;cursor:not-allowed}@media(max-width:1100px){.ds-return{min-width:152px;padding:14px}}@media(min-width:700px) and (max-width:950px){.ds-return{min-width:134px;padding:12px;font-size:12px}}@media(max-width:699px){.ds-return{min-height:52px}}"
+    },
+    {
+      "name": "Voice action",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "VoiceControls.jsx compact variant: separate dock surface; runtime swaps Voice for Stop and preserves audio status outside the information deck.",
+      "html": "<div class=\"ds-voice\"><button aria-label=\"Read current notice\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m11 5-6 4H2v6h3l6 4V5Z\"/><path d=\"M15 8a6 6 0 0 1 0 8M18 5a10 10 0 0 1 0 14\"/></svg><span>Voice</span></button><span class=\"ds-voice-status\" role=\"status\">Voice ready · English</span></div>",
+      "css": ".ds-voice{position:relative;display:inline-grid}.ds-voice button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;width:72px;min-height:72px;padding:12px 8px;border:1px solid var(--md-border, #5777ac);border-radius:12px;background:var(--md-deep-blue, #07173f);color:var(--md-white, #ffffff);font-family:'Mission Public Sans','Segoe UI',sans-serif;font-size:14px;font-weight:600;line-height:1.5;cursor:pointer;touch-action:manipulation;font-size:12px}.ds-voice button:hover:enabled{background:var(--md-electric-blue, #0042a6);border-color:var(--md-blue-yonder, #2e96f5)}.ds-voice button:focus-visible{outline:2px solid var(--md-neon-yellow, #eafe07);outline-offset:4px}.ds-voice button:disabled{opacity:.5;cursor:not-allowed}.ds-voice-status{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}@media(max-width:1100px){.ds-voice button{width:64px}}@media(min-width:700px) and (max-width:950px){.ds-voice button{width:56px}}@media(max-width:699px){.ds-voice button{min-height:52px;width:76px;flex-direction:row;gap:6px}}"
+    },
+    {
+      "name": "Information pager",
+      "kind": "nav",
+      "refersTo": "button-quiet",
+      "description": "MissionInfoPanel.jsx: quiet Previous/Next actions and polite page count. Final Science page substitutes the NASA source action.",
+      "html": "<nav class=\"ds-pager\" aria-label=\"Route information pages\"><button disabled><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m15 5-7 7 7 7\"/></svg>Previous</button><span role=\"status\" aria-live=\"polite\">1 / 2</span><button>Next<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m9 5 7 7-7 7\"/></svg></button></nav>",
+      "css": ".ds-pager{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:64px;padding:6px 14px;border-top:1px solid var(--md-border, #5777ac);background:var(--md-deep-blue, #07173f);color:var(--md-white, #ffffff)}.ds-pager button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:12px 8px;border:1px solid transparent;border-radius:4px;background:transparent;color:var(--md-muted, #b9cbe8);font-family:'Mission Public Sans','Segoe UI',sans-serif;font-size:14px;font-weight:600;line-height:1.5;cursor:pointer;touch-action:manipulation;font-size:13px}.ds-pager button:hover:enabled{color:var(--md-white, #ffffff);text-decoration:underline;text-underline-offset:4px}.ds-pager button:focus-visible{outline:2px solid var(--md-neon-yellow, #eafe07);outline-offset:4px}.ds-pager button:disabled{opacity:.5;cursor:not-allowed}.ds-pager>span{font-family:'Mission DM Mono',monospace;font-size:12px;color:var(--md-muted, #b9cbe8)}"
+    },
+    {
+      "name": "Geographic text navigation",
+      "kind": "nav",
+      "refersTo": "region-current",
+      "description": "MissionDetailDemo.jsx: text-only Syrtis Major/Jezero/Wildcat Ridge controls. Selection opens Science; it does not move mission position.",
+      "html": "<nav class=\"ds-regions\" aria-label=\"Mission region\"><button>Syrtis Major</button><span aria-hidden=\"true\">/</span><button>Jezero</button><span aria-hidden=\"true\">/</span><button aria-current=\"location\">Wildcat Ridge</button></nav>",
+      "css": ".ds-regions{display:flex;align-items:center;gap:10px;padding:8px;background:#000000;font-family:'Mission Public Sans','Segoe UI',sans-serif;line-height:1.5}.ds-regions button{min-width:48px;min-height:48px;padding:10px 0;border:none;border-radius:0;background:transparent;color:var(--md-white, #ffffff);font-family:'Mission Public Sans','Segoe UI',sans-serif;font-size:14px;font-weight:600;line-height:1.5;cursor:pointer;touch-action:manipulation}.ds-regions button[aria-current]{color:var(--md-neon-yellow, #eafe07);text-decoration:underline;text-underline-offset:7px}.ds-regions button:hover{text-decoration:underline;text-underline-offset:7px}.ds-regions button:focus-visible{outline:2px solid var(--md-neon-yellow, #eafe07);outline-offset:4px}.ds-regions>span{padding:0 5px;color:var(--md-muted, #b9cbe8);font-size:12px}@media(max-width:699px){.ds-regions{justify-content:space-between;gap:4px}.ds-regions button{font-size:13px}.ds-regions>span{padding:0 4px}}"
+    },
+    {
+      "name": "Floating information deck",
+      "kind": "nav",
+      "refersTo": "information-deck",
+      "description": "MissionInfoPanel.jsx / tablet-mission.css: dark horizontal tabs, selected rule, compact alert count and persistent hide control. This snapshot represents the initially open deck; React provides paging, roving focus and collapse.",
+      "html": "<aside class=\"ds-deck\" aria-label=\"Mission information\"><div class=\"ds-tabs\" role=\"tablist\" aria-label=\"Mission information tabs\"><button role=\"tab\" aria-selected=\"true\">Route</button><button role=\"tab\" aria-selected=\"false\" tabindex=\"-1\">Science</button><button role=\"tab\" aria-selected=\"false\" tabindex=\"-1\">Telemetry</button><button role=\"tab\" aria-selected=\"false\" tabindex=\"-1\">Alerts<span class=\"ds-alert-count\" aria-label=\"1 exercise alert\">1</span></button></div><button class=\"ds-panel-toggle\" aria-expanded=\"true\" aria-label=\"Hide information panel\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"3\" y=\"4\" width=\"18\" height=\"16\" rx=\"2\"/><path d=\"M14 4v16m-7-11 3 3-3 3\"/></svg></button><section class=\"ds-panel\"><h2>Your next reference</h2><p>Outbound · simulated excursion</p></section></aside>",
+      "css": ".ds-deck{position:relative;width:400px;max-width:100%;overflow:hidden;border:1px solid var(--md-border, #5777ac);border-radius:12px;background:var(--md-deep-blue, #07173f);color:var(--md-white, #ffffff);font-family:'Mission Public Sans','Segoe UI',sans-serif;line-height:1.5}.ds-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));height:56px;padding-right:52px;border-bottom:1px solid var(--md-border, #5777ac)}.ds-tabs button{display:inline-flex;align-items:center;justify-content:center;gap:4px;min-width:0;padding:8px 3px;border:none;border-bottom:2px solid transparent;border-radius:0;background:transparent;color:var(--md-muted, #b9cbe8);font-family:'Mission Public Sans','Segoe UI',sans-serif;font-size:14px;font-weight:600;line-height:1.5;cursor:pointer;touch-action:manipulation;font-size:13px}.ds-tabs button[aria-selected=true]{color:var(--md-neon-yellow, #eafe07);border-bottom-color:var(--md-neon-yellow, #eafe07)}.ds-tabs button:hover{color:var(--md-white, #ffffff)}.ds-tabs button:focus-visible{outline:2px solid var(--md-neon-yellow, #eafe07);outline-offset:-5px}.ds-alert-count{display:inline-grid;place-items:center;width:16px;height:16px;border-radius:3px;background:var(--md-martian-red, #8e1100);color:var(--md-white, #ffffff);font-size:10px}.ds-panel-toggle{position:absolute;top:5px;right:4px;display:flex;align-items:center;justify-content:center;min-width:48px;min-height:48px;padding:12px;border:none;border-radius:4px;background:transparent;color:var(--md-muted, #b9cbe8);font-family:'Mission Public Sans','Segoe UI',sans-serif;font-size:14px;font-weight:600;line-height:1.5;cursor:pointer;touch-action:manipulation}.ds-panel-toggle:hover{background:var(--md-electric-blue, #0042a6);color:var(--md-white, #ffffff)}.ds-panel-toggle:focus-visible{outline:2px solid var(--md-neon-yellow, #eafe07);outline-offset:4px}.ds-panel{padding:22px}.ds-panel h2{margin:0;font-family:'Mission Inter',sans-serif;font-weight:600;font-size:24px;letter-spacing:-.02em;line-height:1.2}.ds-panel p{margin:8px 0 0;color:var(--md-muted, #b9cbe8);font-size:12px}"
+    },
+    {
+      "name": "Persistent instrument dock",
+      "kind": "custom",
+      "refersTo": "instrument-dock",
+      "description": "MissionHUD.jsx: reference plus three DM Mono readouts; the notice remains separate above the bordered surface. Values here are the normal static exercise fixture.",
+      "html": "<div class=\"ds-hud\"><button class=\"ds-notice\"><span class=\"ds-status-dot\" aria-hidden=\"true\"></span><span role=\"status\" aria-live=\"polite\">Continue to the next waypoint</span><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m9 5 7 7-7 7\"/></svg></button><div class=\"ds-instruments\"><button class=\"ds-next\"><span>Next reference</span><strong>Delta lookout</strong><small>OUTBOUND · SIMULATION</small></button><dl class=\"ds-readouts\"><div><dt>Remaining</dt><dd>420 m</dd></div><div><dt>Return margin</dt><dd>20 min</dd><small>Reserve 5 min</small></div><div><dt>O₂ autonomy</dt><dd>40 min</dd><small>Simulated estimate</small></div></dl></div></div>",
+      "css": ".ds-hud{font-family:'Mission Public Sans','Segoe UI',sans-serif;line-height:1.5;color:var(--md-white, #ffffff);background:#000000;padding:8px}.ds-notice{display:flex;align-items:center;gap:10px;min-height:48px;padding:10px 0;border:none;background:transparent;color:var(--md-white, #ffffff);font-family:'Mission Public Sans','Segoe UI',sans-serif;font-size:14px;font-weight:600;line-height:1.5;cursor:pointer;touch-action:manipulation;font-size:13px;font-weight:400;text-align:left}.ds-notice:hover{text-decoration:underline;text-underline-offset:4px}.ds-notice:focus-visible{outline:2px solid var(--md-neon-yellow, #eafe07);outline-offset:4px}.ds-status-dot{width:6px;height:6px;border-radius:50%;background:var(--md-blue-yonder, #2e96f5);flex-shrink:0}.ds-instruments{display:flex;align-items:stretch;min-width:0;padding:16px 20px;border:1px solid var(--md-border, #5777ac);border-radius:12px;background:var(--md-deep-blue, #07173f)}.ds-next{flex:1.2;min-width:0;display:grid;align-content:center;gap:4px;text-align:left;padding:0 20px 0 0;border:none;background:transparent;color:var(--md-white, #ffffff);font-family:'Mission Public Sans','Segoe UI',sans-serif;cursor:pointer}.ds-next>span,.ds-readouts dt{color:var(--md-muted, #b9cbe8);font-size:11px}.ds-next>strong{font-family:'Mission Inter',sans-serif;font-size:18px;line-height:1.3;font-weight:600}.ds-next>small{color:var(--md-muted, #b9cbe8);font-size:9px;letter-spacing:.04em}.ds-next:hover strong{text-decoration:underline;text-underline-offset:4px}.ds-next:focus-visible{outline:2px solid var(--md-neon-yellow, #eafe07);outline-offset:4px}.ds-readouts{flex:3;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin:0;min-width:0}.ds-readouts>div{display:grid;align-content:center;gap:5px;padding-left:20px;border-left:1px solid var(--md-border, #5777ac)}.ds-readouts dd{margin:0;font-family:'Mission DM Mono',monospace;font-size:26px;line-height:1.15;font-variant-numeric:tabular-nums;white-space:nowrap}.ds-readouts small{color:var(--md-muted, #b9cbe8);font-size:10px}@media(max-width:1100px){.ds-instruments{padding:16px}.ds-next{padding-right:12px}.ds-readouts>div{padding-left:12px}.ds-readouts dd{font-size:23px}}@media(min-width:700px) and (max-width:950px){.ds-instruments{padding:14px 12px}.ds-next{padding-right:8px}.ds-next>strong{font-size:15px}.ds-next>small{font-size:8px}.ds-readouts>div{padding-left:10px}.ds-readouts dt{font-size:10px}.ds-readouts dd{font-size:20px}.ds-readouts small{font-size:9px}}@media(max-width:699px){.ds-instruments{padding:12px}.ds-next{display:none}.ds-readouts>div{padding-left:10px}.ds-readouts>div:first-child{padding-left:0;border-left:none}.ds-readouts dd{font-size:21px}.ds-readouts dt{font-size:10px}.ds-readouts small{font-size:9px}}"
+    },
+    {
+      "name": "Simulation disclosure",
+      "kind": "input",
+      "description": "MissionDetailDemo.jsx: native closed-by-default disclosure contains static scenario fixtures and No data. Open snapshot shown here to expose the implemented select and pressed control.",
+      "html": "<details class=\"ds-simulation\" open><summary>Simulation</summary><div class=\"ds-fixtures\"><label>Exercise scenario<select><option>Normal traverse</option><option>Low return margin</option><option>Science stop reached</option><option>Delay + seismic alert</option></select></label><button aria-pressed=\"true\">No data</button><p>Static test inputs. No suit sensors connected.</p></div></details>",
+      "css": ".ds-simulation{width:306px;padding:8px;background:#000000;color:var(--md-white, #ffffff);font-family:'Mission Public Sans','Segoe UI',sans-serif;font-size:12px;line-height:1.5}.ds-simulation summary{min-height:48px;align-content:center;padding:8px 4px;color:var(--md-muted, #b9cbe8);cursor:pointer}.ds-simulation summary:hover{color:var(--md-white, #ffffff)}.ds-simulation[open] summary{color:var(--md-neon-yellow, #eafe07)}.ds-simulation summary:focus-visible{outline:2px solid var(--md-neon-yellow, #eafe07);outline-offset:4px}.ds-fixtures{display:grid;gap:12px;padding:16px;border:1px solid var(--md-border, #5777ac);border-radius:8px;background:var(--md-deep-blue, #07173f)}.ds-fixtures label{font-weight:600}.ds-fixtures select{display:block;width:100%;min-height:48px;margin-top:8px;padding:10px;border:1px solid var(--md-border, #5777ac);border-radius:4px;background:var(--md-deep-blue, #07173f);color:var(--md-white, #ffffff);font:inherit}.ds-fixtures select:focus-visible{outline:2px solid var(--md-neon-yellow, #eafe07);outline-offset:4px}.ds-fixtures button{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:12px 16px;border:1px solid var(--md-border, #5777ac);border-radius:4px;background:transparent;color:var(--md-white, #ffffff);font-family:'Mission Public Sans','Segoe UI',sans-serif;font-size:14px;font-weight:600;line-height:1.5;cursor:pointer;touch-action:manipulation}.ds-fixtures button[aria-pressed=true]{color:var(--md-neon-yellow, #eafe07);border-color:var(--md-neon-yellow, #eafe07)}.ds-fixtures button:hover:enabled{background:var(--md-electric-blue, #0042a6);border-color:var(--md-blue-yonder, #2e96f5)}.ds-fixtures button:focus-visible{outline:2px solid var(--md-neon-yellow, #eafe07);outline-offset:4px}.ds-fixtures p{margin:0;color:var(--md-muted, #b9cbe8);font-size:12px}"
+    },
+    {
+      "name": "Evidence fallback and source action",
+      "kind": "card",
+      "description": "RegionDetail.jsx / MissionInfoPanel.jsx: failed-image state retains the historical instrument/date/credit below its frame. Source action belongs in the final Science pager; shown together to document the recovery path.",
+      "html": "<section class=\"ds-evidence-context\"><figure class=\"ds-evidence\"><div class=\"ds-image-fallback\">Surface image unavailable. Use the NASA source on the next page.</div><figcaption><span>Perseverance · Mastcam-Z</span><span>4 Aug 2022 · Sol 518 · Credit: NASA/JPL-Caltech/ASU/MSSS</span></figcaption></figure><a class=\"ds-source\" href=\"https://science.nasa.gov/resource/sample-collection-and-rock-analysis-at-wildcat-ridge/\" target=\"_blank\" rel=\"noreferrer\">NASA source<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M7 17 17 7M7 7h10v10\"/></svg></a></section>",
+      "css": ".ds-evidence-context{padding:22px;background:var(--md-deep-blue, #07173f);color:var(--md-white, #ffffff);font-family:'Mission Public Sans','Segoe UI',sans-serif;font-size:15px;line-height:1.5}.ds-evidence{margin:18px 0 0}.ds-image-fallback{display:grid;place-content:center;min-height:120px;padding:16px;border:1px dashed var(--md-border, #5777ac);color:var(--md-muted, #b9cbe8);font-size:14px}.ds-evidence figcaption{display:grid;gap:4px;margin-top:10px;color:var(--md-muted, #b9cbe8);font-size:11px}.ds-source{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;margin-top:16px;padding:12px 8px;border:1px solid transparent;border-radius:4px;color:var(--md-blue-yonder, #2e96f5);font-family:'Mission Public Sans','Segoe UI',sans-serif;font-size:13px;font-weight:600;text-decoration:none}.ds-source:hover{color:var(--md-white, #ffffff);text-decoration:underline;text-underline-offset:4px}.ds-source:focus-visible{outline:2px solid var(--md-neon-yellow, #eafe07);outline-offset:4px}"
+    }
+  ],
+  "narrative": {
+    "overview": "This document records the current implementation in `src/features/mission-detail/*` and `mission-demo.html`. The user requested a replacement composition while preserving the existing palette: the map fills the screen, information floats above it and mission instruments remain accessible below. This scoped demo is a proposed reusable style for teammates; it does not describe the rest of the shared app.\n\n[NASA Graphic Standards](https://www.nasa.gov/nasa-brand-center/brand-guidelines/) informs the Inter, Public Sans and DM Mono typography roles. The implementation is a design demo with static exercise inputs, not evidence of validated spacecraft hardware or EVA usability. Sources and local font licenses are recorded in `src/features/mission-detail/assets/SOURCES.md`; the surface contract is in `.impeccable/surfaces/src-features-mission-detail-missiondetaildemo-jsx.md`.",
+    "keyCharacteristics": [
+      "Full-screen black map placeholder with independent overlays.",
+      "Borderless geographic text controls and a collapsible horizontal information deck.",
+      "Inter headings, Public Sans interface copy and DM Mono measurements.",
+      "Deep Blue instrument surfaces with restrained Yellow selection and return actions.",
+      "Visible evidence credits, simulation context, missing values and audio states."
+    ],
+    "rules": [
+      {
+        "name": "The Accent Rule",
+        "body": "Neon Yellow marks actions, selection and attention; keep reading surfaces Deep Blue and headings White.",
+        "section": "colors"
+      }
+    ],
+    "dos": [
+      "**Do** preserve the scoped palette and the user-requested black placeholder canvas.",
+      "**Do** keep the information deck initially visible, fully collapsible and recoverable without losing its tab/page.",
+      "**Do** keep notice, readouts, Voice and Return outside the collapsible deck.",
+      "**Do** use the local Inter, Public Sans and DM Mono families and preserve keyboard focus.",
+      "**Do** retain simulation labels, missing-data text, audio states and photograph credits.",
+      "**Do** keep source provenance below the photograph and NASA source on the final Science pager."
+    ],
+    "donts": [
+      "**Don't** restore the event header/logo, a split map column or a full-width website footer.",
+      "**Don't** add borders to the normal region text controls or draw invented geography in the placeholder.",
+      "**Don't** invent visible roles for Neon Blue or Rocket Red, or expand Martian Red beyond the Alerts badge.",
+      "**Don't** use Neon Yellow as a broad reading field or a headline color.",
+      "**Don't** overlay interface text on source photographs or use color alone to convey status.",
+      "**Don't** describe this design demo or NASA graphic guidance as validated spacecraft hardware or EVA usability."
+    ]
+  }
+}
