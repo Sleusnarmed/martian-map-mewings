@@ -1,6 +1,7 @@
 # Proyecto NASA | Contexto general para el equipo
 
 **NASA Space Apps Challenge 2026 · Interplanetary Survival Guide: Martian Map**  
+**Secuencia visual confirmada:** Syrtis Major → Jezero → Wildcat Ridge. Se presentará un plano visual de Syrtis Major como contexto regional; al acercar, la visualización se centrará solamente en Jezero y Wildcat Ridge para la demo. Esta secuencia representa niveles de acercamiento; la excursión sigue siendo local dentro de Jezero.
 **Decisión confirmada:** la demo será una excursión simulada en Jezero, con destino científico en Wildcat Ridge. El equipo construirá una ruta local de ida y regreso y un asistente que pueda hablarle al astronauta. Las coordenadas de inicio, el trazado y la implementación de voz se cierran durante la integración.
 **Repositorio del equipo:** [martian-map-mewings](https://github.com/Sleusnarmed/martian-map-mewings). GitHub devolvió 404 al consultar el repositorio, así que la estructura y las versiones del código quedan por confirmar con el equipo.
 
@@ -14,14 +15,14 @@ Una pareja de astronautas necesita saber **cómo llegar a una parada científica
 
 **El proyecto es una aplicación web para planear y ensayar una excursión científica de dos astronautas por la superficie de Marte.** La demo usa Jezero como región y Wildcat Ridge como destino. La salida parte de un punto simulado dentro de Jezero. «Jezero → Wildcat Ridge» identifica el área y su destino científico, por lo que el trazado se define dentro del cráter.
 
-El astronauta selecciona Jezero en el globo, consulta el terreno y abre la ruta hacia el afloramiento. El visor simulado muestra la siguiente referencia, el regreso y la reserva de tiempo. El asistente lee instrucciones y puede responder preguntas acotadas usando los mismos datos del mapa y el visor. Una demora simulada permite demostrar qué cambia y por qué conviene revisar el regreso.
+El astronauta comienza en el plano visual de Syrtis Major, se acerca a Jezero y después a Wildcat Ridge. Allí consulta el terreno y abre la ruta hacia el afloramiento. El visor simulado muestra la siguiente referencia, el regreso y la reserva de tiempo. El asistente lee instrucciones y puede responder preguntas acotadas usando los mismos datos del mapa y el visor. Una demora simulada permite demostrar qué cambia y por qué conviene revisar el regreso.
 
 ## 3. Alcance para las 24 horas
 
 | Módulo | Entrega de la demo |
 |---|---|
 | Inicio y fuentes | Explicar la excursión, el objetivo científico y los datos que respaldan cada vista. |
-| Globo y filtros | Globo de Marte giratorio en Cesium. Jezero seleccionable, acercamiento y filtros para las capas disponibles. Otros cuadrantes pueden figurar como referencia si ya existen. |
+| Globo y filtros | Plano visual de Syrtis Major en Cesium como contexto regional, con acercamiento a Jezero y después a Wildcat Ridge. El detalle de la demo se limita a Jezero y Wildcat Ridge, con filtros para las capas disponibles. |
 | Detalle regional | Ficha de Jezero y Wildcat Ridge con geología, foto de Perseverance, objetivo y procedencia. |
 | Ruta y regreso | Un trazado local, punto de salida simulado, waypoint intermedio si es útil y destino. El regreso puede invertir el trazado de ida. Mostrar distancia, tiempos y avisos respaldados por el terreno o etiquetados como simulación. |
 | Primera persona | HUD simulado, avance por puntos, siguiente referencia, distancia restante por ruta, orientación de regreso y foto atribuida en el destino. Si el terreno 3D está listo, usar el mismo trazado para la cámara a nivel de suelo. |
@@ -32,7 +33,7 @@ Comparación A/B, detección visual de objetos, seguimiento en vivo y gafas fís
 
 ## 4. Cómo se orienta y decide la tripulación
 
-1. Selecciona Jezero y abre la misión Wildcat Ridge.
+1. Explora el plano visual de Syrtis Major, se acerca a Jezero y abre el destino Wildcat Ridge siguiendo esa secuencia visual.
 2. Identifica el inicio, el destino científico y el trazado de ida y vuelta. Consulta pendiente y cobertura si están disponibles.
 3. Inicia la simulación y avanza al siguiente punto. El mapa, el HUD y el asistente reflejan la misma posición simulada.
 4. Introduce una demora y escucha qué cambió en el margen de regreso. El astronauta puede seleccionar «Regresar» y seguir los puntos en sentido inverso.
@@ -100,7 +101,7 @@ Ejemplo de salida audible en inglés para el demo: “You have two minutes of re
 | Persona | Entrega | Primera pieza independiente |
 |---|---|---|
 | Héctor | Inicio, explicación de la misión y recursos NASA. | Pantalla con enlaces y créditos por fuente. Puede preparar el primer registro MEDA si se acuerda. |
-| Vlado | Globo Cesium, rotación, regiones clicables y cámara. | Seleccionar Jezero y comunicar `selectedRegionId`. |
+| Vlado | Globo Cesium, rotación, regiones clicables y cámara. | Presentar Syrtis Major, acercar a Jezero y Wildcat Ridge y comunicar `selectedRegionId`. |
 | Eduardo | Filtros por región y estado compartido. Se propone coordinar integración. | Capas activas y estado visible de la misión, conectado al Viewer de Vlado. |
 | Gerardo | Ficha de Jezero y Wildcat Ridge. Se propone que implemente el HUD y su salida de voz. | Componente de detalle con foto y un aviso reproducible a partir del estado compartido. |
 | José | Cartografía, ruta simulada y regreso. | Trazado y waypoints, métricas, lógica de reserva y causa del aviso. Entrega los campos que narrará el asistente. |
@@ -108,7 +109,7 @@ Ejemplo de salida audible en inglés para el demo: “You have two minutes of re
 
 **Primeros 45–60 minutos:** confirmar responsables propuestos, acordar un conjunto único de datos de ejemplo marcado como simulado y decidir qué archivos compartirá cada módulo. La ruta parte del inicio simulado y termina en Wildcat Ridge. Usen los mismos IDs y unidades.
 
-**A las 2–3 horas:** abrir el globo, seleccionar Jezero, ver el trazado, avanzar un waypoint, añadir una demora y leer o escuchar el cambio de margen. Después sustituir las piezas de ejemplo por las fuentes preparadas. Reservar el último bloque para el recorrido de demo, el enlace público y el envío.
+**A las 2–3 horas:** abrir el plano de Syrtis Major, acercar a Jezero y Wildcat Ridge, ver el trazado, avanzar un waypoint, añadir una demora y leer o escuchar el cambio de margen. Después sustituir las piezas de ejemplo por las fuentes preparadas. Reservar el último bloque para el recorrido de demo, el enlace público y el envío.
 
 ## 8. Evaluación y entrega
 
@@ -132,7 +133,7 @@ Adjunta este documento y pega el siguiente bloque. Sustituye el nombre y el mód
 
 > Estamos construyendo **una aplicación para simular una excursión científica en Marte** para el reto *Interplanetary Survival Guide: Martian Map* de NASA Space Apps Challenge 2026. El documento adjunto es el contexto acordado del equipo. Mi nombre es [NOMBRE] y mi entrega es [MÓDULO].
 >
-> La misión está fijada en **Jezero, con destino en Wildcat Ridge**. Construimos una ruta local simulada de ida y regreso, una vista de superficie con HUD y un asistente que habla usando el estado de la misión. Las coordenadas finas y la configuración de voz están por confirmar. Conserva la diferencia entre datos históricos de NASA, cálculos y supuestos de simulación.
+> La secuencia visual está fijada en **Syrtis Major → Jezero → Wildcat Ridge**, con un plano regional inicial y detalle limitado a Jezero y Wildcat Ridge. La misión está fijada en **Jezero, con destino en Wildcat Ridge**. Construimos una ruta local simulada de ida y regreso, una vista de superficie con HUD y un asistente que habla usando el estado de la misión. Las coordenadas finas y la configuración de voz están por confirmar. Conserva la diferencia entre datos históricos de NASA, cálculos y supuestos de simulación.
 >
 > El repositorio es `Sleusnarmed/martian-map-mewings`. Usamos React con Vite, React Router, Cesium, Anime.js y Tailwind. Inspecciona la estructura y los scripts disponibles antes de asumir rutas, versiones o generar componentes. Respeta el Viewer y el estado compartido. Mi módulo debe aceptar el mismo escenario y la misma ruta que usan mapa, HUD y voz.
 >
