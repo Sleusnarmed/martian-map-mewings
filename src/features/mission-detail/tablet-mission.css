@@ -16,7 +16,6 @@
 .field-demo-content select { width: 100%; min-height: 48px; padding: 10px; color: var(--md-white); background: var(--md-overlay); border: 1px solid var(--md-border); border-radius: 4px; font: inherit; }
 .field-demo-content option { background: var(--md-deep-blue); }
 .field-demo-content button[aria-pressed=true] { color: var(--md-neon-yellow); border-color: var(--md-neon-yellow); }
-.field-demo-content p { color: var(--md-muted); font-size: 12px; }
 
 /* The rail stays available while either panel is open. */
 .field-control-rail { position: absolute; z-index: 4; top: 24px; right: 24px; width: 128px; display: grid; gap: 8px; }
@@ -68,14 +67,14 @@
 .mt-source-list dt { font-size: 12px; color: var(--md-muted); }
 .mt-source-list dd { margin: 5px 0 0; font-size: 14px; line-height: 1.55; }
 .field-alerts { max-height: min(500px, calc(100dvh - 196px)); overflow-y: auto; border: 1px solid var(--md-overlay-border); border-radius: 12px; background: var(--md-overlay); }
-.field-alert-heading { display: flex; align-items: center; gap: 8px; padding: 16px 22px; border-bottom: 1px solid var(--md-overlay-border); font-size: 13px; }
-.is-warning .field-alert-heading { color: var(--md-neon-yellow); }
-.field-alert-source { margin-left: auto; color: var(--md-muted); font-size: 11px; }
+.field-alert-title { display: flex; align-items: start; gap: 12px; }
+.field-alert-title > svg { margin-top: 2px; color: var(--md-blue-yonder); }
+.is-warning .field-alert-title > svg { color: var(--md-neon-yellow); }
 .field-alert-content { padding: 22px; }
 .mt-full-notice { margin-top: 20px !important; font-size: 16px; line-height: 1.65; }
 .field-alert-content .md-button { margin-top: 20px; }
 
-/* Route references are separate from the aligned, 78px instrument surface. */
+/* The A–B route sits above the aligned, 78px instrument surface. */
 .field-hud { position: absolute; z-index: 4; left: 24px; right: 24px; bottom: 24px; display: grid; gap: 12px; pointer-events: none; }
 .field-hud > * { pointer-events: auto; }
 .field-route-progress { justify-self: start; width: min(560px, 100%); display: grid; gap: 12px; padding: 0 16px; text-align: left; background: transparent; border: none; color: var(--md-white); }
