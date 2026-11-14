@@ -12,13 +12,13 @@ function makeMaterial(data, contours, spacing) {
   canvas.width = 256; canvas.height = 1
   const ctx = canvas.getContext('2d')
   const gradient = ctx.createLinearGradient(0, 0, 256, 0)
-  ;['#263e48', '#526e68', '#aa9970', '#c47948', '#ead7b4'].forEach((c, i) => gradient.addColorStop(i / 4, c))
+  ;['#07173f', '#0042a6', '#0960e1', '#2e96f5', '#ffffff'].forEach((c, i) => gradient.addColorStop(i / 4, c))
   ctx.fillStyle = gradient; ctx.fillRect(0, 0, 256, 1)
   return new Cesium.Material({ fabric: {
     type: 'JezeroElevation',
     materials: {
       elevation: { type: 'ElevationRamp', uniforms: { image: canvas, minimumHeight: data.minimumHeight, maximumHeight: data.maximumHeight } },
-      contour: { type: 'ElevationContour', uniforms: { spacing, width: contours ? 1 : 0, color: Cesium.Color.fromCssColorString('#fff1c8').withAlpha(0.7) } },
+      contour: { type: 'ElevationContour', uniforms: { spacing, width: contours ? 1 : 0, color: Cesium.Color.fromCssColorString('#ffffff').withAlpha(0.7) } },
     },
     components: { diffuse: 'mix(elevation.diffuse, contour.diffuse, contour.alpha)', alpha: '1.0' },
   } })
@@ -35,6 +35,7 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
   const [spacing, setSpacing] = useState(100)
   const [overhead, setOverhead] = useState(false)
   const [inspection, setInspection] = useState(null)
+  const [selectedPoint, setSelectedPoint] = useState('jezero')
   useEffect(() => { selectCallback.current = onPointSelect }, [onPointSelect])
 
   useEffect(() => {
@@ -79,7 +80,7 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
         viewer.scene.globe.showGroundAtmosphere = false
         viewer.scene.globe.enableLighting = false
         viewer.scene.globe.depthTestAgainstTerrain = true
-        viewer.scene.backgroundColor = Cesium.Color.fromCssColorString('#10181d')
+        viewer.scene.backgroundColor = Cesium.Color.fromCssColorString('#07173f')
         viewer.scene.screenSpaceCameraController.minimumZoomDistance = 150
         viewer.scene.screenSpaceCameraController.maximumZoomDistance = 180000
         viewer.scene.globe.maximumScreenSpaceError = 3
@@ -88,6 +89,7 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
           const picked = viewer.scene.pick(click.position)
           if (picked?.id?.properties?.poiId) {
             const id = picked.id.properties.poiId.getValue()
+            setSelectedPoint(id)
             selectCallback.current?.(id)
           }
           const ray = viewer.camera.getPickRay(click.position)
@@ -150,7 +152,7 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
       entities.push(context.viewer.entities.add({
         position: Cesium.Cartesian3.fromDegrees(poi.longitude, poi.latitude, height + 25, context.ellipsoid),
         properties: { poiId: poi.id },
-        point: { pixelSize: 10, color: Cesium.Color.fromCssColorString('#eecb8d'), outlineColor: Cesium.Color.BLACK, outlineWidth: 2 },
+        point: { pixelSize: 10, color: Cesium.Color.fromCssColorString('#eafe07'), outlineColor: Cesium.Color.BLACK, outlineWidth: 2 },
         label: { text: poi.name, font: '14px sans-serif', pixelOffset: new Cesium.Cartesian2(0, -24), showBackground: true },
       }))
     }
@@ -160,23 +162,26 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
   const ready = state.status === 'ready'
   const wildcat = ready && pointsOfInterest.find(p => p.id === 'wildcat-ridge' && p.source && Number.isFinite(p.longitude) && Number.isFinite(p.latitude) && sampleHeight(state.data, p.longitude, p.latitude) !== null)
   return <main className="terrain-app">
-    <header className="terrain-header"><div className="mission-mark">M<span>04</span></div><div><p className="eyebrow">MARS / REGIONAL ATLAS</p><h1>Jezero<span>Terrain explorer</span></h1></div><span className="mode-tag">CARTOGRAPHY</span></header>
+    <header className="terrain-header"><div className="project-signature"><strong>MARTIAN MAP</strong><span>Space Apps Challenge · 2026</span></div><div><p className="eyebrow">Mars / Terrain explorer</p><h1>Jezero</h1></div><span className="mode-tag">Regional cartography</span></header>
     <div className="terrain-workspace">
       <aside className="terrain-panel">
-        <p className="eyebrow">01 / FIELD OF VIEW</p><h2>Read the landscape.</h2><p className="muted">Explore the crater’s relief, inspect elevations, and orient yourself around its science sites.</p>
-        <div className="poi-list"><button disabled={!ready} onClick={() => { const b = state.data.bounds; focus((b[0]+b[2])/2, (b[1]+b[3])/2, 65000) }}><span>01</span><strong>Jezero crater<small>Regional terrain</small></strong><b>↗</b></button>
-          <button disabled={!wildcat} onClick={() => { focus(wildcat.longitude, wildcat.latitude, 3500); selectCallback.current?.(wildcat.id) }}><span>02</span><strong>Wildcat Ridge<small>{wildcat ? 'Hazeltop sampling location' : 'Position awaiting verification'}</small></strong><b>↗</b></button></div>
-        <p className="eyebrow">02 / MAP DISPLAY</p>
+        <div className="panel-intro-block"><p className="eyebrow">Explore the surface</p><h2>Your view of Jezero.</h2><p className="panel-intro">Inspect the crater’s relief or take a closer look at Wildcat Ridge.</p></div>
+        <fieldset className="panel-section"><legend className="eyebrow">Points of interest</legend>
+        <div className="poi-list"><button disabled={!ready} aria-pressed={selectedPoint === 'jezero'} onClick={() => { setSelectedPoint('jezero'); const b = state.data.bounds; focus((b[0]+b[2])/2, (b[1]+b[3])/2, 65000) }}><span className="poi-number">01</span><strong>Jezero crater<small>Regional terrain</small></strong><svg className="poi-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M5 19 19 5M5 5h14v14" /></svg></button>
+          <button disabled={!wildcat} aria-pressed={selectedPoint === 'wildcat-ridge'} onClick={() => { setSelectedPoint('wildcat-ridge'); focus(wildcat.longitude, wildcat.latitude, 3500); selectCallback.current?.(wildcat.id) }}><span className="poi-number">02</span><strong>Wildcat Ridge<small>{wildcat ? 'Hazeltop sampling location' : 'Position awaiting verification'}</small></strong><svg className="poi-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M5 19 19 5M5 5h14v14" /></svg></button></div>
+        </fieldset>
+        <fieldset className="panel-section"><legend className="eyebrow">Map layers & view</legend>
         <div className="view-buttons"><button disabled={!ready} aria-pressed={!overhead} onClick={() => setOverhead(false)}>Tilted view</button><button disabled={!ready} aria-pressed={overhead} onClick={() => setOverhead(true)}>Top down</button></div>
         <label className="control-row"><span>Contour lines</span><input type="checkbox" checked={contours} disabled={!ready} onChange={e => setContours(e.target.checked)} /></label>
         <label className="control-row">Contour interval<select disabled={!ready || !contours} value={spacing} onChange={e => setSpacing(Number(e.target.value))}><option value="50">50 m</option><option value="100">100 m</option><option value="250">250 m</option></select></label>
-        <div className="source-card"><p className="eyebrow">ELEVATION / PROVENANCE</p><strong>MRO · Context Camera</strong><p>NASA / JPL / USGS<br />Source DEM: 20 m per pixel<br />Vertical reference: MOLA</p><a href={DEM_SOURCE} target="_blank" rel="noreferrer">View source dataset ↗</a>{wildcat && <p><a href={wildcat.source} target="_blank" rel="noreferrer">Wildcat Ridge coordinates ↗</a></p>}</div>
+        </fieldset>
+        <details className="source-card"><summary>Data & sources</summary><strong>MRO · Context Camera</strong><p>NASA / JPL / USGS<br />Source DEM: 20 m per pixel<br />Vertical reference: MOLA</p><a href={DEM_SOURCE} target="_blank" rel="noreferrer">View source dataset ↗</a>{wildcat && <p><a href={wildcat.source} target="_blank" rel="noreferrer">Wildcat Ridge coordinates ↗</a></p>}<p>Prepared from historical NASA data. Elevation colors show height above the MOLA reference.</p></details>
       </aside>
       <section className="map-shell" aria-label="Interactive Jezero terrain">
         <div className="cesium-host" ref={container} />
-        {!ready && <div className="map-placeholder"><div className="contour-symbol">◎</div><p className="eyebrow">JEZERO / ELEVATION DATA</p><h2>{state.status === 'error' ? 'Terrain is waiting for its source.' : 'Opening the terrain…'}</h2><p role="status">{state.message || 'Loading the local elevation grid.'}</p>{state.status === 'error' && <><p>Download the CTX elevation file and prepare the local terrain package using the project guide.</p><div className="empty-actions"><a href={DEM_DOWNLOAD}>Download USGS DEM ↗</a><button onClick={() => { setState({status:'loading'}); setAttempt(n => n+1) }}>Reload data</button></div></>}</div>}
-        {ready && <><div className="map-badge">JEZERO CRATER <span>RELIEF 1×</span></div><div className="map-legend"><p>Elevation · m, MOLA reference</p><div className="elevation-ramp"/><div className="legend-values"><span>{Math.round(state.data.minimumHeight)}</span><span>{Math.round(state.data.maximumHeight)}</span></div><small>Display grid ≈ {state.data.displayResolutionMeters} m · source 20 m</small></div></>}
-        <footer className="map-footer"><span>{inspection ? `${inspection.lat.toFixed(5)}° N · ${inspection.lon.toFixed(5)}° E · ${inspection.elevation.toFixed(0)} m` : 'Click terrain to inspect elevation'}</span><span>Drag: pan · Wheel: zoom · Ctrl + drag: tilt</span></footer>
+        {!ready && <div className="map-placeholder"><svg className="contour-symbol" viewBox="0 0 80 80" fill="none" stroke="currentColor" aria-hidden="true"><circle cx="40" cy="40" r="32"/><circle cx="40" cy="40" r="23"/><circle cx="40" cy="40" r="14"/><path d="M0 40h80M40 0v80"/></svg><p className="eyebrow">JEZERO / ELEVATION DATA</p><h2>{state.status === 'error' ? 'Terrain unavailable' : 'Opening the terrain…'}</h2><p role="status">{state.message || 'Loading the local elevation grid.'}</p>{state.status === 'error' && <><p>The elevation data could not be opened. Try loading the map again.</p><div className="empty-actions"><a href={DEM_DOWNLOAD}>Download USGS DEM ↗</a><button onClick={() => { setState({status:'loading'}); setAttempt(n => n+1) }}>Reload data</button></div></>}</div>}
+        {ready && <><div className="map-badge"><strong>Jezero crater</strong><span>True-scale relief</span></div><div className="map-legend"><p>Elevation · m, MOLA reference</p><div className="elevation-ramp"/><div className="legend-values"><span>{Math.round(state.data.minimumHeight)}</span><span>{Math.round(state.data.maximumHeight)}</span></div><small>Display grid ≈ {state.data.displayResolutionMeters} m · source 20 m</small></div></>}
+        <footer className="map-footer"><span>{inspection ? `${inspection.lat.toFixed(5)}° N · ${inspection.lon.toFixed(5)}° E · ${inspection.elevation.toFixed(0)} m` : 'Click terrain to inspect elevation'}</span><span className="navigation-help">Drag to pan · Scroll to zoom · Ctrl + drag to tilt</span></footer>
       </section>
     </div>
   </main>

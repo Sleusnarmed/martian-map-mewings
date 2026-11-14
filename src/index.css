@@ -1,10 +1,33 @@
 @import 'tailwindcss';
-:root { font-family: Inter, 'Segoe UI', sans-serif; color: #e4e9e8; background: #10181d; font-synthesis: none; text-rendering: optimizeLegibility; }
+
+/* NASA Space Apps Brand Guidelines, May 23 2025, pp. 7–13.
+   https://www.spaceappschallenge.org/brand/ */
+:root {
+  --space-deep: #07173f;
+  --space-electric: #0042a6;
+  --space-neon-blue: #0960e1;
+  --space-yonder: #2e96f5;
+  --space-yellow: #eafe07;
+  --space-rocket: #e43700;
+  --space-martian: #8e1100;
+  --space-white: #ffffff;
+  --space-line: #2e96f5;
+  font-family: 'Overpass', Arial, sans-serif;
+  color: var(--space-white);
+  background: var(--space-deep);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
 * { box-sizing: border-box; }
 body { margin: 0; min-width: 320px; }
 button, input, select { font: inherit; }
 button, a, input, select { -webkit-tap-highlight-color: transparent; }
-button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid #eecb8d; outline-offset: 4px; }
+:where(button, a, input, select, summary):focus-visible {
+  outline: 3px solid var(--space-yellow);
+  outline-offset: 4px;
+}
 button { cursor: pointer; }
-button:disabled { cursor: default; opacity: .48; }
-a { color: #eecb8d; }
+button:disabled { cursor: default; opacity: .55; }
+a { color: var(--space-yellow); text-underline-offset: 4px; }
+button, a, select { touch-action: manipulation; }
+::selection { color: var(--space-deep); background: var(--space-yellow); }
