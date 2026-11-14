@@ -1,6 +1,13 @@
 const nasaSource = 'https://science.nasa.gov/resource/sample-collection-and-rock-analysis-at-wildcat-ridge/'
 
 export const regions = {
+  'syrtis-major': {
+    id: 'syrtis-major', name: 'Syrtis Major', eyebrow: 'Regional context',
+    description: 'Regional overview for the Jezero excursion. The local demonstration focuses on Jezero and the Wildcat Ridge science stop.',
+    objective: 'Locate the mission region before reviewing the local science destination.',
+    geology: 'Regional layers pending integration.',
+    source: 'https://trek.nasa.gov/mars/',
+  },
   jezero: {
     id: 'jezero', name: 'Jezero crater', eyebrow: 'Mission region',
     description: 'An ancient lake basin with a preserved river delta. This local mission follows a simulated route to a scientific stop within Jezero.',

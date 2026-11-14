@@ -2,31 +2,31 @@
 version: 1
 slug: "src-features-mission-detail-missiondetaildemo-jsx"
 primary_target: "src/features/mission-detail/MissionDetailDemo.jsx"
-related_targets: ["src/features/mission-detail/tablet-mission.css","src/features/mission-detail/mission-detail.css","src/features/mission-detail/RegionDetail.jsx","src/features/mission-detail/MissionHUD.jsx","src/features/mission-detail/MissionInfoPanel.jsx","src/features/mission-detail/RouteMapPlaceholder.jsx"]
+related_targets: ["src/features/mission-detail/tablet-mission.css","src/features/mission-detail/mission-detail.css","src/features/mission-detail/MissionInfoPanel.jsx","src/features/mission-detail/MissionHUD.jsx","src/features/mission-detail/RouteMapPlaceholder.jsx"]
 ---
 
-# Tablet mission workspace
+# Full-screen mission interface
 
-Mode: Operate. Target: `/mission-demo.html`. Existing Space Apps brand and shared-state props remain authoritative. User requested horizontal information tabs, button-first navigation for Mars tablets, and a schematic route-map placeholder to define the HUD.
+Mode: Operate. Product truth: Context.md and feature README. User explicitly rejects the web-page composition and pins a replacement composition, not a replacement palette.
 
 ## Direction contract
 
-THESIS: Read the map, consult one short page and request return without scrolling through a document.
+THESIS: The map owns the entire screen. Information is a dismissible overlay; mission-critical state and return stay accessible.
 
-OWN-WORLD: Preserve the reviewed Deep Blue/Electric Blue/White identity, local Fira Sans and Overpass, official Space Apps logo and sparse Neon Yellow controls/attention labels.
+OWN-WORLD: Preserve existing Deep Blue, Electric Blue, White, Neon Yellow and semantic color values. Use the user-requested black map placeholder. Follow NASA's digital typography roles: Inter headings, Public Sans interface/body and DM Mono measurements, all self-hosted. No event header or logo.
 
-STORY: Select a regional brief or exercise; use Route, Science, Telemetry and Alerts horizontally; inspect source evidence through Previous/Next. Route map and bottom mission HUD remain mounted while pages change.
+STORY: Select Syrtis Major, Jezero or Wildcat Ridge through text-only controls. Read Route, Science, Telemetry or Alerts in a horizontal floating deck. Collapse the deck to clear the map and reopen it with Information. Critical notice, reference, distance, return margin, oxygen autonomy and voice remain outside the deck.
 
-FIRST VIEWPORT: Compact event header and mission/exercise toolbar. Map occupies the left workspace and a white four-tab information pane occupies the right. A dedicated bottom grid row contains the current notice, reserve, next reference, remaining distance, limiting margin, oxygen autonomy, voice and Return. No overlay covers controls. Supported tablet targets: 1024×768 and 1280×800 landscape; 768×1024 portrait uses the same split workspace. Below 700px, stack with accessible overflow fallback rather than clipping.
+FIRST VIEWPORT: Black full-screen canvas with one small Placeholder label. Borderless region names at upper left. Four horizontal tabs and a compact information pane at upper right, initially expanded. Bottom floating instruments and Voice/Return controls, inset from screen edges, with no full-width website footer. Demo fixture controls live in a closed Simulation disclosure.
 
-FORM: Button-first map/master-detail workspace, specified by the user; existing brand identity. No concept round or comp. `seed: none (pinned)` — “se usarán en tabletas ... más importante que funcione por botones que por scrollear ... mapa de ruta (como placeholder)”.
+FORM: `seed: none (pinned)` — user specifies: “quita el header por completo”, region buttons “solo deben ser las letras, no con bordes”, “el mapa abarca toda la pantalla”, “pantalla negra de fondo que diga Placeholder pequeño”, collapsible tabs that appear in the demo. No open concept choice or comp is needed.
 
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance.
 
-## Data boundaries
+## Behavior and boundaries
 
-Map geometry and crew marker are scenario placeholders, not geographic coordinates or live telemetry. Background contours and the diagram grid are schematic. Zoom/center/fit controls manipulate this diagram only. Replace RouteMapPlaceholder with the shared map during integration. Time and oxygen samples remain static; source photographs remain historical. The seismic alert is explicitly simulated. Return reuses the route backwards in the demo adapter.
+Expanded information is the default on load. One explicit control collapses/reopens the entire deck without losing the selected tab/page. Selecting a region or opening an alert reveals the deck. Tabs retain roving keyboard focus and short Previous/Next pages. Voice stays mounted outside the deck. No live sensors, geographic coordinates, navigation, oxygen model or seismic forecasting are introduced. Source photo provenance remains accessible. The NASA brand guide is graphic guidance, not evidence of validated flight hardware or astronaut usability.
 
-## Interaction
+## Reference
 
-Four accessible horizontal tabs with roving keyboard focus and Arrow/Home/End navigation. Short pages: Route 2, Science 3, Telemetry 2, Alerts 2. Switching tabs resets the page. Science selection changes the brief, not the astronaut position. Current warning, reserve comparison, voice and return remain available outside the tabs. At constrained heights or zoom, internal overflow is an accessibility fallback, not the primary tablet navigation.
+https://www.nasa.gov/nasa-brand-center/brand-guidelines/ — typography roles and disciplined hierarchy inform this interface; the user's palette and map canvas override color selection. Preserve text focus indicators even though normal region controls have no border.
