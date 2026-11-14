@@ -5,6 +5,7 @@ import { routeForZone } from "../navigation";
 import { animate } from "animejs";
 import { MARS_REGIONS } from "../data/marsZones";
 import spaceAppsLogo from "../NASA Space Apps Logos - 2026/Space Apps White small logo.png";
+import { createGlobeMotion, MARS_OVERVIEW_HEIGHT, MARS_PREVIEW_HEIGHT } from './globeMotion.js';
 
 // Generador de etiquetas en Canvas HD para nitidez total en pantallas Retina / Tablet
 function createCrispBadge(
@@ -94,7 +95,12 @@ export default function MarsGlobe3D({ onZoneSelected, compact = false }) {
     compactRef.current = compact;
     const frame = requestAnimationFrame(() => {
       const viewer = viewerRef.current?.viewer;
-      if (viewer && !viewer.isDestroyed()) { viewer.resize(); viewer.scene.requestRender(); }
+      if (viewer && !viewer.isDestroyed()) {
+        viewer.resize();
+        setNavLevel('regions'); setActiveRegion(null); setInspectedItem(null); setIsSidebarOpen(true);
+        viewerRef.current.motion.restart(!compact, false);
+        viewer.scene.requestRender();
+      }
     });
     return () => cancelAnimationFrame(frame);
   }, [compact]);
@@ -205,7 +211,7 @@ export default function MarsGlobe3D({ onZoneSelected, compact = false }) {
       destination: Cesium.Cartesian3.fromDegrees(
         62.0,
         14.5,
-        8500000,
+        compactRef.current ? MARS_PREVIEW_HEIGHT : MARS_OVERVIEW_HEIGHT,
         marsEllipsoid,
       ),
     });
@@ -302,10 +308,26 @@ export default function MarsGlobe3D({ onZoneSelected, compact = false }) {
       viewer.camera.position,
     );
 
-    let isSpinning = false;
+    const motion = createGlobeMotion({
+      now: () => performance.now(),
+      reducedMotion: () => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+      visible: () => !document.hidden,
+      onChange: state => { if (containerRef.current) containerRef.current.dataset.motion = state; },
+      rotate: angle => { viewer.camera.rotate(Cesium.Cartesian3.UNIT_Z, angle); viewer.scene.requestRender(); },
+      zoom: () => { viewer.camera.cancelFlight(); viewer.camera.zoomIn(viewer.camera.positionCartographic.height * 0.15); viewer.scene.requestRender(); },
+      resetCamera: (expanded, animated, complete) => {
+        viewer.camera.cancelFlight();
+        const destination = Cesium.Cartesian3.fromDegrees(62, 14.5, expanded ? MARS_OVERVIEW_HEIGHT : MARS_PREVIEW_HEIGHT, marsEllipsoid);
+        if (animated) viewer.camera.flyTo({ destination, duration: 1.2, complete });
+        else { viewer.camera.setView({ destination }); complete(); }
+        viewer.scene.requestRender();
+      },
+    });
+    const spinListener = viewer.clock.onTick.addEventListener(() => motion.tick());
     const tickListener = viewer.scene.preRender.addEventListener((_scene, time) => {
-      if (isSpinning) {
-        viewer.scene.camera.rotate(Cesium.Cartesian3.UNIT_Z, -0.0011);
+      if (containerRef.current) {
+        containerRef.current.dataset.cameraHeight = String(Math.round(viewer.camera.positionCartographic.height));
+        containerRef.current.dataset.cameraLongitude = String(viewer.camera.positionCartographic.longitude);
       }
 
       if (compactRef.current) {
@@ -340,16 +362,16 @@ export default function MarsGlobe3D({ onZoneSelected, compact = false }) {
       });
     });
 
-    const stopSpin = () => {
-      isSpinning = false;
-    };
+    const stopSpin = () => motion.pause();
 
     const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+    let pointerDown = false;
 
     handler.setInputAction(
-      () => stopSpin(),
+      () => { pointerDown = true; viewer.camera.cancelFlight(); motion.freeze(); },
       Cesium.ScreenSpaceEventType.LEFT_DOWN,
     );
+    handler.setInputAction(() => { pointerDown = false; }, Cesium.ScreenSpaceEventType.LEFT_UP);
     handler.setInputAction(() => stopSpin(), Cesium.ScreenSpaceEventType.WHEEL);
     handler.setInputAction(
       () => stopSpin(),
@@ -357,6 +379,7 @@ export default function MarsGlobe3D({ onZoneSelected, compact = false }) {
     );
 
     handler.setInputAction((movement) => {
+      if (pointerDown) stopSpin();
       const picked = viewer.scene.pick(movement.endPosition);
       if (Cesium.defined(picked) && picked.id?.properties?.itemData) {
         const data = picked.id.properties.itemData.getValue();
@@ -377,7 +400,6 @@ export default function MarsGlobe3D({ onZoneSelected, compact = false }) {
 
     // Clic o toque directo sobre el globo 3D
     handler.setInputAction((click) => {
-      stopSpin();
       const picked = viewer.scene.pick(click.position);
       if (Cesium.defined(picked) && picked.id?.properties?.itemData) {
         const data = picked.id.properties.itemData.getValue();
@@ -388,6 +410,7 @@ export default function MarsGlobe3D({ onZoneSelected, compact = false }) {
             // Al tocar el marcador de Syrtis Major en el globo, entra a ver sus sub-zonas
             enterRegion(viewer, data);
           } else {
+            stopSpin();
             setInspectedItem({ ...data, type, isPinned: true });
             setTooltipPos({
               x: click.position.x,
@@ -398,17 +421,21 @@ export default function MarsGlobe3D({ onZoneSelected, compact = false }) {
           enterZone(viewer, data);
         }
       } else {
+        motion.pause(true);
         setInspectedItem(null);
       }
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
-    viewerRef.current = { viewer, stopSpin };
+    viewerRef.current = { viewer, stopSpin, motion };
+    motion.restart(!compactRef.current, false);
 
     return () => {
       transitionRef.current?.cancel();
       transitionRef.current = null;
       viewerRef.current = null;
       viewer.camera.cancelFlight();
+      motion.dispose();
+      spinListener();
       tickListener();
       handler.destroy();
       if (!viewer.isDestroyed()) viewer.destroy();
@@ -444,15 +471,7 @@ export default function MarsGlobe3D({ onZoneSelected, compact = false }) {
     setNavLevel("regions");
     setIsSidebarOpen(true);
 
-    viewer.camera.flyTo({
-      destination: Cesium.Cartesian3.fromDegrees(
-        62.0,
-        14.5,
-        8500000,
-        Cesium.Ellipsoid.MARS,
-      ),
-      duration: 1.6,
-    });
+    viewerRef.current.motion.restart(true);
   };
 
   return (
@@ -461,7 +480,7 @@ export default function MarsGlobe3D({ onZoneSelected, compact = false }) {
       className="mars-globe-view relative w-full h-full overflow-hidden select-none text-white"
     >
       {/* Globo 3D de Marte */}
-      <div ref={containerRef} className="w-full h-full touch-none" />
+      <div ref={containerRef} className="w-full h-full touch-none" aria-label="Vista interactiva de Marte" />
 
       {/* BARRA SUPERIOR */}
       {!compact && !isTransitioning && (
