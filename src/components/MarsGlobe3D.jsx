@@ -320,7 +320,6 @@ export default function MarsGlobe3D({ onZoneSelected, compact = false }) {
       canResume: () => viewer.camera.positionCartographic.height >= MARS_PREVIEW_HEIGHT,
       onChange: state => { if (containerRef.current) containerRef.current.dataset.motion = state; },
       rotate: angle => { viewer.camera.rotate(Cesium.Cartesian3.UNIT_Z, angle); viewer.scene.requestRender(); },
-      zoom: () => { viewer.camera.cancelFlight(); viewer.camera.zoomIn(viewer.camera.positionCartographic.height * 0.15); viewer.scene.requestRender(); },
       resetCamera: (expanded, animated, complete) => {
         viewer.camera.cancelFlight();
         const destination = Cesium.Cartesian3.fromDegrees(62, 14.5, expanded ? MARS_OVERVIEW_HEIGHT : MARS_PREVIEW_HEIGHT, marsEllipsoid);
@@ -422,7 +421,7 @@ export default function MarsGlobe3D({ onZoneSelected, compact = false }) {
           enterZone(viewer, data);
         }
       } else {
-        motion.interact(true);
+        motion.interact();
         setInspectedItem(null);
       }
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);

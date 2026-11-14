@@ -2,10 +2,9 @@ export const MARS_OVERVIEW_HEIGHT = 11000000
 export const MARS_PREVIEW_HEIGHT = 8500000
 export const OVERVIEW_IDLE_MS = 500
 
-export function createGlobeMotion({ rotate, zoom, resetCamera, now, reducedMotion, visible, onChange, canResume = () => true }) {
+export function createGlobeMotion({ rotate, resetCamera, now, reducedMotion, visible, onChange, canResume = () => true }) {
   let generation = 0
   let running = false
-  let canZoom = false
   let overview = false
   let held = false
   let resumeAt = Infinity
@@ -16,17 +15,14 @@ export function createGlobeMotion({ rotate, zoom, resetCamera, now, reducedMotio
     running = false
     report()
   }
-  function interact(zoomOnTouch = false) {
+  function interact() {
     stop()
-    if (canZoom && zoomOnTouch) zoom()
-    canZoom = false
     resumeAt = overview ? now() + OVERVIEW_IDLE_MS : Infinity
   }
   return {
     pause() {
       stop()
       overview = false
-      canZoom = false
       resumeAt = Infinity
     },
     beginInteraction() { stop(); held = true; resumeAt = Infinity },
@@ -35,7 +31,6 @@ export function createGlobeMotion({ rotate, zoom, resetCamera, now, reducedMotio
     restart(enabled, animate = true) {
       const ticket = ++generation
       running = false
-      canZoom = enabled
       overview = enabled
       held = false
       resumeAt = Infinity

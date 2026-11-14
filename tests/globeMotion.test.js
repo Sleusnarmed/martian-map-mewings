@@ -25,20 +25,24 @@ test('overview starts further out and rotation is time based', () => {
   assert.ok(Math.abs(f.rotations.reduce((sum, angle) => sum + angle, 0) + 0.028) < 1e-12)
 })
 
-test('overview resumes after 500 ms of inactivity and a held gesture stays paused', () => {
+test('first and repeated blank taps never zoom; overview still resumes after 500 ms idle', () => {
   const f = fixture()
   f.motion.restart(true); f.flights[0](); f.tick(50)
   f.motion.beginInteraction()
   assert.equal(f.zooms(), 0)
+  // Retain the old touch flag/zoom spy as a regression trap for the removed hook.
   f.motion.interact(true); f.motion.interact(true)
   f.tick(1000)
-  assert.equal(f.zooms(), 1)
+  assert.equal(f.zooms(), 0)
   assert.equal(f.rotations.length, 1)
   assert.equal(f.states.at(-1), 'paused')
   f.motion.endInteraction(); f.tick(499)
   assert.equal(f.rotations.length, 1)
   f.tick(1)
   assert.equal(f.rotations.length, 2)
+  f.motion.restart(true); f.flights.at(-1)()
+  f.motion.beginInteraction(); f.motion.endInteraction(); f.motion.interact(true)
+  assert.equal(f.zooms(), 0)
 })
 
 test('new input extends the idle delay; focusing a zone disables all idle resumes', () => {
