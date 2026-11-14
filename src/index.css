@@ -1,12 +1,33 @@
 @import "tailwindcss";
 
-html,
-body,
-#root {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
-  background-color: #000000;
-  overflow: hidden;
+@layer base {
+  :root {
+    --nasa-blue-yonder: #2e96f5;
+    --nasa-neon-blue: #0960e1;
+    --nasa-electric-blue: #0042a6;
+    --nasa-deep-blue: #07173f;
+    --nasa-rocket-red: #e43700;
+    --nasa-martian-red: #8e1100;
+    --nasa-neon-yellow: #eafe07;
+  }
+
+  html,
+  body,
+  #root {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #07173f;
+    color: #ffffff;
+    font-family: "Overpass", sans-serif;
+    overflow: hidden;
+  }
+
+  h1,
+  h2,
+  h3,
+  .font-nasa-title {
+    font-family: "Fira Sans", sans-serif;
+  }
 }
