@@ -40,7 +40,7 @@ export const demoScenarios = [
   {
     id: 'normal', label: 'Normal traverse', shortLabel: '01 / Traverse',
     description: 'A normal traverse with time and oxygen autonomy above the exercise reserve.',
-    mode: 'outbound', status: 'in-progress', nextWaypointName: 'Delta lookout',
+    mode: 'outbound', status: 'in-progress', nextWaypointName: 'Delta lookout', routeProgress: 0.23,
     remainingDistanceMeters: 420, returnDistanceMeters: 600, returnDurationSeconds: 1200,
     elapsedSeconds: 1200, delaySeconds: 0, budgetSeconds: 3600,
     returnMarginSeconds: 1200, oxygenRemainingSeconds: 2400, oxygenReturnMarginSeconds: 1200,
@@ -51,7 +51,7 @@ export const demoScenarios = [
   {
     id: 'delay', label: 'Low return margin', shortLabel: '02 / Delay',
     description: 'Observation time and an eight-minute delay leave only two minutes of return margin.',
-    mode: 'outbound', status: 'in-progress', nextWaypointName: 'Wildcat Ridge',
+    mode: 'outbound', status: 'in-progress', nextWaypointName: 'Wildcat Ridge', routeProgress: 0.8,
     remainingDistanceMeters: 120, returnDistanceMeters: 600, returnDurationSeconds: 1200,
     elapsedSeconds: 2280, delaySeconds: 480, budgetSeconds: 3600,
     returnMarginSeconds: 120, oxygenRemainingSeconds: 1320, oxygenReturnMarginSeconds: 120,
@@ -62,7 +62,7 @@ export const demoScenarios = [
   {
     id: 'arrival', label: 'Science stop reached', shortLabel: '03 / Arrival',
     description: 'At the destination, open the surface evidence before beginning the return.',
-    mode: 'outbound', status: 'arrived', nextWaypointName: 'Wildcat Ridge',
+    mode: 'outbound', status: 'arrived', nextWaypointName: 'Wildcat Ridge', routeProgress: 1,
     remainingDistanceMeters: 0, returnDistanceMeters: 600, returnDurationSeconds: 1200,
     elapsedSeconds: 1200, delaySeconds: 0, budgetSeconds: 3600,
     returnMarginSeconds: 1200, oxygenRemainingSeconds: 2100, oxygenReturnMarginSeconds: 900,
@@ -73,7 +73,7 @@ export const demoScenarios = [
   {
     id: 'seismic-delay', label: 'Delay + seismic alert', shortLabel: '04 / Hazard',
     description: 'A fictional seismic alert and an eight-minute delay exercise the return decision. This is not a hazard forecast for Jezero.',
-    mode: 'outbound', status: 'in-progress', nextWaypointName: 'Wildcat Ridge',
+    mode: 'outbound', status: 'in-progress', nextWaypointName: 'Wildcat Ridge', routeProgress: 0.8,
     remainingDistanceMeters: 120, returnDistanceMeters: 600, returnDurationSeconds: 1200,
     elapsedSeconds: 2280, delaySeconds: 480, budgetSeconds: 3600,
     returnMarginSeconds: 120, oxygenRemainingSeconds: 1260, oxygenReturnMarginSeconds: 60,
@@ -84,7 +84,7 @@ export const demoScenarios = [
 ]
 
 export const missingMission = {
-  id: 'missing', mode: 'outbound', status: 'in-progress', nextWaypointName: null,
+  id: 'missing', mode: 'outbound', status: 'in-progress', nextWaypointName: null, routeProgress: null,
   remainingDistanceMeters: null, returnDurationSeconds: null, returnMarginSeconds: null,
   oxygenRemainingSeconds: null, oxygenReturnMarginSeconds: null, reserveSeconds: null,
   notice: { id: 'missing-notice', level: 'unknown', title: 'Mission data unavailable',

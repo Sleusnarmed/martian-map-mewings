@@ -8,6 +8,7 @@
   --md-deep-blue: #07173f; --md-electric-blue: #0042a6; --md-neon-blue: #0960e1; --md-blue-yonder: #2e96f5;
   --md-neon-yellow: #eafe07; --md-martian-red: #8e1100; --md-rocket-red: #e43700; --md-white: #ffffff;
   --md-text: var(--md-white); --md-muted: #b9cbe8; --md-border: #5777ac; --md-accent: var(--md-neon-yellow);
+  --md-overlay: rgb(7 23 63 / 70%); --md-overlay-border: rgb(87 119 172 / 70%);
   color: var(--md-text); color-scheme: dark; font-family: 'Mission Public Sans', 'Segoe UI', sans-serif; font-size: 15px; line-height: 1.5;
   scrollbar-color: var(--md-blue-yonder) var(--md-deep-blue); scrollbar-width: thin;
 }
@@ -23,8 +24,8 @@
 .md-demo svg { flex-shrink: 0; vertical-align: middle; }
 .md-muted { color: var(--md-muted); font-size: 12px; }
 .md-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 12px 16px; border: 1px solid transparent; border-radius: 4px; font-weight: 600 !important; font-size: 14px !important; }
-.md-button-primary { background: var(--md-neon-yellow); color: var(--md-deep-blue); }
-.md-button-primary:hover:enabled { background: var(--md-white); }
+.md-button-primary { background: rgb(234 254 7 / 70%); color: var(--md-deep-blue); }
+.md-button-primary:hover:enabled { background: rgb(255 255 255 / 70%); }
 .md-button-outline { background: transparent; color: var(--md-white); border-color: var(--md-border); }
 .md-button-outline:hover:enabled { background: var(--md-electric-blue); border-color: var(--md-blue-yonder); }
 .md-button-quiet { background: transparent; color: var(--md-muted); }

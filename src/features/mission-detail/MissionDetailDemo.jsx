@@ -74,7 +74,7 @@ export default function MissionDetailDemo() {
         <button className={`field-rail-button ${mission.notice?.level === 'warning' ? 'has-warning' : ''}`} aria-expanded={openPanel === 'alerts'} aria-controls="mission-alerts" onClick={() => setOpenPanel(openPanel === 'alerts' ? null : 'alerts')}><MissionIcon name="alert" /><span>Alerts</span>{mission.notice?.level === 'warning' && <span className="mt-alert-count" aria-label="1 exercise alert">1</span>}</button>
         <VoiceControls key={`${mission.id}-${mission.notice?.id}-${mission.notice?.text}`} text={mission.notice?.text} compact />
       </div>
-      <MissionHUD mission={mission} onOpenRoute={() => openInformation('route')} onOpenAlerts={() => setOpenPanel('alerts')} />
+      <MissionHUD mission={mission} onOpenRoute={() => openInformation('route')} />
     </div>
   )
 }
