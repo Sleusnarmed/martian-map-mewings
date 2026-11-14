@@ -79,6 +79,7 @@ export default function MarsGlobe3D({ onZoneSelected, compact = false }) {
   const [inspectedItem, setInspectedItem] = useState(null);
   const [tooltipPos, setTooltipPos] = useState(null);
 
+  const compactRef = useRef(compact);
   const navStateRef = useRef({ navLevel: "regions", activeRegionId: null });
 
   useEffect(() => {
@@ -90,6 +91,7 @@ export default function MarsGlobe3D({ onZoneSelected, compact = false }) {
   }, [navLevel, activeRegion]);
 
   useEffect(() => {
+    compactRef.current = compact;
     const frame = requestAnimationFrame(() => {
       const viewer = viewerRef.current?.viewer;
       if (viewer && !viewer.isDestroyed()) { viewer.resize(); viewer.scene.requestRender(); }
@@ -159,6 +161,8 @@ export default function MarsGlobe3D({ onZoneSelected, compact = false }) {
 
     const viewer = new Cesium.Viewer(containerRef.current, {
       ellipsoid: marsEllipsoid,
+      contextOptions: { webgl: { alpha: true } },
+      skyBox: false,
       baseLayer: false,
       requestRenderMode: true,
       maximumRenderTimeChange: Infinity,
@@ -194,7 +198,7 @@ export default function MarsGlobe3D({ onZoneSelected, compact = false }) {
     if (viewer.scene.skyAtmosphere) {
       viewer.scene.skyAtmosphere.show = false;
     }
-    viewer.scene.backgroundColor = Cesium.Color.fromCssColorString("#030919");
+    viewer.scene.backgroundColor = Cesium.Color.TRANSPARENT;
     viewer.scene.globe.depthTestAgainstTerrain = false;
 
     viewer.camera.setView({
@@ -304,6 +308,10 @@ export default function MarsGlobe3D({ onZoneSelected, compact = false }) {
         viewer.scene.camera.rotate(Cesium.Cartesian3.UNIT_Z, -0.0011);
       }
 
+      if (compactRef.current) {
+        viewer.entities.values.forEach(entity => { entity.show = false; });
+        return;
+      }
       occluder.cameraPosition = viewer.camera.positionWC;
       const { navLevel: currentLevel, activeRegionId } = navStateRef.current;
 
@@ -450,7 +458,7 @@ export default function MarsGlobe3D({ onZoneSelected, compact = false }) {
   return (
     <div
       ref={overlayRef}
-      className="relative w-full h-full bg-[#07173F] overflow-hidden select-none text-white"
+      className="mars-globe-view relative w-full h-full overflow-hidden select-none text-white"
     >
       {/* Globo 3D de Marte */}
       <div ref={containerRef} className="w-full h-full touch-none" />

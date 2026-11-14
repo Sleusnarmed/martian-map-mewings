@@ -54,3 +54,7 @@ button, a, select { touch-action: manipulation; }
 .globe-home-back { position:absolute; right:16px; bottom:16px; z-index:60; background:#07173f; color:#eafe07; border:1px solid #2e96f5; border-radius:8px; padding:12px 18px; }
 @keyframes globe-open { from { opacity:.7; transform:scale(.92); } to { opacity:1; transform:scale(1); } }
 @media(prefers-reduced-motion:reduce) { .space-loader-logo .space-loader-fill, .home-globe-expanded { animation:none; } }
+
+/* Let the home artwork show through the WebGL canvas around Mars. */
+.home-globe:not(.home-globe-expanded), .mars-globe-view .cesium-widget, .mars-globe-view .cesium-widget canvas { background:transparent; }
+.home-globe:not(.home-globe-expanded) .space-loader { background:transparent; }
