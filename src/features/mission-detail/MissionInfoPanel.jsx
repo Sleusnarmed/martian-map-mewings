@@ -25,7 +25,7 @@ function TelemetryPage({ mission }) {
   return <><h2>Telemetry</h2><p className="mt-panel-description">Mission time and return resources</p><dl className="mt-telemetry-table">{rows.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl><p className="mt-body-note">Oxygen autonomy is shown as time remaining. Return margins account for the estimated journey back.</p></>
 }
 
-export default function MissionInfoPanel({ mission, region, image, activeTab, page, onTabChange, onPageChange, onReturn, onInspectStop, collapsed = false }) {
+export default function MissionInfoPanel({ mission, region, image, activeTab, page, contentRef, onTabChange, onPageChange, onReturn, onInspectStop, collapsed = false }) {
   const tabRefs = useRef([])
   const panelRef = useRef(null)
   useOverflowIndicator(panelRef, `${activeTab}-${page}-${region?.id}`)
@@ -39,14 +39,14 @@ export default function MissionInfoPanel({ mission, region, image, activeTab, pa
   return (
     <aside id="mission-information" className={`md-panel field-deck ${activeTab === 'science' ? 'has-pages' : ''}`} aria-label="Mission information" hidden={collapsed}>
       <div className="mt-tabs" role="tablist" aria-label="Mission information tabs">{tabs.map((tab, index) => <button key={tab.id} ref={(element) => { tabRefs.current[index] = element }} id={`mission-tab-${tab.id}`} role="tab" aria-selected={activeTab === tab.id} aria-controls="mission-active-panel" tabIndex={activeTab === tab.id ? 0 : -1} onKeyDown={(event) => handleTabKey(event, index)} onClick={() => onTabChange(tab.id)}>{tab.label}</button>)}</div>
-      <section ref={panelRef} className="mt-tabpanel" role="tabpanel" id="mission-active-panel" aria-labelledby={`mission-tab-${activeTab}`} tabIndex={0}>
-        <div className="mt-panel-content">
+      <section key={`${activeTab}-${page}-${region?.id}`} ref={panelRef} className="mt-tabpanel" role="tabpanel" id="mission-active-panel" aria-labelledby={`mission-tab-${activeTab}`} tabIndex={0}>
+        <div ref={contentRef} className="mt-panel-content">
         {activeTab === 'route' && <RoutePage mission={mission} onReturn={onReturn} onInspectStop={onInspectStop} />}
         {activeTab === 'science' && <RegionDetail key={region?.id} region={region} image={image} page={page} />}
         {activeTab === 'telemetry' && <TelemetryPage mission={mission} />}
         </div>
       </section>
-      {activeTab === 'science' && <nav className="mt-page-controls" aria-label="Science information pages"><button className="md-button md-button-quiet" disabled={page === 0} onClick={() => onPageChange(page - 1)}><MissionIcon name="chevron-left" />Previous</button><span role="status" aria-live="polite">{page + 1} / 3</span>{page === 2 && region?.source ? <a className="md-button md-button-quiet" href={region.source} target="_blank" rel="noreferrer">NASA source<MissionIcon name="arrow-up-right" size={16} /></a> : <button className="md-button md-button-quiet" disabled={page >= 2} onClick={() => onPageChange(page + 1)}>Next<MissionIcon name="chevron" /></button>}</nav>}
+      {activeTab === 'science' && <nav className="mt-page-controls" aria-label="Science information pages"><button className="md-button md-button-quiet" disabled={page === 0} onClick={() => onPageChange((current) => current - 1)}><MissionIcon name="chevron-left" />Previous</button><span role="status" aria-live="polite">{page + 1} / 3</span>{page === 2 && region?.source ? <a className="md-button md-button-quiet" href={region.source} target="_blank" rel="noreferrer">NASA source<MissionIcon name="arrow-up-right" size={16} /></a> : <button className="md-button md-button-quiet" disabled={page >= 2} onClick={() => onPageChange((current) => current + 1)}>Next<MissionIcon name="chevron" /></button>}</nav>}
     </aside>
   )
 }

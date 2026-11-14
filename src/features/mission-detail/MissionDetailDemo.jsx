@@ -1,9 +1,9 @@
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import MissionHUD from './MissionHUD.jsx'
 import MissionInfoPanel from './MissionInfoPanel.jsx'
 import MissionAlerts from './MissionAlerts.jsx'
 import VoiceControls from './VoiceControls.jsx'
-import useMissionPanelMotion from './useMissionPanelMotion.js'
+import useFadingView from './useFadingView.js'
 import RouteMapPlaceholder from './RouteMapPlaceholder.jsx'
 import { demoScenarios, missingMission, regions, wildcatImage } from './demoMission.js'
 import MissionIcon from './MissionIcon.jsx'
@@ -24,14 +24,13 @@ function readPreviewLocation() {
 
 export default function MissionDetailDemo() {
   const [preview] = useState(readPreviewLocation)
-  const [selectedRegionId, setSelectedRegionId] = useState('wildcat-ridge')
+  const information = useFadingView({ tab: preview.activeTab, page: preview.page, regionId: 'wildcat-ridge' }, (value) => `${value.tab}-${value.page}-${value.regionId}`)
+  const { tab: activeTab, page, regionId: selectedRegionId } = information.value
   const [scenarioId, setScenarioId] = useState(preview.scenarioId)
   const [returning, setReturning] = useState(false)
   const [hideData, setHideData] = useState(false)
-  const [activeTab, setActiveTab] = useState(preview.activeTab)
-  const [page, setPage] = useState(preview.page)
-  const [openPanel, setOpenPanel] = useState(preview.panel)
-  const overlayRef = useRef(null)
+  const panel = useFadingView(preview.panel)
+  const { value: openPanel, change: setOpenPanel, ref: overlayRef } = panel
   const selectedScenario = demoScenarios.find((scenario) => scenario.id === scenarioId)
   const baseMission = hideData ? missingMission : selectedScenario
   // Demo adapter only: no telemetry stream or navigation hardware is connected.
@@ -41,19 +40,24 @@ export default function MissionDetailDemo() {
     notice: { ...baseMission.notice, id: `${baseMission.notice.id}-return`, title: 'Return route selected',
       text: 'Return to point A, Base. Follow the return route and monitor your time and oxygen margins.' },
   } : baseMission
-  useMissionPanelMotion(overlayRef, openPanel, mission.notice?.id)
 
-  function changeTab(tab) { setActiveTab(tab); setPage(0) }
+  function changeTab(tab) { information.change((current) => ({ ...current, tab, page: 0 })) }
+  function changePage(update) {
+    information.change((current) => ({ ...current, page: current.tab === 'science' ? Math.max(0, Math.min(2, typeof update === 'function' ? update(current.page) : update)) : 0 }))
+  }
   function openInformation(tab) {
     changeTab(tab); setOpenPanel('information')
     window.requestAnimationFrame(() => document.getElementById(`mission-tab-${tab}`)?.focus())
   }
-  function selectRegion(id) { setSelectedRegionId(id); openInformation('science') }
+  function selectRegion(id) {
+    information.change((current) => ({ ...current, regionId: id, tab: 'science', page: 0 }))
+    setOpenPanel('information')
+    window.requestAnimationFrame(() => document.getElementById('mission-tab-science')?.focus())
+  }
   function selectScenario(id) {
-    setScenarioId(id); setReturning(false); setHideData(false); setPage(0)
+    setScenarioId(id); setReturning(false); setHideData(false)
     setOpenPanel(id.includes('delay') ? 'alerts' : 'information')
-    if (id === 'arrival') { setSelectedRegionId('wildcat-ridge'); setActiveTab('science') }
-    else setActiveTab('route')
+    information.change((current) => ({ ...current, tab: id === 'arrival' ? 'science' : 'route', regionId: id === 'arrival' ? 'wildcat-ridge' : current.regionId, page: 0 }))
   }
 
   return (
@@ -69,15 +73,15 @@ export default function MissionDetailDemo() {
       </nav>
       <details className="field-demo">
         <summary>Mission case</summary>
-        <div className="field-demo-content"><label htmlFor="mission-case">Mission case</label><select id="mission-case" value={scenarioId} onChange={(event) => selectScenario(event.target.value)}>{demoScenarios.map((scenario) => <option key={scenario.id} value={scenario.id}>{scenario.label}</option>)}</select><button className="md-button md-button-outline" aria-pressed={hideData} onClick={() => { setHideData(!hideData); setReturning(false); setPage(0); setOpenPanel(!hideData || scenarioId.includes('delay') ? 'alerts' : 'information') }}>No data</button></div>
+        <div className="field-demo-content"><label htmlFor="mission-case">Mission case</label><select id="mission-case" value={scenarioId} onChange={(event) => selectScenario(event.target.value)}>{demoScenarios.map((scenario) => <option key={scenario.id} value={scenario.id}>{scenario.label}</option>)}</select><button className="md-button md-button-outline" aria-pressed={hideData} onClick={() => { setHideData(!hideData); setReturning(false); changePage(0); setOpenPanel(!hideData || scenarioId.includes('delay') ? 'alerts' : 'information') }}>No data</button></div>
       </details>
       <div className="field-information" ref={overlayRef}>
-        <MissionInfoPanel mission={mission} region={regions[selectedRegionId]} image={wildcatImage} activeTab={activeTab} page={page} onTabChange={changeTab} onPageChange={setPage} onReturn={() => { setReturning(true); openInformation('route') }} onInspectStop={() => selectRegion('wildcat-ridge')} collapsed={openPanel !== 'information'} />
+        <MissionInfoPanel mission={mission} region={regions[selectedRegionId]} image={wildcatImage} activeTab={activeTab} page={page} contentRef={information.ref} onTabChange={changeTab} onPageChange={changePage} onReturn={() => { setReturning(true); openInformation('route') }} onInspectStop={() => selectRegion('wildcat-ridge')} collapsed={openPanel !== 'information'} />
         <MissionAlerts mission={mission} open={openPanel === 'alerts'} onOpenRoute={() => openInformation('route')} />
       </div>
       <div className="field-control-rail" role="group" aria-label="Mission panels and audio">
-        <button className="field-rail-button" aria-expanded={openPanel === 'information'} aria-controls="mission-information" onClick={() => setOpenPanel(openPanel === 'information' ? null : 'information')}><MissionIcon name={openPanel === 'information' ? 'panel-close' : 'panel-open'} /><span>Information</span></button>
-        <button className={`field-rail-button ${mission.notice?.level === 'warning' ? 'has-warning' : ''}`} aria-expanded={openPanel === 'alerts'} aria-controls="mission-alerts" onClick={() => setOpenPanel(openPanel === 'alerts' ? null : 'alerts')}><MissionIcon name="alert" /><span>Alerts</span>{mission.notice?.level === 'warning' && <span className="mt-alert-count" aria-label="1 mission alert">1</span>}</button>
+        <button className="field-rail-button" aria-expanded={openPanel === 'information'} aria-controls="mission-information" onClick={() => setOpenPanel((current) => current === 'information' ? null : 'information')}><MissionIcon name={openPanel === 'information' ? 'panel-close' : 'panel-open'} /><span>Information</span></button>
+        <button className={`field-rail-button ${mission.notice?.level === 'warning' ? 'has-warning' : ''}`} aria-expanded={openPanel === 'alerts'} aria-controls="mission-alerts" onClick={() => setOpenPanel((current) => current === 'alerts' ? null : 'alerts')}><MissionIcon name="alert" /><span>Alerts</span>{mission.notice?.level === 'warning' && <span className="mt-alert-count" aria-label="1 mission alert">1</span>}</button>
         <VoiceControls noticeId={mission.notice?.id} text={mission.notice?.text} />
       </div>
       <span className="field-sr-only" role="status" aria-live="polite">{mission.notice?.title}</span>
