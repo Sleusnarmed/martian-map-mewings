@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { horizontalSkyDirection, localSkyFrame } from './marsSkyModel.js'
 import './mars-sky.css'
+import SourceReference from '../../components/SourceReference.jsx'
 
 const radians = Math.PI / 180
 const names = new Map([
@@ -122,6 +123,7 @@ export default function MarsSkyChart({ sky, longitude, latitude, heading }) {
       <input type="checkbox" checked={showFigures} onChange={event => setShowFigures(event.target.checked)} />
       Trazos y nombres de referencia
     </label>
-    <p>Las estrellas se muestran como referencia incluso de día. <a href="https://cdsarc.cds.unistra.fr/viz-bin/cat/I/239" target="_blank" rel="noreferrer">Hipparcos / CDS</a></p>
+    <p>Stars are shown as a reference even during daylight.</p>
+    <SourceReference source="https://cdsarc.cds.unistra.fr/viz-bin/cat/I/239">Hipparcos / CDS attribution</SourceReference>
   </figure>
 }

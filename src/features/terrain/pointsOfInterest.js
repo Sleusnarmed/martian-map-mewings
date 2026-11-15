@@ -1,4 +1,5 @@
 // Hazeltop sample position represents the Wildcat Ridge outcrop, not its boundary.
+import { EXPANDED_JEZERO_POINTS } from './expandedJezeroPoints.js'
 // NASA PDS, Initial Reports Volume 2 Release 2, Hazeltop, page 14-1.
 export const JEZERO_POINTS = [
   {
@@ -16,7 +17,7 @@ export const JEZERO_POINTS = [
     name: 'Skinner Ridge · Swift Run',
     latitude: 18.458931,
     longitude: 77.40617078,
-    displayModes: ['walk'],
+    markerHeight: 2,
     source: 'https://pds-geosciences.wustl.edu/missions/mars2020/Mars%202020%20Initial%20Reports%20Volume%202%20Release%202.pdf#page=14',
     contextSource: 'https://science.nasa.gov/photojournal/2-perseverance-sampling-locations-in-jezeros-delta/',
     reference: 'M2020-490-11 Swift Run, pages 11-1–11-2',
@@ -28,11 +29,39 @@ export const JEZERO_POINTS = [
     name: 'Amalik · Shuyak',
     latitude: 18.45068954,
     longitude: 77.40143171,
-    displayModes: ['walk'],
+    markerHeight: 2,
     source: 'https://pds-geosciences.wustl.edu/missions/mars2020/Mars%202020%20Initial%20Reports%20Volume%202%20Release%202.pdf#page=100',
     contextSource: 'https://science.nasa.gov/resource/meet-the-mars-samples-shuyak-and-mageik-samples-14-and-15/',
     reference: 'M2020-575-16 Shuyak, pages 16-1–16-2',
     summary: 'Perseverance collected Shuyak from this fine-grained sedimentary outcrop on October 2, 2022.',
     positionNote: 'Published Shuyak sample position; represents the outcrop, not its boundary.',
   },
+  {
+    id: 'rochette', name: 'Rochette · Montdenier',
+    latitude: 18.43074132, longitude: 77.44436502, markerHeight: 2,
+    source: 'https://pds-geosciences.wustl.edu/missions/mars2020/Mars%202020%20Initial%20Reports%20Volume%201%20Release%202.2.pdf',
+    contextSource: 'https://www.nasa.gov/image-article/rochette-after-perseverance-sampling-2/',
+    reference: 'NASA PDS · Initial Reports Volume 1, Release 2.2 · M2020-190-3 Montdenier · page 3-1',
+    summary: 'Rochette supplied Perseverance’s first successfully collected rock cores, Montdenier and Montagnac. Its igneous rocks record the crater floor’s history.',
+    positionNote: 'Published Montdenier sample position; represents Rochette, not its boundary.',
+  },
+  {
+    id: 'brac', name: 'Brac · Salette',
+    latitude: 18.43397, longitude: 77.44301, markerHeight: 2,
+    source: 'https://pds-geosciences.wustl.edu/missions/mars2020/Mars%202020%20Initial%20Reports%201-10%20August%202022.pdf',
+    contextSource: 'https://science.nasa.gov/blog/to-seitah-and-back/',
+    reference: 'NASA PDS · Initial Reports 1–10, August 2022 · M2020-262-5 Salette · page 5-1',
+    summary: 'An olivine-bearing igneous outcrop in South Séítah, sampled as Salette and Coulettes to investigate the crater floor and aqueous alteration.',
+    positionNote: 'Published Salette sample position; represents Brac, not its boundary.',
+  },
+  {
+    id: 'issole', name: 'Issole · Robine',
+    latitude: 18.43264, longitude: 77.44133, markerHeight: 2,
+    source: 'https://pds-geosciences.wustl.edu/missions/mars2020/Mars%202020%20Initial%20Reports%201-10%20August%202022.pdf',
+    contextSource: 'https://science.nasa.gov/mission/mars-2020-perseverance/mars-rock-samples/',
+    reference: 'NASA PDS · Initial Reports 1–10, August 2022 · M2020-298-7 Robine · page 7-1',
+    summary: 'A South Séítah outcrop sampled as Robine and Malay. Its olivine- and pyroxene-bearing rock provides context for the crater floor’s igneous history.',
+    positionNote: 'Published Robine sample position in the August 2022 report; represents Issole, not its boundary.',
+  },
+  ...EXPANDED_JEZERO_POINTS,
 ]

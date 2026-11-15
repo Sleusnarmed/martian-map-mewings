@@ -182,7 +182,7 @@ export default function TerrainControlsPanel({ map, exploration, layers, skyPane
         />
         {!skyPanel.open && <EnvironmentTimeline environment={environment} />}
       </div>
-      <TerrainDataSources inspection={inspection} wildcat={wildcat} />
+      <TerrainDataSources ready={ready} inspection={inspection} wildcat={wildcat} points={map.pointsOfInterest} selectedId={map.selectedScienceId} onSelectPoint={map.selectSciencePoint} />
     </aside>
   );
 }

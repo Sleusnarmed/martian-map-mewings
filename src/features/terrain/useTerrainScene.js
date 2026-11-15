@@ -6,8 +6,9 @@ import { constrainCamera, MIN_CLEARANCE, MAX_CAMERA_HEIGHT } from './cameraLimit
 import { boundedZoomDistance } from './terrainZoom'
 import { pickTerrainRay } from './pickTerrain'
 import region from './region.json'
+import { configureOfflineCesiumCredit } from '../globe/offlineCesiumCredit.js'
 
-export function useTerrainScene({ container, viewerRef, selectCallback, terrainUrl, attempt, initialPointId, pointsOfInterest, modeRef, setState, setInspection, setRefining }) {
+export function useTerrainScene({ container, viewerRef, selectCallback, clusterFocusRef, terrainUrl, attempt, initialPointId, pointsOfInterest, modeRef, setState, setInspection, setRefining }) {
   useEffect(() => {
     const controller = new AbortController()
     let viewer
@@ -19,6 +20,7 @@ export function useTerrainScene({ container, viewerRef, selectCallback, terrainU
         window.CESIUM_BASE_URL = `${import.meta.env.BASE_URL}cesium/`
         const terrainProvider = createTerrainProvider(data)
         const { ellipsoid, rectangle } = terrainProvider.tilingScheme
+        configureOfflineCesiumCredit()
         viewer = new Cesium.Viewer(container.current, {
           ellipsoid, depthPlaneEllipsoidOffset: -10000,
           globe: new Cesium.Globe(ellipsoid), terrainProvider, baseLayer: false,
@@ -30,6 +32,7 @@ export function useTerrainScene({ container, viewerRef, selectCallback, terrainU
           maximumRenderTimeChange: Infinity, msaaSamples: 1,
           useBrowserRecommendedResolution: false,
         })
+        configureOfflineCesiumCredit(viewer)
         viewer.scene.globe.cartographicLimitRectangle = rectangle
         viewer.scene.globe.baseColor = Cesium.Color.fromCssColorString('#88553b')
         viewer.scene.globe.showGroundAtmosphere = false
@@ -115,6 +118,7 @@ export function useTerrainScene({ container, viewerRef, selectCallback, terrainU
             if (poi) {
               const elevation = sampleHeight(data, poi.longitude, poi.latitude)
               setInspection({ ...poi, elevation, lon: poi.longitude, lat: poi.latitude })
+              clusterFocusRef.current?.(poi)
               return
             }
           }
@@ -142,6 +146,6 @@ export function useTerrainScene({ container, viewerRef, selectCallback, terrainU
     }
     start()
     return () => { controller.abort(); cleanups.forEach(remove => remove()); viewerRef.current = null; if (viewer && !viewer.isDestroyed()) viewer.destroy() }
-  }, [container, viewerRef, selectCallback, terrainUrl, attempt, initialPointId, pointsOfInterest, modeRef, setState, setInspection, setRefining])
+  }, [container, viewerRef, selectCallback, clusterFocusRef, terrainUrl, attempt, initialPointId, pointsOfInterest, modeRef, setState, setInspection, setRefining])
 
 }

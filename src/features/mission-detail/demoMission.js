@@ -25,7 +25,7 @@ export const regions = {
 }
 
 export const wildcatImage = {
-  src: 'https://assets.science.nasa.gov/dynamicimage/assets/science/psd/mars/downloadable_items/4/7/47560_PIA24928.jpg?fit=clip&w=1400',
+  src: `${import.meta.env.BASE_URL}data/wildcat-ridge/wildcat-ridge.jpg`,
   alt: 'Perseverance mosaic of the rocky Wildcat Ridge outcrop, including sampling and abrasion sites.',
   credit: 'NASA/JPL-Caltech/ASU/MSSS',
   instrument: 'Perseverance · Mastcam-Z',

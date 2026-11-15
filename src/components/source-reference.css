@@ -1,0 +1,7 @@
+.source-reference { margin-block: 8px; font-size: 13px; line-height: 1.5; }
+.source-reference > summary { min-height: 44px; display: list-item; align-content: center; cursor: pointer; color: var(--md-muted, #b9cbe8); text-decoration: underline; text-underline-offset: 3px; }
+.source-reference > summary:hover { color: var(--md-white, #fff); }
+.source-reference > summary:focus-visible { outline: 2px solid var(--md-neon-yellow, #eafe07); outline-offset: 2px; }
+.source-reference-record { padding: 8px 0 8px 16px; color: var(--md-white, #fff); overflow-wrap: anywhere; }
+.source-reference-record p { margin-block: 6px; }
+.source-reference-record code { font-size: 12px; }

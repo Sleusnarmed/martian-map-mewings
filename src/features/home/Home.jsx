@@ -45,8 +45,8 @@ function DevelopersDialog({ dialog }) {
       </div>
       <p>Designed and developed for the <strong>NASA Space Apps Challenge</strong> by:</p>
       <ul className="solar-developers">
-        {['sleusnarmed', 'mjsb05', 'maverick2505', 'eddyRuLop', 'VladymirVazquez'].map(handle => (
-          <li key={handle}><a href={`https://github.com/${handle}`} target="_blank" rel="noreferrer">@{handle}</a></li>
+        {['sleusnarmed', 'mjsb05', 'maverick2505', 'eddyRuLop', 'VladymirVazquez', 'Eduardo450'].map(handle => (
+          <li key={handle}><span>@{handle}</span></li>
         ))}
       </ul>
     </dialog>
@@ -147,9 +147,9 @@ export default function Home({ onZoneSelected, expanded = false, onExpandedChang
             </div>
           </section>
 
-          <a className="solar-brand" href="https://www.spaceappschallenge.org/" target="_blank" rel="noreferrer">
+          <div className="solar-brand">
             <img src={spaceApps} alt="NASA Space Apps Challenge" />
-          </a>
+          </div>
         </main>
 
         <footer className="solar-footer">

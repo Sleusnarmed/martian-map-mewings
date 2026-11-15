@@ -3,6 +3,7 @@ import { clockLabel } from './environmentModel'
 import { geologyLayer, geologyLegend, hiriseLayer, orbitalLayer, wildcatAsset } from './wildcatImagery'
 import { heatColors } from './useSolarHeatingLayer'
 import { DEM_SOURCE } from './terrainData'
+import SourceReference from '../../components/SourceReference.jsx'
 
 const MEDA_SOURCE = 'https://pds-atmospheres.nmsu.edu/data_and_services/atmospheres_data/PERSEVERANCE/meda.html'
 const MOSAIC_SOURCE = 'https://www.jpl.nasa.gov/images/pia24928-sample-collection-and-rock-analysis-at-wildcat-ridge/'
@@ -23,8 +24,8 @@ const variables = [
   { id: 'solar', title: 'Solar radiation', sensor: 'RDS · upward photodiode 7', unit: 'W/m²', note: 'Radiation measured in the photodiode’s field of view. Ionizing dose requires a separate instrument.' },
 ]
 
-function SourceLink({ href, children }) {
-  return <a href={href} target="_blank" rel="noreferrer">{children}</a>
+function SourceNote({ source, children }) {
+  return <SourceReference source={source}>{children}</SourceReference>
 }
 
 function MapLayerControl({ checked, disabled, label, onChange, source, status, children }) {
@@ -33,7 +34,7 @@ function MapLayerControl({ checked, disabled, label, onChange, source, status, c
       <span>{label}</span>
       <input type="checkbox" checked={checked} onChange={event => onChange(event.target.checked)} disabled={disabled} />
     </label>
-    <SourceLink href={source}>Source ↗</SourceLink>
+    <SourceNote source={source}>Source reference</SourceNote>
     {checked && status === 'loading' && <p role="status">Loading layer…</p>}
     {checked && status === 'error' && <p role="status">Layer unavailable.</p>}
     {checked && status === 'ready' && children}
@@ -50,7 +51,8 @@ function Photo({ thumbnail, file, alt, caption, source }) {
     }}>
       <img src={wildcatAsset(thumbnail ?? file)} alt={alt} loading="lazy" />
     </button>
-    <figcaption>{caption} <SourceLink href={source}>Source ↗</SourceLink></figcaption>
+    <figcaption>{caption}</figcaption>
+    <SourceNote source={source}>Source reference</SourceNote>
     <dialog ref={dialog} className="wildcat-photo-dialog" aria-label={alt} onClose={() => setOpened(false)}>
       <form method="dialog"><button>Close photo</button></form>
       {opened && <img src={wildcatAsset(file)} alt={alt} />}
@@ -69,7 +71,7 @@ function Observation({ definition, data, reading, sol }) {
         {reading.direction !== undefined && <small> · Direction {reading.direction}°</small>}
       </p>
       <p>Measured: sol {data.sol} · {reading.time} LMST<br />Offset from shared clock: {reading.offsetMinutes.toFixed(1)} min.</p>
-      <SourceLink href={data.source}>PDS measurement file ↗</SourceLink>
+      <SourceNote source={data.source}>PDS measurement record</SourceNote>
     </> : <p>{data?.sol !== sol ? `No series for sol ${sol} in this package.` : 'No observation within 35 minutes of the shared clock. No extrapolation.'}</p>}
     {definition.note && <p>{definition.note}</p>}
   </details>
@@ -80,7 +82,8 @@ function Environment({ environment }) {
   const [skyOpen, setSkyOpen] = useState(false)
 
   return <section aria-label="Historical environment" className="wildcat-environment">
-    <p>Historical measurements at Perseverance in Jezero. Hours use local mean solar time (LMST). <SourceLink href={MEDA_SOURCE}>MEDA archive ↗</SourceLink></p>
+    <p>Historical measurements at Perseverance in Jezero. Hours use local mean solar time (LMST).</p>
+    <SourceNote source={MEDA_SOURCE}>MEDA archive attribution</SourceNote>
     <p><strong>Sol {sol} · {clockLabel(minute)} LMST</strong><br />All sensors follow the map clock. Nearest recorded sample within ±35 min; no interpolation. These measurements do not describe every point on the map.</p>
     {state.status === 'loading' && <p role="status">Loading MEDA observations…</p>}
     {state.status === 'error' && <p role="status">MEDA observations could not be loaded. <button onClick={retry}>Retry MEDA</button></p>}
@@ -115,7 +118,7 @@ export default function WildcatLayers({
         {orbital.detailStatus === 'error' && <p>The 5 m CTX crop is unavailable.</p>}
         {orbital.hiriseStatus === 'loading' && <p role="status">Loading the HiRISE close-up…</p>}
         {orbital.hiriseStatus === 'error' && <p>The HiRISE close-up image is unavailable.</p>}
-        <p><SourceLink href={hiriseLayer.source}>HiRISE imagery ↗</SourceLink></p>
+        <SourceNote source={hiriseLayer.source}>HiRISE imagery attribution</SourceNote>
         {closeUp && <button className="wildcat-detail-button" type="button" onClick={closeUp}>Inspect calculated route in 3D</button>}
       </MapLayerControl>
       <MapLayerControl label="Solar heat map (modeled)" source={DEM_SOURCE}

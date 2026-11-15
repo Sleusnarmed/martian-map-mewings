@@ -16,6 +16,7 @@ import TerrainControlsPanel from './TerrainControlsPanel'
 import TerrainMapControls from './TerrainMapControls'
 import TerrainPoints from './TerrainPoints.jsx'
 import { useTerrainMarkers } from './useTerrainMarkers.js'
+import { pointClusterFocus, applyPointClusterFocus } from './pointClusterFocus.js'
 import { buildMarsSky } from '../mars-sky/marsSkyModel'
 import { useMarsSceneSky } from '../mars-sky/useMarsSceneSky'
 import './terrain.css'
@@ -31,6 +32,7 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
   const viewerRef = useRef(null)
   const selectCallback = useRef(onPointSelect)
   const navigationRef = useRef(null)
+  const clusterFocusRef = useRef(null)
   const [state, setState] = useState({ status: 'loading' })
   const [attempt, setAttempt] = useState(0)
   const [skyPanelOpen, setSkyPanelOpen] = useState(false)
@@ -44,6 +46,16 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
   const navigation = useTerrainNavigation(imageryViewer, state.data, route)
   const { modeRef } = navigation
   useEffect(() => { navigationRef.current = navigation }, [navigation])
+  useEffect(() => {
+    clusterFocusRef.current = point => {
+      const context = viewerRef.current
+      const target = pointClusterFocus(context, point)
+      if (!target) return
+      const current = navigationRef.current
+      if (current.mode === 'walk') current.chooseMode('auto')
+      applyPointClusterFocus(context, target, current.mode === 'map')
+    }
+  }, [])
   const exploring = navigation.mode === 'walk'
   useMissionMap(imageryViewer, state.data, missionState, { route: routeVisible, hazards: hazardsVisible, coverage: coverageVisible })
   useEffect(() => { if (state.data) attachTerrain(state.data) }, [state.data, attachTerrain])
@@ -55,11 +67,16 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
   const layers = useTerrainLayers({ viewerRef, state, initialPointId, minute: environment.minute, exploring })
   const { slopeThreshold, setSlopeThreshold } = layers
   const inspection = missionState.inspection
-  const setInspection = useCallback(point => inspect(point), [inspect])
+  const [selectedSciencePoint, setSelectedSciencePoint] = useState(null)
+  const clearScienceSelection = useCallback(() => setSelectedSciencePoint(null), [])
+  const setInspection = useCallback(point => {
+    inspect(point)
+    if (point?.id) setSelectedSciencePoint(point)
+  }, [inspect])
   const [refining, setRefining] = useState(false)
   useEffect(() => { selectCallback.current = onPointSelect }, [onPointSelect])
 
-  useTerrainScene({ container, viewerRef, selectCallback, terrainUrl, attempt, initialPointId, pointsOfInterest, modeRef, setState, setInspection, setRefining })
+  useTerrainScene({ container, viewerRef, selectCallback, clusterFocusRef, terrainUrl, attempt, initialPointId, pointsOfInterest, modeRef, setState, setInspection, setRefining })
 
   function focus(lon, lat, range) {
     if (exploring) navigation.chooseMode('auto')
@@ -74,7 +91,7 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
   }, [state, focusPointId, focusRevision, pointsOfInterest])
 
   useTerrainFraming({ container, viewerRef, controlsTarget })
-  useTerrainMarkers({ viewerRef, state, pointsOfInterest, mode: navigation.mode })
+  useTerrainMarkers({ viewerRef, state, pointsOfInterest })
 
 
   const ready = state.status === 'ready'
@@ -84,13 +101,14 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
     <section id="map-viewport" className="map-shell" aria-label="Interactive Jezero terrain" tabIndex={-1}>
       <div className="cesium-host" ref={container} />
       {ready && <TerrainPoints viewer={imageryViewer} data={state.data} points={pointsOfInterest}
-        mode={navigation.mode} />}
+        selection={selectedSciencePoint} onClose={clearScienceSelection} />}
       {!ready && <div className="terrain-load-status" role="status">{state.status === 'error' ? state.message : 'Loading Jezero terrain…'}</div>}
       {state.status === 'error' && <button className="detail-retry" onClick={() => { setState({status:'loading'}); setAttempt(n => n + 1) }}>Retry map</button>}
     </section>
     {navigationTarget && createPortal(<TerrainMapControls navigation={navigation} ready={ready} />, navigationTarget)}
     {controlsTarget && createPortal(<TerrainControlsPanel
-      map={{ ready, refining, state, focus, wildcat, onPointSelect, inspection }}
+      map={{ ready, refining, state, focus, wildcat, onPointSelect, inspection, pointsOfInterest, selectedScienceId: selectedSciencePoint?.id,
+        selectSciencePoint: point => { if (!ready) return; focus(point.longitude, point.latitude, 1200); setInspection({ ...point, elevation: sampleHeight(state.data, point.longitude, point.latitude) }) } }}
       exploration={{ navigation, slopeThreshold, setSlopeThreshold, routeVisible, exploring, setRouteVisible, route, environment, hazardsVisible, setHazardsVisible, coverageVisible, setCoverageVisible }}
       skyPanel={{ open: skyPanelOpen, setOpen: setSkyPanelOpen, sky }}
       layers={layers}

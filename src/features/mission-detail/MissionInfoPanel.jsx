@@ -49,7 +49,7 @@ export default function MissionInfoPanel({ mission, region, image, activeTab, pa
         {activeTab === 'telemetry' && <TelemetryPage mission={mission} />}
         </div>
       </section>
-      {activeTab === 'science' && <nav className="mt-page-controls" aria-label="Science information pages"><button className="md-button md-button-quiet" disabled={page === 0} onClick={() => onPageChange((current) => current - 1)}><MissionIcon name="chevron-left" />Previous</button><span role="status" aria-live="polite">{page + 1} / 3</span>{page === 2 && region?.source ? <a className="md-button md-button-quiet" href={region.source} target="_blank" rel="noreferrer">NASA source<MissionIcon name="arrow-up-right" size={16} /></a> : <button className="md-button md-button-quiet" disabled={page >= 2} onClick={() => onPageChange((current) => current + 1)}>Next<MissionIcon name="chevron" /></button>}</nav>}
+      {activeTab === 'science' && <nav className="mt-page-controls" aria-label="Science information pages"><button className="md-button md-button-quiet" disabled={page === 0} onClick={() => onPageChange((current) => current - 1)}><MissionIcon name="chevron-left" />Previous</button><span role="status" aria-live="polite">{page + 1} / 3</span><button className="md-button md-button-quiet" disabled={page >= 2} onClick={() => onPageChange((current) => current + 1)}>Next<MissionIcon name="chevron" /></button></nav>}
     </aside>
   )
 }

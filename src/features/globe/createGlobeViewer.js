@@ -1,10 +1,12 @@
 import * as Cesium from "cesium";
+import { configureOfflineCesiumCredit } from './offlineCesiumCredit.js';
 import {
   MARS_OVERVIEW_HEIGHT,
   MARS_PREVIEW_HEIGHT,
 } from "../../components/globeMotion.js";
 
 export function createGlobeViewer(container, compact, creditContainer) {
+  configureOfflineCesiumCredit();
   const marsEllipsoid = Cesium.Ellipsoid.MARS;
   window.CESIUM_BASE_URL = `${import.meta.env.BASE_URL}cesium/`;
 
@@ -32,6 +34,7 @@ export function createGlobeViewer(container, compact, creditContainer) {
     selectionIndicator: false,
   });
 
+  configureOfflineCesiumCredit(viewer);
   viewer.resolutionScale = Math.min(1, 2 / (window.devicePixelRatio || 1));
   viewer.camera.frustum.fov = Cesium.Math.toRadians(compact ? 34 : 60);
   const controls = viewer.scene.screenSpaceCameraController;

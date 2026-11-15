@@ -102,7 +102,6 @@
   height: clamp(3.3rem, 9svh, 5.25rem);
   transition: opacity .2s;
 }
-.solar-brand:hover img { opacity: .78; }
 
 .solar-showcase {
   grid-area: showcase;
@@ -355,8 +354,7 @@
 }
 
 .solar-developers { display: grid; gap: .65rem; margin-top: 1rem; list-style: none; padding: 0; }
-.solar-developers a { color: #cbd6e9; text-decoration: underline; text-underline-offset: .2em; }
-.solar-developers a:hover, .solar-developers a:focus-visible { color: var(--space-yellow); }
+.solar-developers span { color: #cbd6e9; }
 
 .solar-mars-anchor { position: absolute; inset: 0; pointer-events: none; }
 .home-mars-globe {
