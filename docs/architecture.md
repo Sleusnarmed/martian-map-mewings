@@ -2,7 +2,8 @@
 
 The app has three stages: planetary home, Mars globe, and mission workspace with
 an embedded Jezero map. Hash routing belongs to `App.jsx` and `navigation.js`.
-Mission cases are demo data; terrain exploration does not mutate those fixtures.
+The integrated workspace uses RouteMissionProvider for computed route, position,
+resources and notices. The isolated mission preview retains its case fixtures.
 
 ## Module ownership
 
@@ -18,13 +19,15 @@ Mission cases are demo data; terrain exploration does not mutate those fixtures.
 | Terrain coordination | `features/terrain/JezeroTerrain.jsx` | Connect scene, layer state, exploration and the mission panel slot |
 | Terrain lifecycle | `useTerrainScene.js` | Async data loading, viewer creation, camera/input guards, cleanup |
 | Terrain presentation | `TerrainControlsPanel.jsx` | Map, exploration and layer control groups; no viewer construction |
+| Persistent map tools | `TerrainMapControls.jsx` | Perspective, compass and 3D movement in the workspace's external navigation slot |
 | Terrain framing / markers / material | `useTerrainFraming.js`, `useTerrainMarkers.js`, `useTerrainMaterial.js` | Independent synchronization effects with matching cleanup |
 | Terrain data | `terrainData.js`, `createTerrainProvider.js` | DEM validation, sampling, tile availability and bounded caches |
-| Exploration | `useTerrainNavigation.js`, `useExplorerControls.js`, `wildcatRoute.js` | Camera modes and preset route movement |
+| Exploration | `useTerrainNavigation.js`, `useExplorerControls.js` | Camera inspection, independent of mission position |
 | Layer coordination | `useTerrainLayers.js` | Layer preferences and scene synchronization |
 | Layer services | `wildcatImagery.js`, `useSlopeLayer.js`, `useSolarHeatingLayer.js` | Imagery ownership, visibility, analysis overlays |
+| Near-field image lifetime | `useNearbyImagery.js`, `nearbyTileCache.js`, `createPatchProvider.js` | Current window only, two abortable downloads, release layers and ImageBitmaps on eviction |
 
-Paths in the final five rows are relative to `src/features/terrain`.
+Unqualified filenames in the terrain rows are relative to `src/features/terrain`.
 
 ## Lifecycle rules
 
@@ -35,7 +38,13 @@ Paths in the final five rows are relative to `src/features/terrain`.
   cancellation before touching a viewer; animations must be cancelled on teardown.
 - Keep geometry and navigation calculations independent of JSX. Preserve bounded
   terrain subdivision, cache limits, and source-resolution checks.
-- Keep mission resources separate from the map's demo route and historical sensors.
+- RouteMissionProvider owns the integrated mission; the map and HUD consume it.
+  Historical MEDA and camera movement do not mutate mission resources.
+- `features/route-planner/planner.js` owns bounded DEM search and return validation;
+  its Web Worker is replaced on new requests. Visibility changes never enter it.
+- Known blockages, survey history, traversal time and notices belong to the pure
+  mission reducer. Unobserved scenario obstacles never enter a planning request.
+- For the routing contract, assumptions and demo steps see `docs/route-planning.md`.
 
 ## Supported entry points and removals
 

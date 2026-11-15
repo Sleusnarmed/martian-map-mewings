@@ -54,7 +54,7 @@ export function useTerrainScene({ container, viewerRef, selectCallback, terrainU
         // Parent coverage remains visible while individual child tiles refine.
         viewer.scene.globe.loadingDescendantLimit = 0
         viewer.scene.globe.preloadAncestors = true
-        viewer.scene.globe.preloadSiblings = true
+        viewer.scene.globe.preloadSiblings = false
         viewer.resolutionScale = Math.min(1, 2 / (window.devicePixelRatio || 1))
         viewerRef.current = { viewer, data, ellipsoid }
         const zoomHandler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas)
@@ -107,20 +107,30 @@ export function useTerrainScene({ container, viewerRef, selectCallback, terrainU
           setState({ status: 'error', message: 'The map renderer stopped. Reload the terrain to resume exploring.' })
         }))
         viewer.screenSpaceEventHandler.setInputAction((click) => {
-          if (modeRef.current === 'walk') return
           const picked = viewer.scene.pick(click.position)
-          if (picked?.id?.properties?.poiId) {
-            const id = picked.id.properties.poiId.getValue()
-            selectCallback.current?.(id)
+          const properties = picked?.id?.properties
+          if (properties?.poiId) {
+            const id = properties.poiId.getValue()
+            const poi = id === 'jezero' ? { ...region.center, name: 'Jezero crater', id } : pointsOfInterest.find(point => point.id === id)
+            if (poi) {
+              const elevation = sampleHeight(data, poi.longitude, poi.latitude)
+              setInspection({ ...poi, elevation, lon: poi.longitude, lat: poi.latitude })
+              return
+            }
+          }
+          if (properties?.longitude && properties?.latitude) {
+            const longitude = properties.longitude.getValue(), latitude = properties.latitude.getValue()
+            setInspection({ longitude, latitude, lon: longitude, lat: latitude, elevation: sampleHeight(data, longitude, latitude), name: properties.name?.getValue() })
+            return
           }
           const ray = viewer.camera.getPickRay(click.position)
           const position = pickTerrainRay(ray, data)
-          if (!position) { setInspection(null); return }
+          if (!position) { setInspection({ error: 'No mapped terrain at this point. Select a location inside the elevation coverage.' }); return }
           const cartographic = ellipsoid.cartesianToCartographic(position)
           const lon = Cesium.Math.toDegrees(cartographic.longitude)
           const lat = Cesium.Math.toDegrees(cartographic.latitude)
           const elevation = sampleHeight(data, lon, lat)
-          setInspection(elevation === null ? null : { lon, lat, elevation })
+          setInspection(elevation === null ? { error: 'No elevation data at this point.' } : { longitude: lon, latitude: lat, lon, lat, elevation })
         }, Cesium.ScreenSpaceEventType.LEFT_CLICK)
         setState({ status: 'ready', data, viewer })
       } catch (error) {

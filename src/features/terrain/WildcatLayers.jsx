@@ -116,7 +116,7 @@ export default function WildcatLayers({
         {orbital.hiriseStatus === 'loading' && <p role="status">Loading the HiRISE close-up…</p>}
         {orbital.hiriseStatus === 'error' && <p>The HiRISE close-up image is unavailable.</p>}
         <p><SourceLink href={hiriseLayer.source}>HiRISE imagery ↗</SourceLink></p>
-        {closeUp && <button className="wildcat-detail-button" type="button" onClick={closeUp}>Start Wildcat 3D route</button>}
+        {closeUp && <button className="wildcat-detail-button" type="button" onClick={closeUp}>Inspect calculated route in 3D</button>}
       </MapLayerControl>
       <MapLayerControl label="Solar heat map (modeled)" source={DEM_SOURCE}
         checked={heat.enabled} onChange={heat.toggle} disabled={!ready} status={heat.status}>

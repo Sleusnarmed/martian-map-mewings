@@ -6,7 +6,7 @@ import { observationAt, clockLabel } from '../src/features/terrain/environmentMo
 import { slopeAt, pitchForRange, surfaceDistance } from '../src/features/terrain/terrainAnalysis.js'
 import { sampleHeight, sampleRegionalHeight } from '../src/features/terrain/terrainData.js'
 import { createTerrainProvider, TILE_SIZE } from '../src/features/terrain/createTerrainProvider.js'
-import { bearingTo, buildWildcatRoute, moveAlongGround, routePosition } from '../src/features/terrain/wildcatRoute.js'
+import { bearingTo, buildRoute, moveAlongGround, routePosition } from '../src/features/route-planner/routeGeometry.js'
 import { constrainCamera, explorationClearance } from '../src/features/terrain/cameraLimits.js'
 import { pickTerrainRay } from '../src/features/terrain/pickTerrain.js'
 
@@ -36,8 +36,8 @@ test('slope respects Mars distances, geographic bounds and known inclines', () =
   assert.ok(Math.abs(surfaceDistance({ latitude: 0, longitude: 0 }, { latitude: 0, longitude: 0.01 }, d.radius) - d.radius * 0.01) < 0.0001)
 })
 
-test('automatic perspective is continuous and gets oblique only at close range', () => {
-  assert.equal(pitchForRange(15000, 'auto'), -Math.PI / 2)
+test('2.5D stays oblique at regional and close ranges while 2D remains nadir', () => {
+  assert.ok(pitchForRange(75000, 'auto') > -Math.PI / 2 + 0.4)
   assert.ok(pitchForRange(1300, 'auto') > pitchForRange(6000, 'auto'))
   assert.equal(pitchForRange(1300, 'map'), -Math.PI / 2)
   for (let r = 1301; r <= 12000; r += 37) assert.ok(Math.abs(pitchForRange(r, 'auto') - pitchForRange(r - 1, 'auto')) < 0.002)
@@ -86,7 +86,10 @@ test('HiRISE refines only the covered tiles and rejoins CTX at the edge', async 
 })
 
 test('moving forward and backward updates progress along the simulated route', () => {
-  const route = buildWildcatRoute(data)
+  const route = buildRoute([
+    { longitude: 77.4022, latitude: 18.4516 }, { longitude: 77.4037, latitude: 18.4534 },
+    { longitude: 77.4052, latitude: 18.4555 }, { longitude: 77.40588851, latitude: 18.45863707 },
+  ], data.radius)
   const [start, first, second, destination] = route.waypoints
   const heading = bearingTo(start, first, data.radius)
   const moved = moveAlongGround(start, heading, 30, data.radius)

@@ -1,5 +1,15 @@
 # Proyecto NASA | Contexto general para el equipo
 
+**Actualización de implementación · 14 de noviembre de 2026:** la rama
+`feat/gerardo-route-planner` reemplaza el recorrido fijo del mapa integrado por
+selección de A/B y búsqueda A* local. Mapa, HUD, avisos y voz comparten posición,
+recorrido y recursos estimados. Incluye observación progresiva, bloqueos,
+recálculo, regreso y controles de visibilidad de capas. La cámara sigue siendo
+independiente del desplazamiento de misión. La IA local permanece pendiente.
+Esta ampliación sustituye el alcance de ruta predefinida descrito abajo; los
+límites, fuentes, supuestos y pasos de prueba están en
+[docs/route-planning.md](docs/route-planning.md).
+
 **NASA Space Apps Challenge 2026 · Interplanetary Survival Guide: Martian Map**  
 **Secuencia visual confirmada:** Syrtis Major → Jezero → Wildcat Ridge. Se presentará un plano visual de Syrtis Major como contexto regional; al acercar, la visualización se centrará solamente en Jezero y Wildcat Ridge para la demo. Esta secuencia representa niveles de acercamiento; la excursión sigue siendo local dentro de Jezero.
 **Decisión confirmada:** la demo será una excursión simulada en Jezero, con destino científico en Wildcat Ridge. El equipo construirá una ruta local de ida y regreso y un asistente que pueda hablarle al astronauta. Las coordenadas de inicio, el trazado y la implementación de voz se cierran durante la integración.

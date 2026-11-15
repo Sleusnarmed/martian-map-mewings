@@ -5,7 +5,7 @@ import { orbitalDetailLayer } from './wildcatImagery'
 import { detailWeight, sampleHeight } from './terrainData'
 import { pickTerrainRay } from './pickTerrain'
 import { cameraGroundPoint, LOWERED_PITCH, placeExplorer, useExplorerControls } from './useExplorerControls'
-import { bearingTo, routePosition } from './wildcatRoute'
+import { bearingTo, routePosition } from '../route-planner/routeGeometry.js'
 
 function screenPoint(viewer, data, x, y) {
   const ray = viewer.camera.getPickRay(new Cesium.Cartesian2(x, y))
@@ -22,6 +22,15 @@ export function useTerrainNavigation(viewer, data, route) {
   const modeRef = useRef(mode)
   const flight = useRef(false)
   const explorer = useExplorerControls(viewer, data, mode === 'walk')
+
+  useEffect(() => {
+    if (!viewer || viewer.isDestroyed()) return
+    // Refine visible close-up terrain; keep the regional overview inexpensive.
+    // Cesium's mutable scene is owned by this synchronization effect.
+    // eslint-disable-next-line react-hooks/immutability
+    viewer.scene.globe.maximumScreenSpaceError = mode === 'walk' ? 1 : 2
+    viewer.scene.requestRender()
+  }, [viewer, mode])
 
   function reframe(nextMode, factor = 1, heading, exitExplorer = false) {
     if (!viewer || viewer.isDestroyed()) return
@@ -49,12 +58,15 @@ export function useTerrainNavigation(viewer, data, route) {
   }
 
   function startRoute() {
-    if (!viewer || viewer.isDestroyed() || !route) return
-    const [start, first] = route.waypoints
+    if (!viewer || viewer.isDestroyed()) return
+    const target = viewTarget(viewer, data)
+    const start = route?.waypoints[0] ?? (target && cameraGroundPointForTarget(viewer.scene.globe.ellipsoid, target))
+    if (!start) return
+    const first = route?.waypoints[1]
     modeRef.current = 'walk'
     setMode('walk')
     viewer.camera.cancelFlight()
-    placeExplorer(viewer, data, start, bearingTo(start, first, data.radius), LOWERED_PITCH)
+    placeExplorer(viewer, data, start, first ? bearingTo(start, first) : viewer.camera.heading, LOWERED_PITCH)
   }
 
   function aimAtWaypoint() {
@@ -65,7 +77,7 @@ export function useTerrainNavigation(viewer, data, route) {
   }
 
   useEffect(() => {
-    if (!viewer || !data) return
+    if (!viewer || viewer.isDestroyed() || !data) return
     let lastUpdate = 0, trailingFrame
     const update = () => {
       const now = performance.now()
@@ -90,7 +102,7 @@ export function useTerrainNavigation(viewer, data, route) {
         if (left && right) scale = surfaceDistance(ellipsoid.cartesianToCartographic(left), ellipsoid.cartesianToCartographic(right), data.radius)
       }
       const cameraHeight = viewer.camera.positionCartographic.height
-      setContext({ lon, lat, elevation, scale, slope: slopeAt(data, lon, lat),
+      setContext({ lon, lat, elevation, scale, slope: slopeAt(data, lon, lat, true), localSlope: detailWeight(data.detail, lon, lat) >= 0.99,
         detail: insideBounds(orbitalDetailLayer.bounds, lon, lat),
         hirise: detailWeight(data.detail, lon, lat) > 0,
         range: walking ? cameraHeight - elevation : Cesium.Cartesian3.distance(viewer.camera.positionWC, target),
@@ -101,7 +113,8 @@ export function useTerrainNavigation(viewer, data, route) {
     }
     const removeRender = viewer.scene.postRender.addEventListener(update)
     const removeEnd = viewer.camera.moveEnd.addEventListener(() => {
-      if (flight.current || modeRef.current === 'walk') return
+      // Preserve the user's orbit/tilt in 2.5D; only 2D enforces a nadir view.
+      if (flight.current || modeRef.current !== 'map') return
       const target = viewTarget(viewer, data)
       if (!target) return
       const range = Cesium.Cartesian3.distance(viewer.camera.positionWC, target)

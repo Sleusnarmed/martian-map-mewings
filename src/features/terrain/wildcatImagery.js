@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Credit, Rectangle, SingleTileImageryProvider } from 'cesium'
+import { Credit, GeographicTilingScheme, Rectangle, SingleTileImageryProvider, UrlTemplateImageryProvider } from 'cesium'
 
 export const wildcatAsset = file => import.meta.env.BASE_URL + 'data/wildcat-ridge/' + file
 
@@ -29,7 +29,8 @@ export const orbitalDetailLayer = {
 }
 
 export const hiriseLayer = {
-  file: 'hirise-wildcat-blend.png',
+  file: 'hirise-tiles/{z}/{x}/{y}.png',
+  tiled: true, tileSize: 320, maximumLevel: 3,
   bounds: [77.39407908659932, 18.44682764659932, 77.41769793340069, 18.470446493400683],
   credit: 'MRO HiRISE · NASA / JPL / USGS · illustrative colorization',
   source: 'https://doi.org/10.5066/P9QJDP48',
@@ -72,12 +73,24 @@ export function useWildcatImagery(viewer, bounds, definition, enabled, opacity =
     if (!viewer || !shouldLoad) return
     let disposed = false
     let layer
-    SingleTileImageryProvider.fromUrl(wildcatAsset(definition.file), {
-      rectangle: Rectangle.fromDegrees(...(definition.bounds ?? bounds)),
+    const rectangle = Rectangle.fromDegrees(...(definition.bounds ?? bounds))
+    const options = {
+      url: wildcatAsset(definition.file),
+      rectangle,
       ellipsoid: viewer.scene.globe.ellipsoid,
       credit: new Credit(definition.credit),
-    }).then(provider => {
+    }
+    const loading = definition.tiled ? Promise.resolve(new UrlTemplateImageryProvider({ ...options,
+      tilingScheme: new GeographicTilingScheme({ rectangle, ellipsoid: options.ellipsoid, numberOfLevelZeroTilesX: 1, numberOfLevelZeroTilesY: 1 }),
+      tileWidth: definition.tileSize, tileHeight: definition.tileSize, maximumLevel: definition.maximumLevel,
+      enablePickFeatures: false,
+    })) : SingleTileImageryProvider.fromUrl(options.url, options)
+    let removeError
+    loading.then(provider => {
       if (disposed || viewer.isDestroyed()) return
+      removeError = provider.errorEvent.addEventListener(() => {
+        if (!disposed) setResult({ viewer, attempt, status: 'error' })
+      })
       layer = addOrderedImagery(viewer, provider, definition.order)
       layer.show = false
       layerRef.current = { viewer, layer }
@@ -87,6 +100,7 @@ export function useWildcatImagery(viewer, bounds, definition, enabled, opacity =
     })
     return () => {
       disposed = true
+      removeError?.()
       if (layerRef.current?.layer === layer) layerRef.current = null
       if (layer && !viewer.isDestroyed()) {
         viewer.imageryLayers.remove(layer, true)

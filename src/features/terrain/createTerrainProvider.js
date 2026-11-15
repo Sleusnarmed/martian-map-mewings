@@ -67,6 +67,7 @@ export function createTerrainProvider(data) {
     hasVertexNormals: false,
     getLevelMaximumGeometricError(level) {
       // Never refine beyond the actual raster detail, even at extreme zoom.
+      // Nearby imagery patches refine independently of this finite mesh.
       return level >= maximumLevel ? 0 : baseError / (2 ** level)
     },
     getTileDataAvailable(x, y, level) {

@@ -3,6 +3,7 @@ import Home from './features/home/Home'
 import { JEZERO_POINTS } from './features/terrain/pointsOfInterest'
 import { normalizeRoute, routeForZone } from './navigation'
 import SpaceLoader from './components/SpaceLoader'
+import RouteMissionProvider from './features/route-planner/RouteMissionProvider'
 const Terrain = lazy(() => import('./features/terrain/JezeroTerrain'))
 const MissionWorkspace = lazy(() => import('./features/mission-detail/MissionWorkspace'))
 
@@ -22,6 +23,6 @@ export default function App() {
   if (route === '/' || route === '/mars') return <Home onZoneSelected={openZone} expanded={route === '/mars'} onExpandedChange={expanded => go(expanded ? '/mars' : '/')} />
   const initialPointId = route.endsWith('wildcat-ridge') ? 'wildcat-ridge' : 'jezero'
   return <Suspense fallback={<SpaceLoader />}>
-    <MissionWorkspace key={route} integrated initialRegionId={initialPointId} onBackToGlobe={() => go('/mars')} MapComponent={MissionTerrain} />
+    <RouteMissionProvider key={route}><MissionWorkspace integrated initialRegionId={initialPointId} onBackToGlobe={() => go('/mars')} MapComponent={MissionTerrain} /></RouteMissionProvider>
   </Suspense>
 }

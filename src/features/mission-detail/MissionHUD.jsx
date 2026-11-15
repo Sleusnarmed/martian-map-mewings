@@ -9,7 +9,7 @@ export default function MissionHUD({ mission, onOpenRoute, onOpenTelemetry }) {
     <section className={`field-hud ${belowReserve ? 'is-warning' : ''}`} aria-label="Persistent mission controls">
       <RouteProgress mission={mission} onOpenRoute={onOpenRoute} />
       <div className="field-instruments">
-        <button className="field-next" onClick={onOpenRoute} aria-label={`Open Route: destination ${mission.nextWaypointName || 'unavailable'}`}><span>Destination</span><strong>{mission.nextWaypointName || 'No data'}</strong><small>{returning ? 'POINT A · BASE' : 'POINT B · SCIENCE STOP'}</small></button>
+        <button className="field-next" onClick={onOpenRoute} aria-label={`Open Route: destination ${mission.nextWaypointName || 'unavailable'}`}><span>Destination</span><strong>{mission.nextWaypointName || 'No data'}</strong><small>{returning ? 'POINT A · RETURN' : 'POINT B · DESTINATION'}</small></button>
         <div className="field-readouts" role="group" aria-label="Mission measurements">
           <button className="field-readout" onClick={onOpenRoute} aria-label={`Open Route: remaining distance ${formatMeters(mission.remainingDistanceMeters)}`}><span>Remaining</span><strong>{formatMeters(mission.remainingDistanceMeters)}</strong><small>{returning ? 'To point A' : 'To point B'}</small></button>
           <button className="field-readout" onClick={onOpenTelemetry} aria-label={`Open Telemetry: return margin ${formatMinutes(margin)}`}><span>Return margin</span><strong className={belowReserve ? 'field-warning-value' : ''}>{formatMinutes(margin)}</strong><small>{belowReserve ? 'Below reserve' : 'Reserve'} {formatMinutes(mission.reserveSeconds)}</small></button>
