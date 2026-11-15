@@ -62,3 +62,9 @@ shifted to compensate for a rendering error.
 The original Cesium marker implementation was restored after the HTML overlay
 failed the user's visual checks. Source-coordinate tests do not establish
 independent survey accuracy or replace browser/imagery registration inspection.
+
+Native marker stability: perspective changes toggle entity visibility instead of
+recreating entities. All POI annotations bypass terrain depth testing, including
+Wildcat, so they remain readable through relief (not proof of line of sight).
+Hover picking requests a visible render in the on-demand scene. Coordinates,
+DEM display offsets and native Cesium positioning are unchanged.
