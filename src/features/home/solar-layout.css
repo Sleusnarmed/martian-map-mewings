@@ -285,7 +285,6 @@
 }
 
 .solar-footer,
-.solar-credits,
 .solar-tools {
   display: flex;
   align-items: center;
@@ -293,16 +292,14 @@
 }
 
 .solar-footer {
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: .25rem 1rem;
   padding-block: .3rem .65rem;
 }
 
-.solar-credits,
 .solar-tools { gap: .15rem clamp(.65rem, 1.55vw, 1.3rem); }
 
-.solar-utility,
-.solar-credits a {
+.solar-utility {
   display: inline-flex;
   align-items: center;
   gap: .27rem;
@@ -312,8 +309,7 @@
 }
 
 .solar-utility:hover,
-.solar-utility[aria-pressed="true"],
-.solar-credits a:hover { color: var(--space-yellow); }
+.solar-utility[aria-pressed="true"] { color: var(--space-yellow); }
 
 .solar-footer .material-symbols-outlined { font-size: .9rem; }
 
@@ -357,3 +353,7 @@
 @media (prefers-reduced-motion: reduce) {
   .solar-home *, .solar-home *::before, .solar-home *::after { transition: none; }
 }
+
+.solar-developers { display: grid; gap: .65rem; margin-top: 1rem; list-style: none; padding: 0; }
+.solar-developers a { color: #cbd6e9; text-decoration: underline; text-underline-offset: .2em; }
+.solar-developers a:hover, .solar-developers a:focus-visible { color: var(--space-yellow); }

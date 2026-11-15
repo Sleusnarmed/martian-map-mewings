@@ -44,7 +44,12 @@ function DevelopersDialog({ dialog }) {
         <h2 id="developers-title">Development team</h2>
         <form method="dialog"><button aria-label="Close"><Icon>close</Icon></button></form>
       </div>
-      <p>Designed and developed by the Planetary Mission Team for the <strong>NASA Space Apps Challenge</strong>.</p>
+      <p>Designed and developed for the <strong>NASA Space Apps Challenge</strong> by:</p>
+      <ul className="solar-developers">
+        {['sleusnarmed', 'mjsb05', 'maverick2505', 'eddyRuLop', 'VladymirVazquez'].map(handle => (
+          <li key={handle}><a href={`https://github.com/${handle}`} target="_blank" rel="noreferrer">@{handle}</a></li>
+        ))}
+      </ul>
     </dialog>
   );
 }
@@ -155,11 +160,6 @@ export default function Home({ onZoneSelected, expanded = false, onExpandedChang
         </main>
 
         <footer className="solar-footer">
-          <div className="solar-credits">
-            <a href={world.source} target="_blank" rel="noreferrer">Planet data · NASA <Icon>north_east</Icon></a>
-            <a href="https://www.solarsystemscope.com/textures/" target="_blank" rel="noreferrer">Textures · Solar System Scope <Icon>north_east</Icon></a>
-            <a href="https://hipparcos-tools.cosmos.esa.int/HIPcatalogueSearch.html" target="_blank" rel="noreferrer">Stars · Hipparcos <Icon>north_east</Icon></a>
-          </div>
           <div className="solar-tools">
             <button type="button" className="solar-utility" aria-pressed={showFigures} onClick={() => setShowFigures(visible => !visible)}>
               <Icon>auto_awesome</Icon> Constellations
