@@ -50,7 +50,7 @@ export function useTerrainScene({ container, viewerRef, selectCallback, clusterF
         // One source of camera limits: the complete local DEM, not still-refining tiles.
         controls.enableCollisionDetection = false
         controls.enableZoom = false
-        controls.tiltEventTypes = [Cesium.CameraEventType.MIDDLE_DRAG, { eventType: Cesium.CameraEventType.LEFT_DRAG, modifier: Cesium.KeyboardEventModifier.CTRL }]
+        controls.tiltEventTypes = [Cesium.CameraEventType.RIGHT_DRAG, Cesium.CameraEventType.MIDDLE_DRAG, { eventType: Cesium.CameraEventType.LEFT_DRAG, modifier: Cesium.KeyboardEventModifier.CTRL }]
         viewer.scene.globe.maximumScreenSpaceError = 2
         viewer.scene.globe.tileCacheSize = 160
         // Load and display each coarse level before requesting finer descendants.
@@ -68,15 +68,7 @@ export function useTerrainScene({ container, viewerRef, selectCallback, clusterF
           viewer.camera.move(viewer.camera.direction, distance)
           viewer.scene.requestRender()
         }
-        let rightDragY = null
         zoomHandler.setInputAction(zoom, Cesium.ScreenSpaceEventType.WHEEL)
-        zoomHandler.setInputAction(event => { rightDragY = event.position.y }, Cesium.ScreenSpaceEventType.RIGHT_DOWN)
-        zoomHandler.setInputAction(() => { rightDragY = null }, Cesium.ScreenSpaceEventType.RIGHT_UP)
-        zoomHandler.setInputAction(event => {
-          if (rightDragY === null) return
-          zoom((event.endPosition.y - rightDragY) * 4)
-          rightDragY = event.endPosition.y
-        }, Cesium.ScreenSpaceEventType.MOUSE_MOVE)
         zoomHandler.setInputAction(event => zoom((event.distance.endPosition.y - event.distance.startPosition.y) * 4), Cesium.ScreenSpaceEventType.PINCH_MOVE)
         cleanups.push(() => zoomHandler.destroy())
         // Set the regional camera immediately; never render an initial global/flat view.

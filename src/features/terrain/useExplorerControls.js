@@ -108,7 +108,7 @@ export function useExplorerControls(viewer, data, enabled) {
     const keyUp = event => { if (keys[event.code]) end(event.code) }
 
     function lookStart(event) {
-      if (!event.isPrimary || event.button !== 0) return
+      if (!event.isPrimary || (event.button !== 0 && event.button !== 2)) return
       pointer = { id: event.pointerId, x: event.clientX, y: event.clientY }
       canvas.setPointerCapture(event.pointerId)
     }

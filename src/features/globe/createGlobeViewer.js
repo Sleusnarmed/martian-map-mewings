@@ -38,6 +38,9 @@ export function createGlobeViewer(container, compact, creditContainer) {
   viewer.resolutionScale = Math.min(1, 2 / (window.devicePixelRatio || 1));
   viewer.camera.frustum.fov = Cesium.Math.toRadians(compact ? 34 : 60);
   const controls = viewer.scene.screenSpaceCameraController;
+  controls.zoomEventTypes = [Cesium.CameraEventType.WHEEL, Cesium.CameraEventType.PINCH];
+  controls.tiltEventTypes = [Cesium.CameraEventType.RIGHT_DRAG, Cesium.CameraEventType.MIDDLE_DRAG,
+    { eventType: Cesium.CameraEventType.LEFT_DRAG, modifier: Cesium.KeyboardEventModifier.CTRL }];
   controls.inertiaSpin = 0;
   controls.inertiaTranslate = 0;
   controls.inertiaZoom = 0;

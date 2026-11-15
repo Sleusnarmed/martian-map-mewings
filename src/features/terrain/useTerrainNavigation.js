@@ -27,6 +27,19 @@ export function useTerrainNavigation(viewer, data, route) {
 
   useEffect(() => {
     if (!viewer || viewer.isDestroyed()) return
+    const canvas = viewer.canvas
+    const startOrbit = event => {
+      if (event.button !== 2 || modeRef.current !== 'map') return
+      // A deliberate tilt leaves overhead mode so moveEnd won't flatten it again.
+      modeRef.current = 'auto'
+      setMode('auto')
+    }
+    canvas.addEventListener('pointerdown', startOrbit)
+    return () => canvas.removeEventListener('pointerdown', startOrbit)
+  }, [viewer])
+
+  useEffect(() => {
+    if (!viewer || viewer.isDestroyed()) return
     // Refine visible close-up terrain; keep the regional overview inexpensive.
     // Cesium's mutable scene is owned by this synchronization effect.
     // eslint-disable-next-line react-hooks/immutability
