@@ -1,14 +1,13 @@
-import { lazy, Suspense, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { animate } from 'animejs';
 import './home.css';
-import SpaceLoader from '../../components/SpaceLoader';
+import HomeMarsGlobe from './HomeMarsGlobe';
 import spaceApps from '../../NASA Space Apps Logos - 2026/Space Apps Logo Color and White.svg';
 import orbits from '../../Patterns/Orbits.png';
 import SolarSky from './SolarSky';
 import useSolarRotation from './useSolarRotation';
 import { WORLDS } from './solarWorlds';
 
-const MarsGlobe = lazy(() => import('../../components/MarsGlobe3D'));
 const marsIndex = WORLDS.findIndex(world => world.id === 'mars');
 
 function adjacentIndex(index, offset) {
@@ -57,6 +56,7 @@ function DevelopersDialog({ dialog }) {
 export default function Home({ onZoneSelected, expanded = false, onExpandedChange }) {
   const root = useRef(null);
   const preview = useRef(null);
+  const marsAnchor = useRef(null);
   const dialog = useRef(null);
   const previousArrow = useRef(null);
   const nextArrow = useRef(null);
@@ -88,31 +88,23 @@ export default function Home({ onZoneSelected, expanded = false, onExpandedChang
   }, [expanded]);
 
   useEffect(() => {
-    if (!preview.current || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (expanded || isMars || !preview.current || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const transition = animate(preview.current, {
       opacity: [.45, 1], scale: [.91, 1], duration: 580, ease: 'outCubic',
     });
     return () => transition.revert();
-  }, [expanded, worldIndex]);
+  }, [expanded, worldIndex, isMars]);
 
   const openMars = () => onExpandedChange?.(true);
   const moveWorld = offset => setWorldIndex(index => adjacentIndex(index, offset));
 
-  if (expanded) return (
-    <main className="home-globe home-globe-expanded">
-      <div className="globe-starfield" aria-hidden="true" />
-      <Suspense fallback={<SpaceLoader />}><MarsGlobe onZoneSelected={onZoneSelected} /></Suspense>
-      <button className="globe-home-back" onClick={() => onExpandedChange?.(false)}>← Solar system</button>
-    </main>
-  );
-
   return (
-    <div className="solar-home" ref={root} lang="en" style={{ '--world-accent': world.color }}>
+    <div className={`solar-home${expanded ? ' solar-home--expanded' : ''}`} ref={root} lang="en" style={{ '--world-accent': world.color }}>
       <div className="solar-background" aria-hidden="true">
         <img className="solar-orbits" src={orbits} alt="" />
         <SolarSky showFigures={showFigures} />
       </div>
-      <div className="solar-shell">
+      <div className="solar-shell" inert={expanded}>
         <main className="solar-layout">
           <div className="solar-copy">
             <p className="solar-kicker">NASA Space Apps Challenge</p>
@@ -131,8 +123,9 @@ export default function Home({ onZoneSelected, expanded = false, onExpandedChang
                 <Icon>chevron_left</Icon>
               </button>
               <div className="solar-preview" ref={preview}>
+                <div className="solar-mars-anchor" ref={marsAnchor} />
                 <button type="button" className="solar-mars-hit" hidden={!isMars} aria-label="Open the Mars globe" onClick={openMars} />
-                <Planet world={world} />
+                <div hidden={isMars}><Planet world={world} /></div>
               </div>
               <button type="button" className="solar-arrow solar-arrow--right" ref={nextArrow}
                 aria-label="Next planet" aria-keyshortcuts="ArrowRight" onClick={() => moveWorld(1)}>
@@ -170,6 +163,8 @@ export default function Home({ onZoneSelected, expanded = false, onExpandedChang
           </div>
         </footer>
       </div>
+      <HomeMarsGlobe anchor={marsAnchor} expanded={expanded} active={expanded || isMars}
+        onZoneSelected={onZoneSelected} onClose={() => onExpandedChange?.(false)} />
       <DevelopersDialog dialog={dialog} />
     </div>
   );

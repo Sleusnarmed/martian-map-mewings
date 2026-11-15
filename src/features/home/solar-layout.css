@@ -357,3 +357,19 @@
 .solar-developers { display: grid; gap: .65rem; margin-top: 1rem; list-style: none; padding: 0; }
 .solar-developers a { color: #cbd6e9; text-decoration: underline; text-underline-offset: .2em; }
 .solar-developers a:hover, .solar-developers a:focus-visible { color: var(--space-yellow); }
+
+.solar-mars-anchor { position: absolute; inset: 0; pointer-events: none; }
+.home-mars-globe {
+  position: fixed;
+  z-index: 2;
+  overflow: hidden;
+  pointer-events: none;
+  background: transparent;
+  transition: left .5s ease, top .5s ease, width .5s ease, height .5s ease;
+}
+.home-mars-globe--expanded { z-index: 100; pointer-events: auto; }
+.home-mars-globe .space-loader { background: transparent; }
+.solar-home--expanded .solar-shell { visibility: hidden; }
+@media (prefers-reduced-motion: reduce) {
+  .home-mars-globe { transition: none; }
+}
