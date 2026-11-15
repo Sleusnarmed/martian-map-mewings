@@ -16,10 +16,9 @@ recognition; **EVA is thinking…** indicates command interpretation or route
 explanation. **Speaking…** accompanies English speech and sentence-linked
 English subtitles. The microphone meter shows local input energy.
 
-During interpretation the existing subtitle area displays **Heard: “…”** with
-the actual transcription. If the request is unsupported, EVA repeats that
-transcription before giving English command guidance, rather than hiding it
-behind generic help. The quotation is the input language, not a translation.
+EVA does not display or read back the raw transcription. Unsupported requests
+receive only a short English retry message. Subtitles accompany the response,
+while the compact rail indicates transcription and processing status.
 
 Press EVA during startup, transcription, thinking or speaking to cancel.
 Escape and hiding the page always cancel. New warning alerts interrupt EVA;
@@ -51,8 +50,8 @@ rejected. Visibility never changes planning constraints or traversal eligibility
 
 - **Google Gemma 3 4B** (`gemma3:4b`, Q4_K_M) classifies commands and selects
   verified route reasons through Ollama. The only assistant name in the UI is EVA.
-- **OpenAI Whisper base**, community ONNX Q8 conversion, revision
-  `27a07b4b52b3a4c5886134bb4320e93e1a4bbc7c`, compares English/Spanish language
+- **OpenAI Whisper Small**, community ONNX Q8 conversion, revision
+  `36050c46d777d46dc4b5f43f6d90574fc38f8732`, compares English/Spanish language
   tokens before transcription. Transformers.js otherwise defaults to English.
 - `captureSpeech` uses MediaRecorder and local microphone energy for end-of-phrase
   detection. Browser AudioContext decodes audio, downmixes and resamples to mono
@@ -102,18 +101,25 @@ and restart `ai:serve`. If thinking fails, verify Ollama and `gemma3:4b` are
 available. The physical Realtek microphone was previously confirmed working by
 Gerardo; the new automatic transcription path still needs an operator retry.
 
-If EVA gives command guidance, compare **I heard** with what you actually said.
-An incorrect quote indicates a transcription problem; a correct quote followed
-by rejection indicates interpretation/command coverage. After an adapter code
-change, stop `ai:serve` with Ctrl+C, run `npm run ai:serve` again and reload the
-page. The running Node adapter does not automatically reload server modules.
+“Hide slopes” becoming “tight sloans” is a speech-recognition error upstream of
+Gemma. The recognizer now uses the larger multilingual Small checkpoint rather
+than Base. It retains automatic English/Spanish recognition and local CPU Q8
+inference; no homophone substitution turns incorrect text into an action.
+Small uses more memory and may take longer than Base. Synthetic tests do not
+establish accuracy for the user's microphone, accent or room noise.
 
-On 2026-11-15, direct local Gemma calls classified “show slopes”, “Show slopes.”
-and “Muestra pendientes” correctly. Existing English/Spanish synthetic WAVs and
-a newly synthesized two-word “Show slopes” WAV also transcribed correctly with
-the installed Whisper model. This does not establish recognition accuracy for
-the user's microphone or accent; the reported failure was not reproduced with
-these fixtures. The transcript feedback is needed for the next physical test.
+After updating from Base, run `npm run ai:speech:setup` once. After an adapter
+code change, stop `ai:serve` with Ctrl+C, run `npm run ai:serve` again and reload
+the page. The running Node adapter does not automatically reload server modules.
+
+Small verification (2026-11-15): six synthetic fixtures passed actual local
+Whisper inference and the layer-command parser. These include “hide slopes”
+and “show slopes” at two speech rates, an English map command and a Spanish
+map command. Warm requests took approximately 2.8–3.0 seconds; the first
+included model loading and took 5.6 seconds. These are fixture measurements,
+not a latency guarantee or proof of physical microphone accuracy. The voice
+session regression test checks that unsupported input is neither spoken back
+nor included in subtitle events.
 
 ## Verification and interface contract
 

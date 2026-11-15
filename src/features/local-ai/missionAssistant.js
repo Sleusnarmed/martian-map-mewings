@@ -55,7 +55,7 @@ export function answerMissionQuestion(intent, state) {
     }
     case 'status': return `State: ${state.phase}. Remaining distance: ${Number.isFinite(mission.remainingDistanceMeters) ? `${Math.round(mission.remainingDistanceMeters)} m` : 'no calculated route'}. Oxygen: ${minutes(mission.oxygenRemainingSeconds)}. Return: ${minutes(mission.returnDurationSeconds)}.`
     case 'explain_route': return routeReasons(state).map(reason => reason.text).join(' ')
-    default: return 'Ask EVA to show or hide a named layer, explain a route, or check oxygen, return, times, and resources. Give one command at a time.'
+    default: return 'Command not recognized. Please repeat one command.'
   }
 }
 

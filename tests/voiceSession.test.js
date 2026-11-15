@@ -35,12 +35,14 @@ function fixture(onCommand = async () => ({ text: 'Oxygen: 60.0 min. Reserve: 5.
 }
 const tick = async () => { for (let i = 0; i < 4; i++) await Promise.resolve() }
 
-test('an unsupported voice request reports the actual transcript instead of hiding it behind generic help', async () => {
-  const f = fixture(async () => ({ intent: 'unsupported', text: 'Ask EVA to show or hide a named layer.' }), { language: 'en', text: 'show slow' })
+test('an unsupported voice request never speaks or displays the raw transcript', async () => {
+  const f = fixture(async () => ({ intent: 'unsupported', text: 'Command not recognized. Please repeat one command.' }), { language: 'en', text: 'tight sloans' })
   const pending = f.session.listen(); await tick(); f.session.finishListening(); await pending
-  assert.equal(f.session.getSnapshot().transcript, 'show slow')
-  assert.match(f.spoken[0].text, /I heard: “show slow”/)
-  assert.ok(f.captions.some(caption => caption.text === 'Heard: “show slow”'))
+  assert.equal(f.session.getSnapshot().transcript, 'tight sloans')
+  assert.doesNotMatch(f.spoken[0].text, /heard|tight sloans/i)
+  assert.ok(f.captions.every(caption => !/heard|tight sloans/i.test(caption.text)))
+  f.spoken[0].onstart()
+  assert.ok(f.captions.every(caption => !/heard|tight sloans/i.test(caption.text)))
 })
 
 test('one button automatically accepts either English or Spanish and speaks English', async () => {

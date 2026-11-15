@@ -2,8 +2,8 @@ import { resolve } from 'node:path'
 import { env, pipeline, LogitsProcessor, LogitsProcessorList, StoppingCriteria, StoppingCriteriaList } from '@huggingface/transformers'
 import { decodeSpeechWav } from '../src/features/local-ai/audioWav.js'
 
-export const SPEECH_MODEL = 'onnx-community/whisper-base'
-export const SPEECH_REVISION = '27a07b4b52b3a4c5886134bb4320e93e1a4bbc7c'
+export const SPEECH_MODEL = 'onnx-community/whisper-small'
+export const SPEECH_REVISION = '36050c46d777d46dc4b5f43f6d90574fc38f8732'
 env.cacheDir = resolve('.cache/eva-speech')
 let modelPromise
 let ready = false

@@ -5,9 +5,9 @@ El cambio responde a la restricción del equipo de no usar modelos chinos.
 El modelo anterior deja de ser una dependencia activa de esta rama; no se
 eliminan modelos instalados en la computadora.
 
-La voz se transcribe localmente con **Whisper base de OpenAI**, convertido a
-ONNX por `onnx-community/whisper-base`, cuantizado Q8. Se fija la revisión
-`27a07b4b52b3a4c5886134bb4320e93e1a4bbc7c` para reproducibilidad.
+La voz se transcribe localmente con **Whisper Small de OpenAI**, convertido a
+ONNX por `onnx-community/whisper-small`, cuantizado Q8. Se fija la revisión
+`36050c46d777d46dc4b5f43f6d90574fc38f8732` para reproducibilidad.
 Whisper compara los tokens de idioma inglés/español antes de transcribir.
 Omitir el idioma en Transformers.js no activaba detección automática: su valor
 por defecto era inglés. La implementación evita esa dependencia implícita.
@@ -84,5 +84,5 @@ la implementación anterior.
 
 - [Google: documentación de Gemma](https://ai.google.dev/gemma/docs/core).
 - [Catálogo de Gemma 3 4B en Ollama](https://ollama.com/library/gemma3:4b).
-- [Modelo original Whisper base de OpenAI](https://huggingface.co/openai/whisper-base).
-- [Conversión ONNX utilizada](https://huggingface.co/onnx-community/whisper-base).
+- [Modelo original Whisper Small de OpenAI](https://huggingface.co/openai/whisper-small).
+- [Conversión ONNX utilizada](https://huggingface.co/onnx-community/whisper-small).

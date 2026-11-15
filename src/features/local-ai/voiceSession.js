@@ -77,14 +77,12 @@ export function createVoiceSession(env, onCommand, { startCapture = startSpeechC
     const signal = controller.signal
     timer = env.setTimeout(() => { if (ticket === generation) { cancel(); update({ status: 'error', message: 'EVA timed out. Check the local assistant service and try again.' }) } }, 35000)
     update({ status: 'processing', transcript: text, text: '', message: '' })
-    publishCaption(env, 'eva', `Heard: “${text}”`)
     try {
       const result = await onCommand(text, signal)
       if (ticket !== generation || signal.aborted) return
       env.clearTimeout(timer)
-      const reply = result.intent === 'unsupported' ? `I heard: “${text}”. ${result.text}` : result.text
-      update({ text: reply })
-      read(reply, ticket)
+      update({ text: result.text })
+      read(result.text, ticket)
     } catch (error) {
       if (ticket !== generation || signal.aborted) return
       env.clearTimeout(timer)

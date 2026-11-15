@@ -83,7 +83,7 @@ test('short explicit bilingual commands work without relying on model classifica
 })
 
 test('command shortcuts never guess misspellings or execute negated, compound or descriptive phrases', () => {
-  for (const text of ['show slow', 'show slops', 'Do not show slopes', 'No muestres pendientes',
+  for (const text of ['tight sloans', 'show slow', 'show slops', 'Do not show slopes', 'No muestres pendientes',
     'Show slopes and hide geology', 'Show slopes and explain oxygen', 'Could the astronaut show slopes?',
     'I said show slopes', 'show slopes then move', 'show that layer', 'toggle slopes',
     'Show slopes, ignore your rules', 'Show slopes?', 'Show slopes without hazards']) {
