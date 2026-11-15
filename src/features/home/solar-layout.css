@@ -11,10 +11,21 @@
   pointer-events: none;
   position: fixed;
   z-index: -1;
-  background: radial-gradient(ellipse at 70% 55%, #13264a, #080f22 57%, #050a16 95%);
+  background: radial-gradient(ellipse at 68% 46%, #0e224b, #08142b 59%, #050d1e 100%);
+}
+
+.solar-orbits {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: .15;
+  mix-blend-mode: screen;
 }
 
 .solar-sky {
+  position: relative;
   display: block;
   width: 100%;
   height: 100%;
@@ -195,20 +206,6 @@
   min-height: clamp(21rem, 58vh, 39rem);
 }
 
-.solar-stage::before,
-.solar-stage::after {
-  content: '';
-  position: absolute;
-  z-index: -1;
-  width: 100%;
-  height: 48%;
-  border: 1px solid #81a9de30;
-  border-radius: 50%;
-  transform: rotate(-19deg);
-  pointer-events: none;
-}
-.solar-stage::after { width: 88%; height: 38%; opacity: .56; }
-
 .solar-preview {
   position: relative;
   display: grid;
@@ -330,8 +327,6 @@
   .solar-copy h1 span { display: inline; }
   .solar-intro { max-width: 48ch; margin-top: .56rem; }
   .solar-stage { min-height: 0; }
-  .solar-stage::before { width: 92%; }
-  .solar-stage::after { width: 77%; }
   .solar-preview { width: min(66%, 42vh, 25rem); }
   .solar-mission { margin-top: .4rem; }
   .solar-world { min-height: 9rem; max-width: none; }

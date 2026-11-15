@@ -3,6 +3,7 @@ import { animate } from 'animejs';
 import './home.css';
 import SpaceLoader from '../../components/SpaceLoader';
 import spaceApps from '../../NASA Space Apps Logos - 2026/Space Apps Logo Color and White.svg';
+import orbits from '../../Patterns/Orbits.png';
 import SolarSky from './SolarSky';
 import useSolarRotation from './useSolarRotation';
 import { WORLDS } from './solarWorlds';
@@ -91,6 +92,7 @@ export default function Home({ onZoneSelected, expanded = false, onExpandedChang
   return (
     <div className="solar-home" ref={root} lang="es" style={{ '--world-accent': world.color }}>
       <div className="solar-background" aria-hidden="true">
+        <img className="solar-orbits" src={orbits} alt="" />
         <SolarSky showFigures={showFigures} />
       </div>
       <div className="solar-shell">
