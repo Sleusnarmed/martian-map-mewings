@@ -22,7 +22,7 @@ export function useGlobeScene({ containerRef, compactRef, navStateRef, viewerRef
     const motion = createGlobeMotion({
       now: () => performance.now(),
       reducedMotion: () => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-      visible: () => !document.hidden,
+      visible: () => !document.hidden && viewer.useDefaultRenderLoop,
       canResume: () => viewer.camera.positionCartographic.height >= MARS_PREVIEW_HEIGHT,
       onChange: state => { if (containerRef.current) containerRef.current.dataset.motion = state; },
       rotate: angle => { viewer.camera.rotate(Cesium.Cartesian3.UNIT_Z, angle); viewer.scene.requestRender(); },
@@ -34,6 +34,13 @@ export function useGlobeScene({ containerRef, compactRef, navStateRef, viewerRef
         viewer.scene.requestRender();
       },
     });
+    const resize = new ResizeObserver(() => {
+      if (!viewer.isDestroyed() && viewer.useDefaultRenderLoop) {
+        viewer.resize();
+        viewer.scene.requestRender();
+      }
+    });
+    resize.observe(containerRef.current);
     const spinListener = viewer.clock.onTick.addEventListener(() => motion.tick());
     const tickListener = viewer.scene.preRender.addEventListener((_scene, time) => {
       if (containerRef.current) {
@@ -136,6 +143,7 @@ export function useGlobeScene({ containerRef, compactRef, navStateRef, viewerRef
     motion.restart(!compactRef.current, false);
 
     return () => {
+      resize.disconnect();
       transitionRef.current?.cancel();
       transitionRef.current = null;
       viewerRef.current = null;

@@ -9,7 +9,7 @@ import GlobeInspector from "../features/globe/GlobeInspector";
 import GlobeSidebar from "../features/globe/GlobeSidebar";
 
 
-export default function MarsGlobe3D({ onZoneSelected, compact = false }) {
+export default function MarsGlobe3D({ onZoneSelected, compact = false, active = true }) {
   const containerRef = useRef(null);
   const viewerRef = useRef(null);
   const overlayRef = useRef(null);
@@ -43,12 +43,23 @@ export default function MarsGlobe3D({ onZoneSelected, compact = false }) {
       if (viewer && !viewer.isDestroyed()) {
         viewer.resize();
         setNavLevel('regions'); setActiveRegion(null); setInspectedItem(null); setIsSidebarOpen(true);
-        viewerRef.current.motion.restart(!compact, false);
+        if (compact) viewerRef.current.motion.restart(false, false);
         viewer.scene.requestRender();
       }
     });
     return () => cancelAnimationFrame(frame);
   }, [compact]);
+
+  // Keep the viewer and its tile cache alive while another carousel planet is shown.
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      const viewer = viewerRef.current?.viewer;
+      if (!viewer || viewer.isDestroyed()) return;
+      viewer.useDefaultRenderLoop = active;
+      if (active) { viewer.resize(); viewer.scene.requestRender(); }
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [active]);
 
   const enterRegion = useCallback((viewer, region) => {
     if (!region.available) return;

@@ -28,17 +28,17 @@ export function createGlobeMotion({ rotate, resetCamera, now, reducedMotion, vis
     beginInteraction() { stop(); held = true; resumeAt = Infinity },
     endInteraction() { held = false; resumeAt = overview ? now() + OVERVIEW_IDLE_MS : Infinity },
     interact,
-    restart(enabled, animate = true) {
+    restart(expanded, animate = true) {
       const ticket = ++generation
       running = false
-      overview = enabled
+      overview = true
       held = false
       resumeAt = Infinity
       report()
-      resetCamera(enabled, animate, () => {
+      resetCamera(expanded, animate, () => {
         if (ticket !== generation) return
         previousTime = now()
-        running = enabled && !reducedMotion()
+        running = !reducedMotion()
         report()
       })
     },

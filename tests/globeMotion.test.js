@@ -81,14 +81,14 @@ test('manually zooming into a regional view also locks the idle rotation until g
   assert.equal(f.rotations.length, 1)
 })
 
-test('hidden/compact/reduced-motion views do not rotate or jump after resuming', () => {
+test('hidden and reduced-motion views pause; compact previews rotate too', () => {
   const f = fixture()
   f.motion.restart(true); f.flights[0]()
   f.hide(true); f.tick(60000); f.hide(false); f.tick(50)
   assert.equal(f.rotations.length, 1)
   assert.ok(Math.abs(f.rotations[0]) < 0.003)
   f.motion.restart(false); f.flights.at(-1)(); f.tick(50)
-  assert.equal(f.rotations.length, 1)
+  assert.equal(f.rotations.length, 2)
   const reduced = fixture(true)
   reduced.motion.restart(true); reduced.flights[0](); reduced.tick(50)
   assert.equal(reduced.rotations.length, 0)
