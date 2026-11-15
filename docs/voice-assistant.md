@@ -74,8 +74,10 @@ rejected. Visibility never changes planning constraints or traversal eligibility
   are 45 seconds for transcription and 30 seconds for other requests. Cancellation
   invalidates late results and stops all capture tracks/timers/audio contexts,
   including late permission grants. Decoder work stops at the next generation step.
-- TTS uses `en-US`, the shared application voice identity and rate 0.95. The
-  installed browser/OS voice determines actual playback availability.
+- TTS uses `en-US` and rate 0.95. EVA and alerts prefer the installed local
+  Microsoft Zira female voice, independent of browser voice ordering. If Zira is
+  unavailable, the shared selector falls back to another available voice,
+  preferring local English speech. No online voice download is required.
 
 Audio exists only in memory, goes to the local adapter and is not logged or
 saved by the application. English/Spanish detection chooses between those two

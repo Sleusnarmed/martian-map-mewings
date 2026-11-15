@@ -124,13 +124,29 @@ test('silence and local model failures have recoverable English messages', async
   assert.equal(failed.spoken.length, 0)
 })
 
-test('EVA uses the application voice identity and reading rate', async () => {
+test('EVA prefers the installed female application voice over the default male and online voices', async () => {
   const f = fixture()
-  const appVoice = { lang: 'en-US', name: 'Application voice', localService: true }
-  f.env.speechSynthesis.getVoices = () => [{ lang: 'es-MX', name: 'Other voice', localService: true }, appVoice]
+  const appVoice = { lang: 'en-US', name: 'Microsoft Zira - English (United States)', localService: true }
+  f.env.speechSynthesis.getVoices = () => [
+    { lang: 'en-US', name: 'Microsoft David', localService: true, default: true },
+    { lang: 'en-US', name: 'Microsoft Zira Online', localService: false },
+    { lang: 'es-MX', name: 'Microsoft Sabina', localService: true },
+    appVoice,
+  ]
   await f.session.submit('oxígeno')
   assert.equal(f.spoken[0].voice, appVoice)
   assert.equal(f.spoken[0].voice, missionSpeechVoice(f.env))
   assert.equal(f.spoken[0].rate, 0.95)
   assert.equal(f.spoken[0].lang, 'en-US')
+})
+
+test('EVA retains available local English speech when the preferred voice is absent', async () => {
+  const f = fixture()
+  const fallback = { lang: 'en-US', name: 'Local English voice', localService: true }
+  f.env.speechSynthesis.getVoices = () => [
+    { lang: 'en-US', name: 'Microsoft Zira Online', localService: false },
+    fallback,
+  ]
+  await f.session.submit('oxygen')
+  assert.equal(f.spoken[0].voice, fallback)
 })

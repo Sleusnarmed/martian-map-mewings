@@ -157,6 +157,19 @@ test('alert voice publishes subtitles and clears them when muted', () => {
   assert.equal(captions.at(-1).text, '')
 })
 
+test('alerts use the same installed female English voice as EVA', () => {
+  const f = fixture({ tone: false })
+  const femaleVoice = { lang: 'en-US', name: 'Microsoft Zira Desktop', localService: true }
+  f.env.speechSynthesis.getVoices = () => [
+    { lang: 'en-US', name: 'Microsoft David Desktop', localService: true, default: true },
+    femaleVoice,
+  ]
+  f.audio.present(f.notice('female-voice'))
+  assert.equal(f.spoken[0].voice, femaleVoice)
+  assert.equal(f.spoken[0].rate, 0.95)
+  assert.equal(f.spoken[0].lang, 'en-US')
+})
+
 test('assistant suspension prevents overlapping alert audio and resumes a deferred notice', () => {
   const f = fixture()
   f.audio.setSuspended(true)
