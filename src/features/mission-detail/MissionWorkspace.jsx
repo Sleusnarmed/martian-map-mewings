@@ -1,11 +1,12 @@
+import MissionRegions from "./MissionRegions.jsx";
+import MissionControlRail from "./MissionControlRail.jsx";
+import readPreviewLocation from "./readPreviewLocation.js";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useRouteMission } from "../route-planner/RouteMissionContext.js";
 import CoordinateInspector from "../route-planner/CoordinateInspector.jsx";
 import MissionHUD from "./MissionHUD.jsx";
 import MissionInfoPanel from "./MissionInfoPanel.jsx";
 import MissionAlerts from "./MissionAlerts.jsx";
-import VoiceControls from "./VoiceControls.jsx";
-import EvaVoiceControls from '../local-ai/EvaVoiceControls.jsx';
 import SpeechCaptions from '../local-ai/SpeechCaptions.jsx';
 import '../local-ai/local-ai.css';
 import useFadingView from "./useFadingView.js";
@@ -18,40 +19,6 @@ import {
 import MissionIcon from "./MissionIcon.jsx";
 import "./mission-detail.css";
 import "./tablet-mission.css";
-
-function readPreviewLocation() {
-  const query = new URLSearchParams(window.location.search);
-  const scenarioId = demoScenarios.some(
-    (scenario) => scenario.id === query.get("scenario"),
-  )
-    ? query.get("scenario")
-    : "normal";
-  const fallbackTab = scenarioId === "arrival" ? "science" : "route";
-  const activeTab = ["route", "telemetry", "science"].includes(query.get("tab"))
-    ? query.get("tab")
-    : fallbackTab;
-  const lastPage = activeTab === "science" ? 2 : 0;
-  const requestedPage = Number(query.get("page") || 0);
-  const page = Number.isInteger(requestedPage)
-    ? Math.max(0, Math.min(lastPage, requestedPage))
-    : 0;
-
-  const initialPanel =
-    query.get("panel") === "information"
-      ? "information"
-      : query.get("tab") === "alerts" ||
-          query.get("panel") === "alerts" ||
-          scenarioId.includes("delay")
-        ? "alerts"
-        : null;
-
-  return {
-    scenarioId,
-    activeTab,
-    page,
-    panel: initialPanel,
-  };
-}
 
 export default function MissionWorkspace({
   MapComponent,
@@ -244,32 +211,7 @@ export default function MissionWorkspace({
         </button>
       )}
 
-      <nav className="field-regions" aria-label="Mission region">
-        <button
-          aria-current={
-            selectedRegionId === "syrtis-major" ? "location" : undefined
-          }
-          onClick={() => selectRegion("syrtis-major")}
-        >
-          Syrtis Major
-        </button>
-        <span aria-hidden="true">/</span>
-        <button
-          aria-current={selectedRegionId === "jezero" ? "location" : undefined}
-          onClick={() => selectRegion("jezero")}
-        >
-          Jezero
-        </button>
-        <span aria-hidden="true">/</span>
-        <button
-          aria-current={
-            selectedRegionId === "wildcat-ridge" ? "location" : undefined
-          }
-          onClick={() => selectRegion("wildcat-ridge")}
-        >
-          Wildcat Ridge
-        </button>
-      </nav>
+      <MissionRegions selectedRegionId={selectedRegionId} selectRegion={selectRegion} />
 
       {integrated && (
         <div className="field-map-controls" ref={setMapNavigationTarget} />
@@ -348,57 +290,11 @@ export default function MissionWorkspace({
       </div>
 
       {/* Riel vertical derecho: los 4 botones del mismo tamaño */}
-      <div
-        className="field-control-rail"
-        role="group"
-        aria-label="Mission panels and audio"
-      >
-        <button
-          className="field-rail-button"
-          aria-expanded={openPanel === "information"}
-          aria-controls="mission-information"
-          onClick={() => togglePanel("information")}
-        >
-          <MissionIcon
-            name={openPanel === "information" ? "panel-close" : "panel-open"}
-          />
-          <span>Information</span>
-        </button>
-
-        <button
-          className={`field-rail-button ${mission.notice?.level === "warning" ? "has-warning" : ""}`}
-          aria-expanded={openPanel === "alerts"}
-          aria-controls="mission-alerts"
-          onClick={() => togglePanel("alerts")}
-        >
-          <MissionIcon name="alert" />
-          <span>Alerts</span>
-          {mission.notice?.level === "warning" && (
-            <span className="mt-alert-count" aria-label="1 mission alert">
-              1
-            </span>
-          )}
-        </button>
-
-        <VoiceControls
-          suspended={assistantActive}
-          noticeId={mission.notice?.id}
-          text={mission.notice?.text}
-        />
-
-        {integrated && (
-          <button
-            className="field-rail-button"
-            aria-expanded={openPanel === "map"}
-            aria-controls="mission-map-view"
-            onClick={() => togglePanel("map")}
-          >
-            <MissionIcon name="layers" />
-            <span>Map view</span>
-          </button>
-        )}
-        {planned && <EvaVoiceControls onActiveChange={setAssistantActive} />}
-      </div>
+      <MissionControlRail
+        openPanel={openPanel} togglePanel={togglePanel} mission={mission}
+        assistantActive={assistantActive} integrated={integrated}
+        planned={planned} setAssistantActive={setAssistantActive}
+      />
 
       <span className="field-sr-only" role="status" aria-live="polite">
         {mission.notice?.title}
