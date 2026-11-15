@@ -46,6 +46,7 @@ test('bounded input and unavailable engine fail explicitly', async () => {
 test('inference explicitly disables reasoning and bounds context and generation', async () => {
   await classifyQuestion('estado', { fetchImpl: async (_url, options) => {
     const body = JSON.parse(options.body)
+    assert.equal(body.model, 'gemma3:4b')
     assert.equal(body.think, false)
     assert.equal(body.options.num_ctx, 2048)
     assert.equal(body.options.num_predict, 120)

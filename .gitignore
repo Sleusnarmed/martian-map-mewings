@@ -28,3 +28,4 @@ public/cesium/
 
 .venv/
 __pycache__/
+.cache/eva-speech/

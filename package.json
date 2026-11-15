@@ -7,12 +7,14 @@
     "ai:serve": "node server/local-ai.mjs",
     "ai:check": "node scripts/check-local-ai.mjs",
     "ai:warm": "node scripts/warm-local-ai.mjs",
+    "ai:speech:setup": "node scripts/setup-local-speech.mjs",
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@huggingface/transformers": "4.3.2",
     "@tailwindcss/vite": "^4.3.5",
     "animejs": "^4.5.0",
     "cesium": "^1.147.0",
