@@ -1,7 +1,6 @@
+@import './solar-layout.css';
+
 .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; display: inline-block; vertical-align: middle; line-height: 1; }
-.cosmic-canvas { background: radial-gradient(circle at 68% 45%, #0e224b 0%, #08142b 55%, #050d1e 100%); background-attachment: fixed; }
-.stars-layer { background-image: radial-gradient(1.2px 1.2px at 80px 120px, rgba(255,255,255,.7), transparent), radial-gradient(1px 1px at 240px 310px, rgba(230,255,0,.6), transparent), radial-gradient(1.5px 1.5px at 380px 90px, rgba(255,255,255,.8), transparent), radial-gradient(1.2px 1.2px at 620px 240px, rgba(160,179,214,.65), transparent), radial-gradient(2px 2px at 780px 520px, rgba(255,255,255,.75), transparent), radial-gradient(1px 1px at 940px 160px, rgba(255,255,255,.5), transparent), radial-gradient(1.5px 1.5px at 1120px 380px, rgba(230,255,0,.5), transparent), radial-gradient(1.2px 1.2px at 1340px 210px, rgba(255,255,255,.7), transparent), radial-gradient(1.8px 1.8px at 1480px 590px, rgba(255,255,255,.8), transparent), radial-gradient(1px 1px at 450px 650px, rgba(160,179,214,.5), transparent); background-size: 1500px 750px; }
-.mars-atmosphere-glow { box-shadow: 0 0 90px -10px rgba(220,110,50,.28), 0 0 160px -30px rgba(14,34,75,.7); }
 
 .globe-starfield {
   position: absolute;
@@ -49,29 +48,3 @@
     radial-gradient(1.6px circle at 22% 91%, var(--starlight), transparent);
   background-size: 293px 263px;
 }
-.neon-pill-glow { box-shadow: 0 0 28px rgba(230,255,0,.35); }
-.neon-pill-glow:hover { box-shadow: 0 0 38px rgba(230,255,0,.6); }
-.orbital-arrow { display:flex; height:44px; width:44px; align-items:center; justify-content:center; border:1px solid rgba(255,255,255,.2); border-radius:9999px; background:rgba(8,21,46,.6); color:#a0b3d6; backdrop-filter:blur(8px); transition:all .2s; }
-.orbital-arrow:hover { border-color:rgba(255,255,255,.6); background:#0c1f44; color:#fff; }
-.orbital-arrow:active { transform:scale(.95); }
-@media (max-width: 639px) { .orbital-arrow { height:38px; width:38px; } }
-
-/* Planet visuals: lightweight CSS-rendered spheres so every world is visible offline. */
-.planet-glow { isolation:isolate; box-shadow:0 0 75px -18px var(--planet-glow), inset -28px -18px 55px rgba(0,0,0,.72), inset 12px 8px 28px rgba(255,255,255,.18); animation:planet-arrive .55s ease both; }
-.planet-surface { position:absolute; inset:0; border-radius:inherit; background:var(--planet-surface); opacity:.98; }
-.planet-glow::after { content:""; position:absolute; inset:0; border-radius:inherit; background:linear-gradient(105deg,rgba(255,255,255,.22),transparent 34%,rgba(0,0,0,.1) 57%,rgba(0,0,0,.58)); pointer-events:none; }
-.planet-mercury { --planet-glow:rgba(160,153,143,.45); --planet-surface:radial-gradient(ellipse at 28% 25%,#d8d0c4 0%,#8e8981 27%,#5e5b58 58%,#292a30 100%); }
-.planet-mercury .planet-surface { background-image:radial-gradient(circle at 35% 34%,#4d4b49 0 2%,transparent 2.8%),radial-gradient(circle at 63% 58%,#d5cabe 0 4%,transparent 5%),radial-gradient(circle at 48% 75%,#393a3d 0 3%,transparent 4%),var(--planet-surface); }
-.planet-venus { --planet-glow:rgba(225,166,91,.42); --planet-surface:radial-gradient(ellipse at 32% 24%,#ffe1a4 0%,#d99a55 36%,#9a593b 70%,#442b2b 100%); }
-.planet-venus .planet-surface { background-image:repeating-linear-gradient(155deg,transparent 0 13px,rgba(255,231,174,.22) 17px,transparent 27px),var(--planet-surface); }
-.planet-earth { --planet-glow:rgba(48,139,220,.55); --planet-surface:radial-gradient(ellipse at 30% 25%,#a5e5ff 0%,#247bc2 34%,#123d7a 68%,#07152e 100%); }
-.planet-earth .planet-surface { background-image:radial-gradient(ellipse at 35% 42%,#66a65c 0 10%,transparent 11%),radial-gradient(ellipse at 65% 61%,#79ad61 0 13%,transparent 14%),radial-gradient(ellipse at 54% 22%,#b5c77c 0 6%,transparent 7%),radial-gradient(ellipse at 72% 35%,rgba(255,255,255,.75) 0 5%,transparent 13%),var(--planet-surface); }
-.planet-mars { --planet-glow:rgba(220,110,50,.48); --planet-surface:radial-gradient(ellipse at 30% 24%,#f4b078 0%,#c65f35 36%,#853b2e 68%,#321c24 100%); }
-.planet-mars .planet-surface { background-image:radial-gradient(circle at 34% 37%,rgba(75,31,26,.65) 0 5%,transparent 6%),radial-gradient(ellipse at 68% 62%,rgba(245,174,111,.5) 0 11%,transparent 20%),radial-gradient(circle at 56% 22%,rgba(68,32,29,.55) 0 3%,transparent 4%),var(--planet-surface); }
-.planet-jupiter { --planet-glow:rgba(210,159,112,.4); --planet-surface:repeating-linear-gradient(0deg,#8b5d47 0 12px,#e1c09a 13px 25px,#b77b55 26px 39px,#f0d5ae 40px 51px); }
-.planet-jupiter .planet-surface { background-image:radial-gradient(ellipse at 68% 60%,#a64e3d 0 7%,#d88b69 8% 11%,transparent 12%),repeating-linear-gradient(0deg,transparent 0 12px,rgba(255,244,218,.28) 13px 19px,transparent 20px 29px),var(--planet-surface); }
-.planet-saturn { --planet-glow:rgba(216,190,137,.42); --planet-surface:repeating-linear-gradient(0deg,#b99a68 0 15px,#e7d3a7 16px 29px,#8c765b 30px 39px); }
-.planet-uranus { --planet-glow:rgba(113,218,226,.4); --planet-surface:radial-gradient(ellipse at 32% 25%,#c5ffff 0%,#75d6df 40%,#3c9cae 75%,#16465d 100%); }
-.planet-neptune { --planet-glow:rgba(62,111,238,.5); --planet-surface:radial-gradient(ellipse at 30% 24%,#77a9ff 0%,#2855c9 43%,#142c83 75%,#07143f 100%); }
-.saturn-ring { position:absolute; z-index:2; width:145%; height:37%; left:-22%; top:34%; border:18px solid rgba(211,190,151,.72); border-left-color:rgba(211,190,151,.32); border-right-color:rgba(240,221,180,.85); border-radius:50%; transform:rotate(-18deg); box-shadow:0 0 12px rgba(0,0,0,.35); }
-@keyframes planet-arrive { from { opacity:.45; transform:scale(.94) rotate(-5deg); } to { opacity:1; transform:scale(1) rotate(0); } }
