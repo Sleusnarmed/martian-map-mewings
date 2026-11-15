@@ -12,6 +12,7 @@ import { useTerrainScene } from './useTerrainScene'
 import { useTerrainFraming } from './useTerrainFraming'
 import { useTerrainMarkers } from './useTerrainMarkers'
 import { useTerrainLayers } from './useTerrainLayers'
+import { useMapLayers } from './MapLayerContext.js'
 import TerrainControlsPanel from './TerrainControlsPanel'
 import TerrainMapControls from './TerrainMapControls'
 import './terrain.css'
@@ -29,9 +30,11 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
   const navigationRef = useRef(null)
   const [state, setState] = useState({ status: 'loading' })
   const [attempt, setAttempt] = useState(0)
-  const [routeVisible, setRouteVisible] = useState(true)
-  const [hazardsVisible, setHazardsVisible] = useState(true)
-  const [coverageVisible, setCoverageVisible] = useState(false)
+  const { visibility, setVisibility, setReady } = useMapLayers()
+  const { route: routeVisible, hazards: hazardsVisible, coverage: coverageVisible } = visibility
+  const setRouteVisible = value => setVisibility('route', value)
+  const setHazardsVisible = value => setVisibility('hazards', value)
+  const setCoverageVisible = value => setVisibility('coverage', value)
   const imageryViewer = state.status === 'ready' ? state.viewer : null
   const route = missionState.result?.route ?? null
   const navigation = useTerrainNavigation(imageryViewer, state.data, route)
@@ -67,6 +70,7 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
   useTerrainMarkers({ viewerRef, state, pointsOfInterest })
 
   const ready = state.status === 'ready'
+  useEffect(() => { setReady(ready); return () => setReady(false) }, [ready, setReady])
   const wildcat = ready && pointsOfInterest.find(p => p.id === 'wildcat-ridge' && p.source && Number.isFinite(p.longitude) && Number.isFinite(p.latitude) && sampleHeight(state.data, p.longitude, p.latitude) !== null)
   return <div className="terrain-embedded">
     <section id="map-viewport" className="map-shell" aria-label="Interactive Jezero terrain" tabIndex={-1}>
