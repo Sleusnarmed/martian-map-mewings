@@ -337,3 +337,16 @@
 @media (max-width: 700px) {
   .wildcat-terrain .terrain-panel { width: min(342px, calc(100% - 24px)); }
 }
+
+/* Exploration tools share the existing mission panel instead of overlapping its HUD. */
+.field-explorer-tools .terrain-view-tools,
+.field-explorer-tools .terrain-zoom-tools,
+.field-explorer-tools .terrain-context,
+.field-explorer-tools .terrain-scale,
+.field-explorer-tools .route-guide,
+.field-explorer-tools .environment-timeline { position:static; width:100%; max-height:none; margin:12px 0; }
+.field-explorer-tools .terrain-view-tools { display:flex; flex-wrap:wrap; }
+.field-explorer-tools .terrain-zoom-tools { display:flex; flex-wrap:wrap; gap:6px; }
+.field-explorer-tools .terrain-zoom-tools button { flex:1; min-width:40px; }
+.field-explorer-tools .terrain-crosshair { display:none; }
+.field-explorer-tools .timeline-controls { flex-wrap:wrap; }

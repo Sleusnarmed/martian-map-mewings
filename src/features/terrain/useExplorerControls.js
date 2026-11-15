@@ -34,7 +34,7 @@ function setOrbitInputs(viewer, enabled) {
   const controller = viewer.scene.screenSpaceCameraController
   controller.enableInputs = enabled
   // The explorer already uses the loaded DEM for clearance, including before tiles render.
-  controller.enableCollisionDetection = enabled
+  controller.enableCollisionDetection = false
 }
 
 function moveExplorer(viewer, data, forward, turn, seconds) {

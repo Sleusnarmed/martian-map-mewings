@@ -15,9 +15,14 @@ HiRISE imagery loads near Wildcat Ridge; fine elevation tiles are restricted to
 its source coverage. Missing local elevation detail falls back to regional CTX.
 Master's bounded wheel/drag zoom remains in place.
 
-Eduardo's standalone route, walking and environment components are retained in
-Git but not mounted in the mission workspace. They do not replace or drive the
-existing destination, remaining-distance or resource fixtures.
+Eduardo's exploration tools are now mounted inside Map view: 2D, Auto 2.5D,
+3D explore, the preset Wildcat route, filters, MEDA replay, solar heating and
+photos. They do not drive the existing mission destination, remaining-distance
+or resource fixtures. Map route progress is explicitly a separate demo.
+Use Map view → 3D explore (or the Wildcat close-up action) to start the route;
+W/S moves, A/D turns, drag looks, and on-screen arrows also work. Choose 2D or
+Auto 2.5D to leave walking mode. Show Wildcat demo route toggles the path outside
+walking mode. Environment replay and filters share their own historical clock.
 
 Validation: ESLint, production build, and all four Node test files. This includes
 HiRISE tile seams and availability, detail blending, DEM picking, camera bounds,

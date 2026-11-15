@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import * as Cesium from 'cesium'
 import 'cesium/Build/Cesium/Widgets/widgets.css'
@@ -10,6 +10,15 @@ import region from './region.json'
 import { geologyLayer, hiriseLayer, orbitalDetailLayer, orbitalLayer, useWildcatImagery } from './wildcatImagery'
 import { useSlopeLayer } from './useSlopeLayer'
 import { pickTerrainRay } from './pickTerrain'
+import { useTerrainNavigation } from './useTerrainNavigation'
+import TerrainNavigation from './TerrainNavigation'
+import { buildWildcatRoute } from './wildcatRoute'
+import { useWildcatPath } from './useWildcatPath'
+import { useEnvironmentClock } from './useEnvironmentClock'
+import EnvironmentTimeline from './EnvironmentTimeline'
+import WildcatLayers from './WildcatLayers'
+import { useSolarHeatingLayer } from './useSolarHeatingLayer'
+import { skyColor } from './environmentModel'
 import './terrain.css'
 
 const EMPTY_POIS = []
@@ -20,6 +29,7 @@ function focusTerrain(context, longitude, latitude, range) {
   const height = sampleHeight(context.data, longitude, latitude)
   if (height === null) return
   const target = Cesium.Cartesian3.fromDegrees(longitude, latitude, height, context.ellipsoid)
+  context.viewer.camera.cancelFlight()
   context.viewer.camera.lookAt(target, new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-48), range))
   context.viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY)
   context.viewer.scene.requestRender()
@@ -51,6 +61,7 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
   const container = useRef(null)
   const viewerRef = useRef(null)
   const selectCallback = useRef(onPointSelect)
+  const navigationRef = useRef(null)
   const [state, setState] = useState({ status: 'loading' })
   const [attempt, setAttempt] = useState(0)
   const [contours, setContours] = useState(initialPointId !== 'wildcat-ridge')
@@ -59,13 +70,34 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
   const [geologyVisible, setGeologyVisible] = useState(false)
   const [slopesVisible, setSlopesVisible] = useState(false)
   const [nearDetail, setNearDetail] = useState(initialPointId === 'wildcat-ridge')
+  const [geologyOpacity, setGeologyOpacity] = useState(0.7)
+  const [routeVisible, setRouteVisible] = useState(false)
+  const [slopeThreshold, setSlopeThreshold] = useState(15)
   const imageryViewer = state.status === 'ready' ? state.viewer : null
   const orbital = useWildcatImagery(imageryViewer, state.data?.bounds, orbitalLayer, orbitalVisible)
   const orbitalDetail = useWildcatImagery(imageryViewer, state.data?.bounds, orbitalDetailLayer, orbitalVisible)
   const hirise = useWildcatImagery(imageryViewer, state.data?.bounds, hiriseLayer, orbitalVisible && nearDetail)
-  const geology = useWildcatImagery(imageryViewer, state.data?.bounds, geologyLayer, geologyVisible, 0.7)
+  const geology = useWildcatImagery(imageryViewer, state.data?.bounds, geologyLayer, geologyVisible, geologyOpacity)
   const slopeStatus = useSlopeLayer(imageryViewer, state.data, slopesVisible)
-  const imageryVisible = [orbital.status, orbitalDetail.status, hirise.status, geology.status, slopeStatus].includes('ready')
+  const route = useMemo(() => state.data ? buildWildcatRoute(state.data) : null, [state.data])
+  const navigation = useTerrainNavigation(imageryViewer, state.data, route)
+  const { modeRef } = navigation
+  useEffect(() => { navigationRef.current = navigation }, [navigation])
+  const exploring = navigation.mode === 'walk'
+  useWildcatPath(imageryViewer, state.data, route, routeVisible || exploring)
+  const environment = useEnvironmentClock(Boolean(imageryViewer))
+  const [heatVisible, setHeatVisible] = useState(false)
+  const [heatOpacity, setHeatOpacity] = useState(0.6)
+  const heatStatus = useSolarHeatingLayer(imageryViewer, state.data, heatVisible, environment.minute, heatOpacity)
+  useEffect(() => {
+    if (!imageryViewer) return
+    const [r, g, b] = skyColor(environment.minute)
+    const viewer = viewerRef.current?.viewer
+    if (!viewer || viewer.isDestroyed()) return
+    viewer.scene.backgroundColor = Cesium.Color.fromBytes(r, g, b)
+    imageryViewer.scene.requestRender()
+  }, [imageryViewer, environment.minute])
+  const imageryVisible = [orbital.status, orbitalDetail.status, hirise.status, geology.status, slopeStatus, heatStatus].includes('ready')
   const [spacing, setSpacing] = useState(100)
   const [inspection, setInspection] = useState(null)
   const [selectedPoint, setSelectedPoint] = useState(initialPointId)
@@ -123,6 +155,7 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
         viewerRef.current = { viewer, data, ellipsoid }
         const zoomHandler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas)
         const zoom = delta => {
+          if (modeRef.current === 'walk') return
           const distance = boundedZoomDistance(data, ellipsoid, viewer.camera.position, viewer.camera.direction, viewer.camera.pitch, delta)
           if (distance === 0) return
           viewer.camera.move(viewer.camera.direction, distance)
@@ -151,7 +184,7 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
             latitude: Cesium.Math.toDegrees(position.latitude),
             height: position.height, pitch: viewer.camera.pitch,
           }
-          const safe = constrainCamera(data, pose)
+          const safe = constrainCamera(data, pose, modeRef.current === 'walk')
           if (!safe) return
           if (Math.abs(safe.longitude - pose.longitude) > 1e-7 || Math.abs(safe.latitude - pose.latitude) > 1e-7 ||
               Math.abs(safe.height - pose.height) > 0.1 || Math.abs(safe.pitch - pose.pitch) > 1e-5) {
@@ -170,6 +203,7 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
           setState({ status: 'error', message: 'The map renderer stopped. Reload the terrain to resume exploring.' })
         }))
         viewer.screenSpaceEventHandler.setInputAction((click) => {
+          if (modeRef.current === 'walk') return
           const picked = viewer.scene.pick(click.position)
           if (picked?.id?.properties?.poiId) {
             const id = picked.id.properties.poiId.getValue()
@@ -195,7 +229,7 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
     }
     start()
     return () => { controller.abort(); cleanups.forEach(remove => remove()); viewerRef.current = null; if (viewer && !viewer.isDestroyed()) viewer.destroy() }
-  }, [terrainUrl, attempt, initialPointId, pointsOfInterest])
+  }, [terrainUrl, attempt, initialPointId, pointsOfInterest, modeRef])
 
   useEffect(() => {
     const context = viewerRef.current
@@ -224,12 +258,14 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
   }, [imageryViewer])
 
   function focus(lon, lat, range) {
+    if (exploring) navigation.chooseMode('auto')
     focusTerrain(viewerRef.current, lon, lat, range)
   }
 
   useEffect(() => {
     if (state.status !== 'ready' || !focusPointId) return
     const point = focusPointId === 'jezero' ? region.center : pointsOfInterest.find(item => item.id === focusPointId)
+    if (navigationRef.current?.mode === 'walk') navigationRef.current.chooseMode('auto')
     if (point) focusTerrain(viewerRef.current, point.longitude, point.latitude, focusPointId === 'jezero' ? 75000 : 3500)
   }, [state, focusPointId, focusRevision, pointsOfInterest])
 
@@ -314,14 +350,26 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
       <h2>Map view</h2>
       <p className="mt-panel-description" role="status">{ready ? refining ? 'Refining terrain…' : 'Jezero · true-scale relief' : state.status === 'error' ? 'Map unavailable' : 'Loading terrain…'}</p>
       <div className="field-map-actions"><button className="md-button md-button-outline" disabled={!ready} onClick={() => { focus(region.center.longitude, region.center.latitude, 75000); selectCallback.current?.('jezero') }}>Jezero</button><button className="md-button md-button-outline" disabled={!wildcat} onClick={() => { focus(wildcat.longitude, wildcat.latitude, 3500); selectCallback.current?.('wildcat-ridge') }}>Wildcat Ridge</button></div>
-      <label className="control-row"><span>Orbital imagery</span><input type="checkbox" checked={orbitalVisible} disabled={!ready} onChange={e => setOrbitalVisible(e.target.checked)} /></label>
+      <div className="field-explorer-tools">
+        {ready && <TerrainNavigation navigation={navigation} slopes={slopeStatus === 'ready'} orbitalReady={orbital.status === 'ready'} ctxDetailReady={orbitalDetail.status === 'ready'} hiriseReady={hirise.status === 'ready'} threshold={slopeThreshold} />}
+        <label className="control-row"><span>Show Wildcat demo route</span><input type="checkbox" disabled={!ready || exploring} checked={routeVisible || exploring} onChange={e => setRouteVisible(e.target.checked)} /></label>
+        <p className="mt-panel-description">Preset exploration route; not a calculated safe path. Its progress is separate from the mission case HUD. In 3D: W/S to move, A/D to turn, drag to look.</p>
+        <WildcatLayers ready={ready} environment={environment}
+          closeUp={route ? () => { setRouteVisible(true); navigation.startRoute() } : null}
+          heat={{ enabled: heatVisible, toggle: setHeatVisible, opacity: heatOpacity, setOpacity: setHeatOpacity, status: heatStatus }}
+          orbital={{ enabled: orbitalVisible, toggle: setOrbitalVisible, status: orbital.status, detailStatus: orbitalDetail.status, hiriseStatus: hirise.status }}
+          geology={{ enabled: geologyVisible, toggle: setGeologyVisible, status: geology.status }}
+          geologyOpacity={geologyOpacity} setGeologyOpacity={setGeologyOpacity}
+          terrainControls={<>
       <label className="control-row"><span>Elevation colors</span><input type="checkbox" checked={elevationColors} disabled={!ready} onChange={e => setElevationColors(e.target.checked)} /></label>
-      <label className="control-row"><span>Geology</span><input type="checkbox" checked={geologyVisible} disabled={!ready} onChange={e => setGeologyVisible(e.target.checked)} /></label>
       <label className="control-row"><span>Regional slopes</span><input type="checkbox" checked={slopesVisible} disabled={!ready} onChange={e => setSlopesVisible(e.target.checked)} /></label>
-      {orbitalVisible && orbital.status !== 'ready' && <p role="status">{orbital.status === 'error' ? 'Orbital imagery unavailable; terrain remains available.' : 'Loading orbital imagery…'}</p>}
       <label className="control-row"><span>Contour lines</span><input type="checkbox" checked={contours} disabled={!ready} onChange={e => setContours(e.target.checked)} /></label>
       <label className="control-row">Contour interval<select disabled={!ready || !contours} value={spacing} onChange={e => setSpacing(Number(e.target.value))}><option value="50">50 m</option><option value="100">100 m</option><option value="250">250 m</option></select></label>
       {ready && elevationColors && <div className="field-map-elevation"><p>Elevation · m, MOLA</p><div className="elevation-ramp" style={{background:`linear-gradient(90deg, ${region.palette.join(',')})`}} /><div className="legend-values"><span>{Math.round(state.data.minimumHeight)}</span><span>{Math.round(state.data.maximumHeight)}</span></div></div>}
+          <label className="control-row">Slope review threshold<select value={slopeThreshold} onChange={e => setSlopeThreshold(Number(e.target.value))}><option value="10">10°</option><option value="15">15°</option><option value="20">20°</option></select></label>
+          </>} />
+        <EnvironmentTimeline environment={environment} />
+      </div>
       <output className="field-map-inspection">{inspection ? `${inspection.lat.toFixed(5)}° N · ${inspection.lon.toFixed(5)}° E · ${inspection.elevation.toFixed(0)} m` : 'Tap terrain to inspect elevation.'}</output>
       <details className="field-map-sources"><summary>Data & sources</summary><p>MRO · CTX / NASA / JPL / USGS<br />Regional CTX DEM: 20 m source<br />Wildcat HiRISE: 1 m source, 3 m display<br />Vertical reference: MOLA</p><a href={DEM_SOURCE} target="_blank" rel="noreferrer">Source dataset</a>{wildcat && <a href={wildcat.source} target="_blank" rel="noreferrer">Wildcat Ridge position</a>}<a href={hiriseLayer.source} target="_blank" rel="noreferrer">HiRISE imagery</a><a href="https://doi.org/10.5066/P9REJ9JN" target="_blank" rel="noreferrer">HiRISE elevation</a><a href={geologyLayer.source} target="_blank" rel="noreferrer">Geology source</a><p>Orbital imagery uses illustrative colorization. Elevation colors are optional. Mission cases remain separate demo data.</p></details>
     </aside>, controlsTarget)}
