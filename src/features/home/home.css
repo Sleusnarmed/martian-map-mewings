@@ -2,6 +2,53 @@
 .cosmic-canvas { background: radial-gradient(circle at 68% 45%, #0e224b 0%, #08142b 55%, #050d1e 100%); background-attachment: fixed; }
 .stars-layer { background-image: radial-gradient(1.2px 1.2px at 80px 120px, rgba(255,255,255,.7), transparent), radial-gradient(1px 1px at 240px 310px, rgba(230,255,0,.6), transparent), radial-gradient(1.5px 1.5px at 380px 90px, rgba(255,255,255,.8), transparent), radial-gradient(1.2px 1.2px at 620px 240px, rgba(160,179,214,.65), transparent), radial-gradient(2px 2px at 780px 520px, rgba(255,255,255,.75), transparent), radial-gradient(1px 1px at 940px 160px, rgba(255,255,255,.5), transparent), radial-gradient(1.5px 1.5px at 1120px 380px, rgba(230,255,0,.5), transparent), radial-gradient(1.2px 1.2px at 1340px 210px, rgba(255,255,255,.7), transparent), radial-gradient(1.8px 1.8px at 1480px 590px, rgba(255,255,255,.8), transparent), radial-gradient(1px 1px at 450px 650px, rgba(160,179,214,.5), transparent); background-size: 1500px 750px; }
 .mars-atmosphere-glow { box-shadow: 0 0 90px -10px rgba(220,110,50,.28), 0 0 160px -30px rgba(14,34,75,.7); }
+
+.globe-starfield {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 62% 48%, #112241, #050b19 72%);
+}
+
+.globe-starfield::before,
+.globe-starfield::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+.globe-starfield::before {
+  --starlight: #d8e5ffe0;
+  background-image:
+    radial-gradient(2px circle at 9% 14%, var(--starlight), transparent),
+    radial-gradient(1px circle at 24% 8%, var(--starlight), transparent),
+    radial-gradient(1.5px circle at 42% 20%, var(--starlight), transparent),
+    radial-gradient(1px circle at 60% 7%, var(--starlight), transparent),
+    radial-gradient(2px circle at 81% 17%, var(--starlight), transparent),
+    radial-gradient(1.2px circle at 94% 32%, var(--starlight), transparent),
+    radial-gradient(1.6px circle at 13% 47%, var(--starlight), transparent),
+    radial-gradient(1px circle at 31% 33%, var(--starlight), transparent),
+    radial-gradient(1.2px circle at 57% 47%, var(--starlight), transparent),
+    radial-gradient(2px circle at 77% 54%, var(--starlight), transparent),
+    radial-gradient(1px circle at 23% 72%, var(--starlight), transparent),
+    radial-gradient(1.6px circle at 39% 88%, var(--starlight), transparent),
+    radial-gradient(1.2px circle at 69% 75%, var(--starlight), transparent),
+    radial-gradient(1.6px circle at 86% 91%, var(--starlight), transparent);
+  background-size: 457px 341px;
+}
+
+.globe-starfield::after {
+  --starlight: #b5d1fb99;
+  background-image:
+    radial-gradient(1.2px circle at 7% 64%, var(--starlight), transparent),
+    radial-gradient(1px circle at 28% 22%, var(--starlight), transparent),
+    radial-gradient(1.6px circle at 47% 45%, var(--starlight), transparent),
+    radial-gradient(1.2px circle at 59% 82%, var(--starlight), transparent),
+    radial-gradient(1.8px circle at 73% 26%, var(--starlight), transparent),
+    radial-gradient(1px circle at 91% 71%, var(--starlight), transparent),
+    radial-gradient(1.6px circle at 22% 91%, var(--starlight), transparent);
+  background-size: 293px 263px;
+}
 .neon-pill-glow { box-shadow: 0 0 28px rgba(230,255,0,.35); }
 .neon-pill-glow:hover { box-shadow: 0 0 38px rgba(230,255,0,.6); }
 .orbital-arrow { display:flex; height:44px; width:44px; align-items:center; justify-content:center; border:1px solid rgba(255,255,255,.2); border-radius:9999px; background:rgba(8,21,46,.6); color:#a0b3d6; backdrop-filter:blur(8px); transition:all .2s; }

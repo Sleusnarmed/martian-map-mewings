@@ -4,7 +4,8 @@ import { Cartesian3, Color, PointPrimitiveCollection } from 'cesium'
 // Positions are camera-relative along Mars-fixed directions. Terrain occludes
 // the markers normally, so ridges can rise above the geometric horizon.
 const SKY_DISTANCE = 2_000_000
-const STAR_COLOR = Color.fromCssColorString('#e5edff')
+const STAR_COLOR = Color.fromCssColorString('#f5f9ff')
+const STAR_OUTLINE = Color.fromCssColorString('#25344e').withAlpha(0.48)
 
 export function useMarsSceneSky(viewer, enabled, sky) {
   const controllerRef = useRef(null)
@@ -42,8 +43,10 @@ export function useMarsSceneSky(viewer, enabled, sky) {
         for (const { magnitude } of next) {
           points.add({
             position: Cartesian3.ZERO,
-            pixelSize: Math.max(1.8, 4.5 - 0.65 * magnitude),
-            color: STAR_COLOR.withAlpha(Math.min(0.96, 0.92 - 0.10 * Math.max(0, magnitude))),
+            pixelSize: Math.max(3, 6.8 - 0.78 * magnitude),
+            color: STAR_COLOR.withAlpha(Math.min(1, 1.08 - 0.07 * Math.max(0, magnitude))),
+            outlineColor: STAR_OUTLINE,
+            outlineWidth: 0.75,
           })
         }
       }

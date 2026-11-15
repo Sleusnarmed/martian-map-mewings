@@ -31,7 +31,7 @@ function App({ onZoneSelected, expanded = false, onExpandedChange }) {
   };
 
   if (expanded) return <main className="home-globe home-globe-expanded">
-    <div className="stars-layer pointer-events-none absolute inset-0" aria-hidden="true" />
+    <div className="globe-starfield" aria-hidden="true" />
     <Suspense fallback={<SpaceLoader />}><MarsGlobe onZoneSelected={onZoneSelected} /></Suspense>
     <button className="globe-home-back" onClick={() => onExpandedChange?.(false)}>← Sistema solar</button>
   </main>;
