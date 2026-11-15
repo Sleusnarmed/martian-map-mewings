@@ -69,10 +69,10 @@ test('microphone denial and missing recognizer offer a recoverable visible error
   f.session.listen()
   f.recognizers[0].onerror({ error: 'not-allowed' })
   assert.equal(f.session.getSnapshot().status, 'error')
-  assert.match(f.session.getSnapshot().message, /Permite su uso/)
+  assert.match(f.session.getSnapshot().message, /Allow it/)
   const session = createVoiceSession({ ...f.env, SpeechRecognition: undefined })
   session.listen()
-  assert.match(session.getSnapshot().message, /no admite/)
+  assert.match(session.getSnapshot().message, /does not support/)
 })
 
 test('Qwen uses the application voice identity and reading rate', async () => {
@@ -83,4 +83,5 @@ test('Qwen uses the application voice identity and reading rate', async () => {
   assert.equal(f.spoken[0].voice, appVoice)
   assert.equal(f.spoken[0].voice, missionSpeechVoice(f.env))
   assert.equal(f.spoken[0].rate, 0.95)
+  assert.equal(f.spoken[0].lang, 'en-US')
 })

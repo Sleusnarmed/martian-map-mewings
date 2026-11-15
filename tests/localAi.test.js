@@ -14,13 +14,13 @@ test('model output cannot add actions or unsupported intents', async () => {
 
 test('missing route never becomes a zero-minute return', () => {
   const text = answerMissionQuestion('return', initialMission())
-  assert.match(text, /Regreso estimado desde la posición actual: sin datos/)
-  assert.match(answerMissionQuestion('resources', initialMission()), /No hay una evaluación/)
+  assert.match(text, /Estimated return from the current position: no data/)
+  assert.match(answerMissionQuestion('resources', initialMission()), /No resource assessment/)
 })
 
 test('resource minimum rounds upward and limited routes report deficits', () => {
   const state = { ...initialMission(), result: { resources: [{ id: 'oxygen', availableSeconds: 60, requiredSeconds: 125, minimumTotalSeconds: 125, shortfallSeconds: 65 }] } }
-  assert.match(answerMissionQuestion('resources', state), /mínimo total 2.1 min; faltante 1.1 min/)
+  assert.match(answerMissionQuestion('resources', state), /minimum total 2.1 min; shortfall 1.1 min/)
 })
 
 test('changed mission invalidates in-flight answers even at same revision', async () => {
@@ -60,6 +60,19 @@ test('layer commands need an explicit layer and direction, rejecting ambiguity a
   assert.equal(explicitLayerCommand('No muestres pendientes', { layer: 'slopes', visible: true }), false)
   assert.equal(explicitLayerCommand('Muestra geología y oculta pendientes', { layer: 'geology', visible: true }), false)
   assert.equal(explicitLayerCommand('Muestra terreno sin observar', { layer: 'coverage', visible: true }), true)
+  assert.equal(explicitLayerCommand('Show slopes', { layer: 'slopes', visible: true }), true)
+  assert.equal(explicitLayerCommand('Hide geology', { layer: 'geology', visible: false }), true)
+  assert.equal(explicitLayerCommand('Do not show slopes', { layer: 'slopes', visible: true }), false)
+  assert.equal(explicitLayerCommand('Show that layer', { layer: 'slopes', visible: true }), false)
+})
+
+test('Spanish requests produce English answers and layer confirmations', async () => {
+  const state = initialMission()
+  const oxygen = await askMissionAssistant('¿Cuánto oxígeno me queda?', { getState: () => state, fetchImpl: async () => ({ ok: true, json: async () => ({ intent: 'oxygen' }) }) })
+  assert.match(oxygen.text, /^Remaining oxygen autonomy:/)
+  const layer = await askMissionAssistant('Muestra pendientes', { getState: () => state, getLayers: () => ({ ready: true, setVisibility() {} }), fetchImpl: async () => ({ ok: true, json: async () => ({ intent: 'set_layer', layer: 'slopes', visible: true }) }) })
+  assert.match(layer.text, /^Showing slopes\./)
+  assert.doesNotMatch(layer.text, /Qwen|Mostrando|Ocultando/i)
 })
 
 test('shared map preference mutation does not alter mission or accept unknown layers', () => {
@@ -85,6 +98,6 @@ test('explanations reject invented reasons and retain limiting resources', async
   await assert.rejects(explainReasons('por qué', [{ id: 'blocked', text: 'Sin cobertura' }], { fetchImpl: async () => ({ ok: true, json: async () => ({ message: { content: '{"reasonIds":["earthquake"]}' } }) }) }), /INVALID_MODEL_RESPONSE/)
   const state = { ...initialMission(), result: { status: 'resources', route: { priority: 'terrain', maxSlope: 12 }, resources: [{ id: 'oxygen', availableSeconds: 60, requiredSeconds: 120, minimumTotalSeconds: 120, shortfallSeconds: 60 }] } }
   const result = await askMissionAssistant('por qué', { getState: () => state, fetchImpl: async url => ({ ok: true, json: async () => url.endsWith('/intent') ? { intent: 'explain_route' } : { reasonIds: ['priority'] } }) })
-  assert.match(result.text, /recursos insuficientes/)
-  assert.match(result.text, /faltante 1.0 min/)
+  assert.match(result.text, /resources are insufficient/)
+  assert.match(result.text, /shortfall 1.0 min/)
 })

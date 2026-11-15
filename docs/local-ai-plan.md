@@ -1,5 +1,11 @@
 # Plan de IA local para la demo
 
+Actualización de interfaz: el asistente se llama **EVA**. Toda la interfaz,
+notificaciones y respuestas son en inglés, incluso ante preguntas en español.
+El botón de voz ya no abre un panel: muestra Listening…, EVA is thinking… y
+Speaking… junto al riel. La guía vigente está en [voice-assistant.md](voice-assistant.md);
+las entregas anteriores de este documento describen el progreso histórico.
+
 Estado: asistente por voz integrado al HUD, con control de capas, explicación de
 rutas y subtítulos. La transcripción usa el navegador y puede requerir Internet.
 Máquina indicada por Gerardo: Ryzen 7 250, RTX 5060 con 8 GB de VRAM y 32 GB RAM.

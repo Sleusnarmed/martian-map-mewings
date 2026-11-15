@@ -9,32 +9,32 @@ export function validateIntent(value) {
   return value.layer == null && value.visible == null
 }
 
-const minutes = value => Number.isFinite(value) ? `${(value / 60).toFixed(1)} min` : 'sin datos'
+const minutes = value => Number.isFinite(value) ? `${(value / 60).toFixed(1)} min` : 'no data'
 
 export function routeReasons(state) {
   const result = state.result
-  if (!result) return [{ id: 'missing', text: state.phase === 'calculating' ? 'La ruta se está calculando. Espera a que termine para consultar el motivo.' : 'Todavía no hay una ruta evaluada. Selecciona A y B y calcula la ruta.' }]
+  if (!result) return [{ id: 'missing', text: state.phase === 'calculating' ? 'The route is being calculated. Wait for the result before asking for an explanation.' : 'No route has been evaluated yet. Select A and B, then calculate the route.' }]
   if (!result.route) {
     const messages = {
-      span: 'La separación directa entre A y B supera el límite técnico de 6 kilómetros de este planificador local.',
-      coordinates: 'Faltan coordenadas válidas de inicio o destino.',
-      coincident: 'A y B deben estar separados al menos un metro.',
-      endpoint: 'Un extremo está fuera de la cobertura de elevación utilizable, dentro de una zona bloqueada o por encima del límite de pendiente. El resultado no distingue cuál de estas condiciones ocurrió.',
-      search: 'No se encontró una ruta dentro del área de búsqueda y el límite de pendiente. Esto no demuestra que no exista una ruta fuera de esa búsqueda.',
-      return: 'No se pudo establecer un camino de regreso con los límites actuales.',
-      settings: 'Los límites de planificación contienen valores no válidos.',
+      span: 'The direct distance between A and B exceeds this local planner’s technical limit of 6 kilometres.',
+      coordinates: 'Valid start or destination coordinates are missing.',
+      coincident: 'A and B must be at least one metre apart.',
+      endpoint: 'An endpoint is outside usable elevation coverage, inside a blocked area, or above the slope limit. This result does not distinguish which condition occurred.',
+      search: 'No route was found within the search area and slope limit. This does not prove that no route exists outside that search.',
+      return: 'A return path could not be established under the current limits.',
+      settings: 'The planning limits contain invalid values.',
     }
-    return [{ id: 'blocked', text: messages[result.reasonCode] ?? 'El planificador no produjo una ruta utilizable. Revisa los límites y la cobertura del terreno en Route.' }]
+    return [{ id: 'blocked', text: messages[result.reasonCode] ?? 'The planner did not produce a usable route. Review the limits and terrain coverage in Route.' }]
   }
   const reasons = [
     { id: 'priority', text: result.route.priority === 'distance'
-      ? 'Se priorizó la distancia entre las opciones exploradas que cumplen las restricciones.'
-      : 'Se priorizó el coste de recorrido: tiempo estimado, exposición a pendientes y una penalización por terreno aún no observado.' },
-    { id: 'terrain', text: `La ruta se comprobó contra la elevación disponible y el límite de pendiente de ${state.settings.maxSlope} grados. Se excluyen las zonas bloqueadas conocidas. Esto no garantiza seguridad ante peligros no observados.` },
+      ? 'Distance was prioritised among the explored options that satisfy the constraints.'
+      : 'The planner prioritised traversal cost: estimated time, slope exposure, and a penalty for ground not yet observed.' },
+    { id: 'terrain', text: `The route was checked against available elevation data and a slope limit of ${state.settings.maxSlope} degrees. Known blocked areas are excluded. This does not guarantee safety from unobserved hazards.` },
   ]
-  if (Number.isFinite(result.route.maxSlope)) reasons.push({ id: 'slope', text: `La pendiente máxima evaluada en esta ruta es ${result.route.maxSlope.toFixed(1)} grados.` })
-  if (result.status === 'resources') reasons.push({ id: 'resources', text: `La ruta se pudo calcular, pero el recorrido permanece bloqueado por recursos insuficientes. ${answerMissionQuestion('resources', state)}` })
-  else reasons.push({ id: 'resources', text: `La evaluación incluye ida, regreso conservador, actividad y reserva. ${answerMissionQuestion('times', state)}` })
+  if (Number.isFinite(result.route.maxSlope)) reasons.push({ id: 'slope', text: `The maximum evaluated slope on this route is ${result.route.maxSlope.toFixed(1)} degrees.` })
+  if (result.status === 'resources') reasons.push({ id: 'resources', text: `The route was calculated, but traversal is locked because resources are insufficient. ${answerMissionQuestion('resources', state)}` })
+  else reasons.push({ id: 'resources', text: `The assessment includes outbound travel, a conservative return, activity, and reserve. ${answerMissionQuestion('times', state)}` })
   return reasons
 }
 
@@ -42,20 +42,20 @@ export function routeReasons(state) {
 export function answerMissionQuestion(intent, state) {
   const mission = missionPresentation(state)
   switch (intent) {
-    case 'oxygen': return `Autonomía de oxígeno restante: ${minutes(mission.oxygenRemainingSeconds)}. Reserva requerida: ${minutes(mission.reserveSeconds)}. Es una estimación del planificador, no una lectura de sensores.`
-    case 'return': return `Regreso estimado desde la posición actual: ${minutes(mission.returnDurationSeconds)}. Margen de tiempo tras regresar: ${minutes(mission.returnMarginSeconds)}. Margen de oxígeno tras regresar: ${minutes(mission.oxygenReturnMarginSeconds)}. Reserva requerida: ${minutes(mission.reserveSeconds)}. Revisa la ruta de regreso antes de continuar.`
+    case 'oxygen': return `Remaining oxygen autonomy: ${minutes(mission.oxygenRemainingSeconds)}. Required reserve: ${minutes(mission.reserveSeconds)}. This is a planner estimate, not a sensor reading.`
+    case 'return': return `Estimated return from the current position: ${minutes(mission.returnDurationSeconds)}. Time margin after returning: ${minutes(mission.returnMarginSeconds)}. Oxygen margin after returning: ${minutes(mission.oxygenReturnMarginSeconds)}. Required reserve: ${minutes(mission.reserveSeconds)}. Review the return route before continuing.`
     case 'times': {
       const result = state.result
-      return `Tiempos de la última planificación: ida ${minutes(result?.outboundSeconds)}; vuelta ${minutes(result?.returnSeconds)}; vuelta conservadora ${minutes(result?.conservativeReturnSeconds)}. No representan necesariamente el tiempo restante durante el recorrido.`
+      return `Times from the latest plan: outbound ${minutes(result?.outboundSeconds)}; return ${minutes(result?.returnSeconds)}; conservative return ${minutes(result?.conservativeReturnSeconds)}. These do not necessarily represent the time remaining during traversal.`
     }
     case 'resources': {
       const resources = state.result?.resources
-      if (!resources?.length) return 'No hay una evaluación de recursos disponible. Selecciona A y B y calcula una ruta.'
-      return resources.map(resource => `${resource.id === 'oxygen' ? 'Oxígeno' : 'Tiempo de misión'}: disponible al calcular ${minutes(resource.availableSeconds)}; requerido ${minutes(resource.requiredSeconds)}; mínimo total ${Number.isFinite(resource.minimumTotalSeconds) ? `${(Math.ceil(resource.minimumTotalSeconds / 6) / 10).toFixed(1)} min` : 'sin datos'}; faltante ${minutes(resource.shortfallSeconds)}.`).join('\n')
+      if (!resources?.length) return 'No resource assessment is available. Select A and B, then calculate a route.'
+      return resources.map(resource => `${resource.id === 'oxygen' ? 'Oxygen' : 'Mission time'}: available when calculated ${minutes(resource.availableSeconds)}; required ${minutes(resource.requiredSeconds)}; minimum total ${Number.isFinite(resource.minimumTotalSeconds) ? `${(Math.ceil(resource.minimumTotalSeconds / 6) / 10).toFixed(1)} min` : 'no data'}; shortfall ${minutes(resource.shortfallSeconds)}.`).join('\n')
     }
-    case 'status': return `Estado: ${state.phase}. Distancia restante: ${Number.isFinite(mission.remainingDistanceMeters) ? `${Math.round(mission.remainingDistanceMeters)} m` : 'sin ruta calculada'}. Oxígeno: ${minutes(mission.oxygenRemainingSeconds)}. Regreso: ${minutes(mission.returnDurationSeconds)}.`
+    case 'status': return `State: ${state.phase}. Remaining distance: ${Number.isFinite(mission.remainingDistanceMeters) ? `${Math.round(mission.remainingDistanceMeters)} m` : 'no calculated route'}. Oxygen: ${minutes(mission.oxygenRemainingSeconds)}. Return: ${minutes(mission.returnDurationSeconds)}.`
     case 'explain_route': return routeReasons(state).map(reason => reason.text).join(' ')
-    default: return 'Puedes pedirme mostrar u ocultar una capa, explicar la ruta o consultar oxígeno, regreso, tiempos y recursos. Di una orden a la vez y nombra la capa.'
+    default: return 'Ask EVA to show or hide a named layer, explain a route, or check oxygen, return, times, and resources. Give one command at a time.'
   }
 }
 
@@ -75,7 +75,7 @@ export async function askMissionAssistant(question, { getState, getLayers, signa
     if (!layers?.ready) throw new Error('MAP_NOT_READY')
     layers.setVisibility(data.layer, data.visible)
     const layer = MAP_LAYERS[data.layer]
-    return { intent: data.intent, text: `${data.visible ? 'Mostrando' : 'Ocultando'} ${layer.label}. ${layer.note ?? ''} Cambiar la visibilidad no altera las restricciones de la ruta.`.trim() }
+    return { intent: data.intent, text: `${data.visible ? 'Showing' : 'Hiding'} ${layer.label}. ${layer.note ?? ''} Changing visibility does not alter route constraints.`.trim() }
   }
   if (getState() !== state) throw new Error('MISSION_CHANGED')
   if (data.intent === 'explain_route') {
@@ -86,7 +86,7 @@ export async function askMissionAssistant(question, { getState, getLayers, signa
     const explanation = await response.json()
     if (signal?.aborted) throw new Error('CANCELLED')
     if (getState() !== state) throw new Error('MISSION_CHANGED')
-    // Qwen selects and orders verified reasons; it cannot invent facts or figures.
+    // EVA selects and orders verified reasons; it cannot invent facts or figures.
     const selected = explanation.reasonIds
     if (!Array.isArray(selected) || !selected.length || selected.some(id => !reasons.some(reason => reason.id === id))) throw new Error('INVALID_MODEL_RESPONSE')
     const ids = [...new Set(selected)]

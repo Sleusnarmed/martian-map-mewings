@@ -10,6 +10,6 @@ export default function SpeechCaptions({ hasRoute }) {
     return () => window.removeEventListener(CAPTION_EVENT, receive)
   }, [])
   return <div className={`mission-captions ${hasRoute ? 'above-route' : ''}`} aria-live="polite" aria-atomic="true">
-    {caption && <div className="mission-caption-text"><span>{caption.text}</span><button aria-label="Ocultar subtítulo" onClick={() => setCaption(null)}><MissionIcon name="close" /></button></div>}
+    {caption && <div className="mission-caption-text"><span>{caption.text}</span><button aria-label="Dismiss subtitle" onClick={() => setCaption(null)}><MissionIcon name="close" /></button></div>}
   </div>
 }

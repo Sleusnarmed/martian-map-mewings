@@ -1,8 +1,8 @@
 export const MAP_LAYERS = Object.freeze({
-  orbital: { label: 'imagen orbital' }, geology: { label: 'geología' },
-  slopes: { label: 'pendientes' }, heat: { label: 'incidencia solar modelada', note: 'Representa incidencia solar modelada, no temperatura medida.' },
-  contours: { label: 'curvas de nivel' }, elevation: { label: 'colores de elevación' },
-  route: { label: 'ruta calculada' }, hazards: { label: 'zonas bloqueadas conocidas' }, coverage: { label: 'terreno sin observar' },
+  orbital: { label: 'orbital imagery' }, geology: { label: 'geology' },
+  slopes: { label: 'slopes' }, heat: { label: 'modelled solar incidence', note: 'This represents modelled solar incidence, not measured temperature.' },
+  contours: { label: 'elevation contours' }, elevation: { label: 'elevation colours' },
+  route: { label: 'calculated route' }, hazards: { label: 'known blocked areas' }, coverage: { label: 'unobserved ground' },
 })
 export function initialMapLayers(pointId = 'jezero') {
   return { orbital: true, geology: false, slopes: false, heat: false, contours: pointId !== 'wildcat-ridge', elevation: false, route: true, hazards: true, coverage: false }
