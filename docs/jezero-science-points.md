@@ -34,9 +34,12 @@ accuracy. Skinner Ridge is close to Wildcat Ridge; its location was not shifted
 for visual spacing. Shuyak and Swift Run are sample locations representing their
 parent outcrops. They are not outcrop centers or perimeter definitions.
 
-Marker elevations come from the existing loaded DEM, with a 2 m visual offset;
-no published sample elevation is substituted into the terrain. Marker labels are
-annotations readable through relief, not evidence of direct line of sight. The
+Marker anchors come from the existing loaded DEM, with a 2 m visual offset;
+no published sample elevation is substituted into the terrain. POIs are persistent HTML annotations projected from their world coordinates after
+each rendered frame. They are readable through relief, not evidence of direct line
+of sight. Behind-camera and off-screen anchors are hidden; hover does not invoke
+Cesium picking or recreate marker entities. Clicking selects the published
+coordinates directly. The
 coordinate inspector still uses the actual DEM elevation and published lon/lat.
 Source metadata and summaries are bundled, so hovering needs no network request;
 opening a source link requires connectivity.

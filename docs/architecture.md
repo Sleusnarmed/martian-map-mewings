@@ -20,7 +20,7 @@ resources and notices. The isolated mission preview retains its case fixtures.
 | Terrain lifecycle | `useTerrainScene.js` | Async data loading, viewer creation, camera/input guards, cleanup |
 | Terrain presentation | `TerrainControlsPanel.jsx` | Map, exploration and layer control groups; no viewer construction |
 | Persistent map tools | `TerrainMapControls.jsx` | Perspective, compass and 3D movement in the workspace's external navigation slot |
-| Terrain framing / markers / material | `useTerrainFraming.js`, `useTerrainMarkers.js`, `useTerrainMaterial.js` | Independent synchronization effects with matching cleanup |
+| Terrain framing / markers / material | `useTerrainFraming.js`, `TerrainPoints.jsx`, `useTerrainMaterial.js` | Independent synchronization effects with matching cleanup |
 | Terrain data | `terrainData.js`, `createTerrainProvider.js` | DEM validation, sampling, tile availability and bounded caches |
 | Exploration | `useTerrainNavigation.js`, `useExplorerControls.js` | Camera inspection, independent of mission position |
 | Layer coordination | `useTerrainLayers.js` | Layer preferences and scene synchronization |
