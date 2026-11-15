@@ -19,6 +19,7 @@ import {
   wildcatImage,
 } from "./demoMission.js";
 import MissionIcon from "./MissionIcon.jsx";
+import sansiLogo from '../../assets/branding/sansi.png';
 import "./mission-detail.css";
 import "./tablet-mission.css";
 
@@ -331,14 +332,17 @@ export default function MissionWorkspace({
       </span>
       <SpeechCaptions hasRoute={hasDefinedRoute} />
 
-      {/* Barra inferior visible únicamente cuando hay una ruta definida */}
-      {hasDefinedRoute && (
-        <MissionHUD
-          mission={mission}
-          onOpenRoute={() => openInformation("route")}
-          onOpenTelemetry={() => openInformation("telemetry")}
-        />
-      )}
+      <div className="field-bottom">
+        <img className="field-brand" src={sansiLogo} alt="SANSI" width="1752" height="897" draggable="false" />
+        {/* Barra inferior visible únicamente cuando hay una ruta definida */}
+        {hasDefinedRoute && (
+          <MissionHUD
+            mission={mission}
+            onOpenRoute={() => openInformation("route")}
+            onOpenTelemetry={() => openInformation("telemetry")}
+          />
+        )}
+      </div>
     </div>
   );
 }

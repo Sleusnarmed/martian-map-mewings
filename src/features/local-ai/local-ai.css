@@ -34,12 +34,12 @@
   position: absolute;
   z-index: 8;
   left: 50%;
-  bottom: 24px;
+  bottom: 112px;
   transform: translateX(-50%);
   width: min(680px, calc(100% - 48px));
   pointer-events: none;
 }
-.mission-captions.above-route { bottom: 204px; }
+.mission-captions.above-route { bottom: 272px; }
 .mission-caption-text {
   display: flex;
   gap: 12px;
@@ -67,7 +67,7 @@
     line-height: 1.2;
   }
   .eva-status { width: max-content; max-width: 180px; white-space: nowrap; }
-  .mission-captions { width: calc(100% - 32px); bottom: 16px; }
-  .mission-captions.above-route { bottom: 176px; }
+  .mission-captions { width: calc(100% - 32px); bottom: 104px; }
+  .mission-captions.above-route { bottom: 256px; }
   .mission-caption-text { padding: 8px 12px; font-size: 14px; }
 }

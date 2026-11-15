@@ -1,14 +1,18 @@
-import spaceAppsLogo from "../../NASA Space Apps Logos - 2026/Space Apps White small logo.png";
+import sansiLogo from '../../assets/branding/sansi.png';
+import mewingsLogo from '../../assets/branding/mewings.svg';
 
 export default function GlobeHeader({ creditRef, compact, isTransitioning, navLevel, activeRegion, handleBackToRegions }) {
   return <>
       {/* BARRA SUPERIOR */}
-        <header style={{ display: compact || isTransitioning ? "none" : undefined }} className="pointer-events-none absolute top-0 left-0 right-0 z-30 flex flex-wrap items-center justify-between gap-3 px-4 sm:px-6 py-3.5">
+        <header style={{ display: compact || isTransitioning ? "none" : undefined }} className="globe-header pointer-events-none absolute top-0 left-0 right-0 z-40 gap-3 px-4 sm:px-6 py-3.5">
           <div className="flex items-center gap-3">
             <img
-              src={spaceAppsLogo}
-              alt="NASA Space Apps Challenge"
-              className="h-8 sm:h-9 w-auto object-contain"
+              src={sansiLogo}
+              alt="SANSI"
+              width="1752"
+              height="897"
+              draggable="false"
+              className="h-12 sm:h-14 w-auto object-contain"
             />
             <div className="hidden sm:block h-6 w-[1px] bg-[#2E96F5]/40" />
             <div className="hidden sm:block">
@@ -32,7 +36,10 @@ export default function GlobeHeader({ creditRef, compact, isTransitioning, navLe
               ← Back to regions
             </button>
           )}
-          <div ref={creditRef} className="globe-credits" aria-label="Map credits" />
+          <div className="globe-brand-credits">
+            <div ref={creditRef} className="globe-credits" aria-label="Map credits" />
+            <img src={mewingsLogo} alt="Mewings" width="1254" height="1254" draggable="false" className="globe-mewings" />
+          </div>
           </div>
         </header>
 

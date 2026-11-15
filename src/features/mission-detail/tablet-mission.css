@@ -406,8 +406,8 @@
   margin-top: 20px;
 }
 
-/* The A–B route sits above the aligned, 78px instrument surface. */
-.field-hud {
+/* Normal flow keeps the mark above the HUD at its actual responsive height. */
+.field-bottom {
   position: absolute;
   z-index: 4;
   left: 24px;
@@ -416,6 +416,18 @@
   display: grid;
   gap: 12px;
   pointer-events: none;
+}
+.field-brand {
+  display: block;
+  justify-self: end;
+  width: 128px;
+  height: auto;
+}
+/* The A–B route sits above the aligned, 78px instrument surface. */
+.field-hud {
+  min-width: 0;
+  display: grid;
+  gap: 12px;
 }
 .field-hud > * {
   pointer-events: auto;
@@ -604,7 +616,7 @@
 .terrain-embedded .cesium-credit-logoContainer {
   display: none !important;
 }
-.has-terrain .field-hud {
+.has-terrain .field-bottom {
   bottom: 32px;
 }
 .has-terrain .field-deck {
@@ -921,10 +933,18 @@
   .mt-source-list > div + div {
     margin-top: 10px;
   }
-  .field-hud {
+  .field-bottom {
     left: 16px;
     right: 16px;
     bottom: 16px;
+  }
+  .field-brand {
+    width: 104px;
+  }
+  .md-demo.has-route-planner:has(.field-hud) .field-deck,
+  .md-demo.has-route-planner:has(.field-hud) .field-alerts,
+  .md-demo.has-route-planner:has(.field-hud) .field-map-panel {
+    max-height: max(120px, calc(100dvh - 548px));
   }
   .field-instruments {
     grid-template-columns: minmax(0, 1fr);

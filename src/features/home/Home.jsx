@@ -3,6 +3,8 @@ import { animate } from 'animejs';
 import './home.css';
 import HomeMarsGlobe from './HomeMarsGlobe';
 import spaceApps from '../../NASA Space Apps Logos - 2026/Space Apps Logo Color and White.svg';
+import sansiLogo from '../../assets/branding/sansi.png';
+import mewingsLogo from '../../assets/branding/mewings.svg';
 import orbits from '../../Patterns/Orbits.png';
 import SolarSky from './SolarSky';
 import useSolarRotation from './useSolarRotation';
@@ -108,7 +110,7 @@ export default function Home({ onZoneSelected, expanded = false, onExpandedChang
         <main className="solar-layout">
           <div className="solar-copy">
             <p className="solar-kicker">NASA Space Apps Challenge</p>
-            <h1>Martian <span>Map</span></h1>
+            <h1><img className="solar-sansi" src={sansiLogo} alt="SANSI — Surface Autonomous Navigation & Survival Interface" width="1752" height="897" draggable="false" /></h1>
             <p className="solar-intro">Explore Mars. Discover Jezero.</p>
           </div>
 
@@ -161,6 +163,7 @@ export default function Home({ onZoneSelected, expanded = false, onExpandedChang
               <Icon>code</Icon> Developers
             </button>
           </div>
+          <img className="solar-mewings" src={mewingsLogo} alt="Mewings" width="1254" height="1254" draggable="false" />
         </footer>
       </div>
       <HomeMarsGlobe anchor={marsAnchor} expanded={expanded} active={expanded || isMars}

@@ -65,23 +65,15 @@
 }
 
 .solar-copy h1 {
-  font-family: var(--font-display);
-  font-size: clamp(3.5rem, 5.8vw, 6.5rem);
-  font-weight: 900;
-  letter-spacing: -.053em;
-  line-height: 1;
+  width: min(100%, clamp(17rem, 25vw, 26rem));
+  margin: 0;
 }
 
-.solar-copy h1 span { display: block; }
-
-.solar-copy h1::after {
-  content: '';
+.solar-sansi {
   display: block;
-  width: 3.25rem;
-  height: .23rem;
-  margin-top: clamp(1rem, 3.6svh, 2rem);
-  border-radius: 1rem;
-  background: var(--space-yellow);
+  width: 100%;
+  height: auto;
+  pointer-events: none;
 }
 
 .solar-intro {
@@ -298,6 +290,15 @@
 
 .solar-tools { gap: .15rem clamp(.65rem, 1.55vw, 1.3rem); }
 
+.solar-mewings {
+  flex: 0 0 auto;
+  width: 56px;
+  height: 56px;
+  margin-left: 12px;
+  object-fit: contain;
+  pointer-events: none;
+}
+
 .solar-utility {
   display: inline-flex;
   align-items: center;
@@ -336,9 +337,7 @@
   }
   .solar-copy { padding-top: 0; }
   .solar-kicker { margin-bottom: .75rem; }
-  .solar-copy h1 { font-size: clamp(2.65rem, 9.5vw, 4.5rem); }
-  .solar-copy h1 span { display: inline; }
-  .solar-copy h1::after { margin-top: .85rem; }
+  .solar-copy h1 { width: min(70%, 20rem); }
   .solar-intro { margin-top: .6rem; }
   .solar-neighbors { width: min(71%, 22rem); }
   .solar-stage { min-height: 0; margin-block: .5rem; }
@@ -347,6 +346,7 @@
   .solar-arrow--right { right: 0; }
   .solar-world { padding-top: 0; }
   .solar-brand img { height: 2.85rem; }
+  .solar-mewings { width: 44px; height: 44px; margin-left: 4px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

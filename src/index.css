@@ -60,6 +60,9 @@ button, a, select { touch-action: manipulation; }
 .home-globe:not(.home-globe-expanded) .space-loader { background:transparent; }
 
 /* Cesium owns the contents of this persistent credit host in the globe header. */
-.globe-header-actions { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: .5rem; margin-left: auto; }
+.globe-header { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; }
+.globe-header-actions { display: flex; align-items: flex-start; justify-content: flex-end; flex-wrap: wrap; gap: .5rem; margin-left: auto; }
+.globe-brand-credits { display: grid; justify-items: end; gap: 8px; max-width: min(52vw, 280px); }
+.globe-mewings { width: 56px; height: 56px; object-fit: contain; }
 .globe-credits { pointer-events: auto; padding: .5rem .75rem; border: 1px solid #7d99c265; border-radius: .5rem; background: #07173ff2; color: white; }
 .globe-credits .cesium-widget-credits { position: static; display: block; font-size: 12px; line-height: 1.5; }
