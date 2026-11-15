@@ -4,12 +4,13 @@ import {
   MARS_PREVIEW_HEIGHT,
 } from "../../components/globeMotion.js";
 
-export function createGlobeViewer(container, compact) {
+export function createGlobeViewer(container, compact, creditContainer) {
   const marsEllipsoid = Cesium.Ellipsoid.MARS;
   window.CESIUM_BASE_URL = `${import.meta.env.BASE_URL}cesium/`;
 
   const viewer = new Cesium.Viewer(container, {
     ellipsoid: marsEllipsoid,
+    creditContainer,
     contextOptions: { webgl: { alpha: true } },
     skyBox: false,
     baseLayer: false,

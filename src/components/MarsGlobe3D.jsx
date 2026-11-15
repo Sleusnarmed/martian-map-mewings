@@ -11,6 +11,7 @@ import GlobeSidebar from "../features/globe/GlobeSidebar";
 
 export default function MarsGlobe3D({ onZoneSelected, compact = false, active = true }) {
   const containerRef = useRef(null);
+  const creditRef = useRef(null);
   const viewerRef = useRef(null);
   const overlayRef = useRef(null);
   const transitionRef = useRef(null);
@@ -117,7 +118,7 @@ export default function MarsGlobe3D({ onZoneSelected, compact = false, active = 
     });
   }, [onZoneSelected]);
 
-  useGlobeScene({ containerRef, compactRef, navStateRef, viewerRef, transitionRef, enterRegion, enterZone, setInspectedItem, setTooltipPos });
+  useGlobeScene({ containerRef, creditRef, compactRef, navStateRef, viewerRef, transitionRef, enterRegion, enterZone, setInspectedItem, setTooltipPos });
 
   // Solo gira el planeta y centra la cámara en la región elegida desde el panel lateral (sin entrar automáticamente)
   const focusRegionOnGlobe = (region) => {
@@ -159,7 +160,7 @@ export default function MarsGlobe3D({ onZoneSelected, compact = false, active = 
       {/* Globo 3D de Marte */}
       <div ref={containerRef} className="w-full h-full touch-none" aria-label="Interactive Mars view" />
 
-      <GlobeHeader {...{ compact, isTransitioning, navLevel, activeRegion, handleBackToRegions }} />
+      <GlobeHeader {...{ creditRef, compact, isTransitioning, navLevel, activeRegion, handleBackToRegions }} />
       <GlobeInspector {...{ inspectedItem, compact, isTransitioning, tooltipPos }} />
       <GlobeSidebar {...{ compact, isTransitioning, isSidebarOpen, setIsSidebarOpen, navLevel, activeRegion, focusRegionOnGlobe }} onEnterZone={zone => enterZone(viewerRef.current?.viewer, zone)} />
     </div>

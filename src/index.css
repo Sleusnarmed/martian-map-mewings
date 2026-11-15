@@ -58,3 +58,8 @@ button, a, select { touch-action: manipulation; }
 /* Let the home artwork show through the WebGL canvas around Mars. */
 .home-globe:not(.home-globe-expanded), .mars-globe-view .cesium-widget, .mars-globe-view .cesium-widget canvas { background:transparent; }
 .home-globe:not(.home-globe-expanded) .space-loader { background:transparent; }
+
+/* Cesium owns the contents of this persistent credit host in the globe header. */
+.globe-header-actions { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: .5rem; margin-left: auto; }
+.globe-credits { pointer-events: auto; padding: .5rem .75rem; border: 1px solid #7d99c265; border-radius: .5rem; background: #07173ff2; color: white; }
+.globe-credits .cesium-widget-credits { position: static; display: block; font-size: 12px; line-height: 1.5; }

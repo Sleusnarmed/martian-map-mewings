@@ -5,11 +5,11 @@ import { createGlobeMotion, MARS_OVERVIEW_HEIGHT, MARS_PREVIEW_HEIGHT } from "..
 import { createGlobeViewer } from "./createGlobeViewer";
 import { addGlobeMarkers } from "./addGlobeMarkers";
 
-export function useGlobeScene({ containerRef, compactRef, navStateRef, viewerRef, transitionRef, enterRegion, enterZone, setInspectedItem, setTooltipPos }) {
+export function useGlobeScene({ containerRef, creditRef, compactRef, navStateRef, viewerRef, transitionRef, enterRegion, enterZone, setInspectedItem, setTooltipPos }) {
   useEffect(() => {
     if (!containerRef.current) return;
 
-    const viewer = createGlobeViewer(containerRef.current, compactRef.current);
+    const viewer = createGlobeViewer(containerRef.current, compactRef.current, creditRef.current);
     const marsEllipsoid = Cesium.Ellipsoid.MARS;
     addGlobeMarkers(viewer);
 
@@ -154,6 +154,6 @@ export function useGlobeScene({ containerRef, compactRef, navStateRef, viewerRef
       handler.destroy();
       if (!viewer.isDestroyed()) viewer.destroy();
     };
-  }, [containerRef, compactRef, navStateRef, viewerRef, transitionRef, enterRegion, enterZone, setInspectedItem, setTooltipPos]);
+  }, [containerRef, creditRef, compactRef, navStateRef, viewerRef, transitionRef, enterRegion, enterZone, setInspectedItem, setTooltipPos]);
 
 }
