@@ -3,6 +3,7 @@ import { animate } from 'animejs';
 import './home.css';
 import SpaceLoader from '../../components/SpaceLoader';
 import spaceApps from '../../NASA Space Apps Logos - 2026/Space Apps Logo Color and White.svg';
+import SolarSky from './SolarSky';
 import useSolarRotation from './useSolarRotation';
 import { WORLDS } from './solarWorlds';
 
@@ -45,6 +46,7 @@ export default function Home({ onZoneSelected, expanded = false, onExpandedChang
   const dialog = useRef(null);
   const picker = useRef(null);
   const [worldIndex, setWorldIndex] = useState(marsIndex);
+  const [showFigures, setShowFigures] = useState(false);
   const world = WORLDS[worldIndex];
   const isMars = world.id === 'mars';
 
@@ -88,15 +90,22 @@ export default function Home({ onZoneSelected, expanded = false, onExpandedChang
 
   return (
     <div className="solar-home" ref={root} lang="es" style={{ '--world-accent': world.color }}>
-      <div className="globe-starfield solar-background" aria-hidden="true" />
+      <div className="solar-background" aria-hidden="true">
+        <SolarSky showFigures={showFigures} />
+      </div>
       <div className="solar-shell">
         <header className="solar-header">
           <a href="https://www.spaceappschallenge.org/" target="_blank" rel="noreferrer">
             <img src={spaceApps} alt="NASA Space Apps Challenge" />
           </a>
-          <button className="solar-utility" onClick={() => dialog.current.showModal()}>
-            Desarrolladores <Icon>north_east</Icon>
-          </button>
+          <div className="solar-header-actions">
+            <button className="solar-utility" aria-pressed={showFigures} onClick={() => setShowFigures(visible => !visible)}>
+              <Icon>auto_awesome</Icon> Constelaciones
+            </button>
+            <button className="solar-utility" aria-label="Desarrolladores" onClick={() => dialog.current.showModal()}>
+              <Icon>code</Icon> <span className="solar-developers-label">Desarrolladores</span>
+            </button>
+          </div>
         </header>
 
         <nav className="solar-picker" ref={picker} aria-label="Planetas del sistema solar">
@@ -146,6 +155,7 @@ export default function Home({ onZoneSelected, expanded = false, onExpandedChang
         <footer className="solar-footer">
           <a href={world.source} target="_blank" rel="noreferrer">Datos planetarios · NASA <Icon>north_east</Icon></a>
           <a href="https://www.solarsystemscope.com/textures/" target="_blank" rel="noreferrer">Texturas · Solar System Scope <Icon>north_east</Icon></a>
+          <a href="https://hipparcos-tools.cosmos.esa.int/HIPcatalogueSearch.html" target="_blank" rel="noreferrer">Estrellas · Hipparcos <Icon>north_east</Icon></a>
         </footer>
       </div>
       <DevelopersDialog dialog={dialog} />

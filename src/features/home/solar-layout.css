@@ -6,10 +6,18 @@
   color: #f5f7fd;
 }
 
-.solar-home .solar-background {
+.solar-background {
+  inset: 0;
+  pointer-events: none;
   position: fixed;
   z-index: -1;
   background: radial-gradient(ellipse at 70% 55%, #13264a, #080f22 57%, #050a16 95%);
+}
+
+.solar-sky {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .solar-shell {
@@ -50,7 +58,18 @@
   background: transparent;
 }
 
-.solar-utility { font-size: .875rem; }
+.solar-header-actions {
+  display: flex;
+  align-items: center;
+  gap: clamp(.45rem, 2vw, 1.5rem);
+}
+
+.solar-utility {
+  min-height: 2.5rem;
+  padding-inline: .25rem;
+  font-size: .875rem;
+}
+.solar-utility[aria-pressed="true"] { color: var(--space-yellow); }
 .solar-utility:hover, .solar-footer a:hover { color: var(--space-yellow); }
 .solar-utility .material-symbols-outlined { font-size: 1rem; }
 
@@ -321,6 +340,7 @@
 @media (max-width: 500px) {
   .solar-header { min-height: 60px; }
   .solar-header img { height: 33px; }
+  .solar-developers-label { display: none; }
   .solar-picker { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .25rem; }
   .solar-pick { padding-block: .22rem; }
   .solar-layout { gap: .75rem; }
