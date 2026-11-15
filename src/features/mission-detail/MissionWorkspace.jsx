@@ -29,6 +29,7 @@ export default function MissionWorkspace({ MapComponent, initialRegionId = 'wild
   const information = useFadingView({ tab: preview.activeTab, page: preview.page, regionId: initialRegionId }, (value) => `${value.tab}-${value.page}-${value.regionId}`)
   const [mapSelection, setMapSelection] = useState({ id: initialRegionId, revision: 0 })
   const [mapToolsTarget, setMapToolsTarget] = useState(null)
+  const [mapNavigationTarget, setMapNavigationTarget] = useState(null)
   const { tab: activeTab, page, regionId: selectedRegionId } = information.value
   const [scenarioId, setScenarioId] = useState(preview.scenarioId)
   const [returning, setReturning] = useState(false)
@@ -98,7 +99,7 @@ export default function MissionWorkspace({ MapComponent, initialRegionId = 'wild
   return (
     <div className={`md-demo field-shell ${integrated ? 'has-terrain' : ''} ${planned ? 'has-route-planner' : ''}`}>
       <a className="md-skip-link" href="#map-viewport" onClick={event => { event.preventDefault(); document.getElementById('map-viewport')?.focus() }}>Skip to map</a>
-      {MapComponent && <MapComponent onPointSelect={id => selectRegion(id, false)} focusPointId={mapSelection.id} focusRevision={mapSelection.revision} controlsTarget={mapToolsTarget} initialPointId={initialRegionId} />}
+      {MapComponent && <MapComponent onPointSelect={id => selectRegion(id, false)} focusPointId={mapSelection.id} focusRevision={mapSelection.revision} controlsTarget={mapToolsTarget} navigationTarget={mapNavigationTarget} initialPointId={initialRegionId} />}
       {onBackToGlobe && <button className="field-globe-back" onClick={onBackToGlobe}><MissionIcon name="chevron-left" size={16} />Globo de Marte</button>}
       <nav className="field-regions" aria-label="Mission region">
         <button aria-current={selectedRegionId === 'syrtis-major' ? 'location' : undefined} onClick={() => selectRegion('syrtis-major')}>Syrtis Major</button>
@@ -112,7 +113,10 @@ export default function MissionWorkspace({ MapComponent, initialRegionId = 'wild
         <div className="field-demo-content"><label htmlFor="mission-case">Mission case</label><select id="mission-case" value={scenarioId} onChange={(event) => selectScenario(event.target.value)}>{demoScenarios.map((scenario) => <option key={scenario.id} value={scenario.id}>{scenario.label}</option>)}</select><button className="md-button md-button-outline" aria-pressed={hideData} onClick={() => { focusAfterOpen.current = null; setHideData(!hideData); setReturning(false); changePage(0); setOpenPanel(!hideData || scenarioId.includes('delay') ? 'alerts' : 'information') }}>No data</button></div>
       </details>}
       {planned && <CoordinateInspector />}
-      {integrated && <button className="field-rail-button field-map-toggle" aria-expanded={openPanel === 'map'} aria-controls="mission-map-view" onClick={() => togglePanel('map')}><MissionIcon name="layers" /><span>Map view</span></button>}
+      {integrated && <div className="field-map-controls">
+        <button className="field-rail-button field-map-toggle" aria-expanded={openPanel === 'map'} aria-controls="mission-map-view" onClick={() => togglePanel('map')}><MissionIcon name="layers" /><span>Map view</span></button>
+        <div className="field-map-navigation-slot" ref={setMapNavigationTarget} />
+      </div>}
       <div className="field-information" ref={overlayRef}>
         <MissionInfoPanel mission={mission} region={regions[selectedRegionId]} image={wildcatImage} activeTab={activeTab} page={page} contentRef={information.ref} onTabChange={changeTab} onPageChange={changePage} onReturn={() => { setReturning(true); openInformation('route') }} onInspectStop={() => selectRegion('wildcat-ridge')} collapsed={openPanel !== 'information'} />
         <MissionAlerts mission={mission} open={openPanel === 'alerts'} onOpenRoute={() => openInformation('route')} />

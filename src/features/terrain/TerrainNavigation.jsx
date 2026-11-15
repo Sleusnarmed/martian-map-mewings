@@ -1,31 +1,18 @@
 import { useState } from 'react'
-import { DriveButton } from './RouteGuide'
 
 export default function TerrainNavigation({ navigation, slopes, orbitalReady, ctxDetailReady, hiriseReady, threshold }) {
   const [contextOpen, setContextOpen] = useState(() => window.matchMedia('(min-width: 701px)').matches)
-  const { context, mode, chooseMode, zoom, north, explorer, route } = navigation
+  const { context, mode, zoom } = navigation
   const walking = mode === 'walk'
   const scale = context?.scale
   let imagery = orbitalReady ? 'CTX · 14 m/px' : 'Not displayed'
   if (ctxDetailReady && context?.detail) imagery = 'CTX · 5 m/px'
   if (hiriseReady && context?.hirise) imagery = 'HiRISE · 0.55 m/px'
   return <>
-    <nav className="terrain-view-tools" aria-label="Map perspective">
-      {[['map', '2D'], ['auto', '2.5D'], ['walk', '3D explore']].map(([id, name]) => <button key={id}
-        disabled={id === 'walk' && !route} aria-pressed={mode === id} onClick={() => chooseMode(id)}>{name}</button>)}
-    </nav>
-    <div className="terrain-zoom-tools" aria-label="Map navigation">
-      <button onClick={north} aria-label="Orient map north" title="North up"><span style={{ display: 'inline-block', transform: `rotate(${-(context?.heading ?? 0)}deg)` }}>↑</span> N</button>
-      {walking ? <>
-        <DriveButton explorer={explorer} action="forward" label="Move forward">↑</DriveButton>
-        <DriveButton explorer={explorer} action="back" label="Move backward">↓</DriveButton>
-        <DriveButton explorer={explorer} action="left" label="Turn left">←</DriveButton>
-        <DriveButton explorer={explorer} action="right" label="Turn right">→</DriveButton>
-      </> : <>
+    {!walking && <div className="terrain-zoom-tools" aria-label="Map zoom">
         <button onClick={() => zoom(0.65)} aria-label="Zoom in">+</button>
         <button onClick={() => zoom(1.55)} aria-label="Zoom out">−</button>
-      </>}
-    </div>
+    </div>}
     {walking && <><div className="terrain-crosshair" aria-hidden="true">+</div><p className="mt-panel-description">Camera inspection only. Use Information → Route → Traverse to advance the mission.</p></>}
     <details key={mode} className="terrain-context" open={!walking && contextOpen}
       onToggle={walking ? undefined : event => setContextOpen(event.currentTarget.open)}>

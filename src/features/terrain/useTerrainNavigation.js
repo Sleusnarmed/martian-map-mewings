@@ -58,12 +58,15 @@ export function useTerrainNavigation(viewer, data, route) {
   }
 
   function startRoute() {
-    if (!viewer || viewer.isDestroyed() || !route) return
-    const [start, first] = route.waypoints
+    if (!viewer || viewer.isDestroyed()) return
+    const target = viewTarget(viewer, data)
+    const start = route?.waypoints[0] ?? (target && cameraGroundPointForTarget(viewer.scene.globe.ellipsoid, target))
+    if (!start) return
+    const first = route?.waypoints[1]
     modeRef.current = 'walk'
     setMode('walk')
     viewer.camera.cancelFlight()
-    placeExplorer(viewer, data, start, bearingTo(start, first, data.radius), LOWERED_PITCH)
+    placeExplorer(viewer, data, start, first ? bearingTo(start, first) : viewer.camera.heading, LOWERED_PITCH)
   }
 
   function aimAtWaypoint() {

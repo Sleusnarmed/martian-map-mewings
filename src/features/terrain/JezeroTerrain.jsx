@@ -13,13 +13,14 @@ import { useTerrainFraming } from './useTerrainFraming'
 import { useTerrainMarkers } from './useTerrainMarkers'
 import { useTerrainLayers } from './useTerrainLayers'
 import TerrainControlsPanel from './TerrainControlsPanel'
+import TerrainMapControls from './TerrainMapControls'
 import './terrain.css'
 
 const EMPTY_POIS = []
 const DEFAULT_URL = `${import.meta.env.BASE_URL}terrain/jezero/metadata.json`
 
 /** Map adapter for MissionWorkspace; owns no mission case or telemetry state. */
-export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfInterest = EMPTY_POIS, onPointSelect, initialPointId = 'jezero', focusPointId, focusRevision = 0, controlsTarget }) {
+export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfInterest = EMPTY_POIS, onPointSelect, initialPointId = 'jezero', focusPointId, focusRevision = 0, controlsTarget, navigationTarget }) {
   const planner = useRouteMission()
   const { attachTerrain, inspect, state: missionState } = planner
   const container = useRef(null)
@@ -73,6 +74,7 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
       {!ready && <div className="terrain-load-status" role="status">{state.status === 'error' ? state.message : 'Loading Jezero terrain…'}</div>}
       {state.status === 'error' && <button className="detail-retry" onClick={() => { setState({status:'loading'}); setAttempt(n => n + 1) }}>Retry map</button>}
     </section>
+    {navigationTarget && createPortal(<TerrainMapControls navigation={navigation} ready={ready} />, navigationTarget)}
     {controlsTarget && createPortal(<TerrainControlsPanel
       map={{ ready, refining, state, focus, wildcat, onPointSelect, inspection }}
       exploration={{ navigation, slopeThreshold, setSlopeThreshold, routeVisible, exploring, setRouteVisible, route, environment, hazardsVisible, setHazardsVisible, coverageVisible, setCoverageVisible }}
