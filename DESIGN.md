@@ -186,6 +186,15 @@ components:
 
 # Design System: VISTA Mars · Full-screen mission interface
 
+## Current integrated surface · 2026-11-14
+
+The integrated workspace uses Cesium terrain and computed A/B routes. The older
+placeholder composition below describes the isolated mission preview. Palette,
+typography and translucent material remain shared. The integrated route controls,
+coordinate inspector and responsive behavior are specified in
+[the route extension contract](docs/route-planner-design.md); validation and the
+finish verdict are recorded in [the route review](docs/route-planner-review.md).
+
 ## Overview
 
 This document records the current implementation in `src/features/mission-detail/*` and `mission-demo.html`. The user requested a replacement composition while preserving the existing palette: the map fills the screen, information floats above it and mission instruments remain accessible below. This scoped demo is a proposed reusable style for teammates; it does not describe the rest of the shared app.
