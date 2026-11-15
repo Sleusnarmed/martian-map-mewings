@@ -8,9 +8,13 @@ import {
 import useFadingView from "../mission-detail/useFadingView.js";
 import "./route-planner.css";
 
+import { currentRouteAssessment } from "./routeAssessment.js";
+
 const pages = ["Plan", "Traverse", "Limits", "Events"];
 
-function RouteAssessment({ result }) {
+function RouteAssessment({ state }) {
+  const result = currentRouteAssessment(state);
+  const returning = state.mode === "return";
   if (!result?.route) return null;
   const limited = result.status === "resources";
   const minimum = (seconds) => `${Math.ceil(seconds / 6) / 10} min`;
@@ -18,12 +22,12 @@ function RouteAssessment({ result }) {
     <section className="route-assessment" aria-label="Route time and resources">
       <dl className="route-readings">
         <div>
-          <dt>Outbound time</dt>
-          <dd>{formatMinutes(result.outboundSeconds)}</dd>
+          <dt>{returning ? "Return to A" : "Remaining outbound"}</dt>
+          <dd>{formatMinutes(returning ? result.returnSeconds : result.outboundSeconds)}</dd>
         </div>
         <div>
-          <dt>Return from B</dt>
-          <dd>{formatMinutes(result.returnSeconds)}</dd>
+          <dt>{returning ? "Required reserve" : "Return from B"}</dt>
+          <dd>{formatMinutes(returning ? result.reserveSeconds : result.returnSeconds)}</dd>
         </div>
       </dl>
       <details open={limited || undefined}>
@@ -61,12 +65,12 @@ function RouteAssessment({ result }) {
         </table>
         {limited && (
           <p className="route-status is-warning">
-            Traversal locked. Update the limits and recalculate, or move B
-            closer.
+            Current resources do not cover the remaining plan and reserve.
+            Pause and review the route and limits.
           </p>
         )}
         <p className="route-source-note">
-          Includes {formatMinutes(result.activitySeconds)} activity,{" "}
+          Includes {formatMinutes(result.activitySeconds)} planned activity,{" "}
           {formatMinutes(result.reserveSeconds)} reserve and{" "}
           {formatMinutes(result.conservativeReturnSeconds)} conservative return
           allowance.
@@ -157,7 +161,7 @@ function PlanPage({ state, dispatch, ready }) {
     <>
       <h2>{hasRoute ? "Route assessment" : "Plan a route"}</h2>
       {hasRoute ? (
-        <RouteAssessment result={state.result} />
+        <RouteAssessment state={state} />
       ) : (
         <p className="mt-panel-description">
           Select two points on the map. Routes stay within 6 km.
@@ -306,7 +310,7 @@ function TraversePage({ state, mission, dispatch }) {
           Route preview. Start is locked until the resource minimums are met.
         </p>
       )}
-      <RouteAssessment result={state.result} />
+      <RouteAssessment state={state} />
       <p className="mt-body-note">Camera movement only changes your view.</p>
       {route && (
         <p className="route-source-note">

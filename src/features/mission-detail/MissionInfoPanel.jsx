@@ -22,9 +22,9 @@ function TelemetryPage({ mission }) {
     ['Required reserve', formatMinutes(mission.reserveSeconds)],
     ['Elapsed mission time', formatMinutes(mission.elapsedSeconds)],
     ['Mission budget', formatMinutes(mission.budgetSeconds)],
-    ['Current delay', formatMinutes(mission.delaySeconds)],
+    ['Added delays', formatMinutes(mission.delaySeconds)],
   ]
-  return <><h2>Telemetry</h2><p className="mt-panel-description">Mission time and return resources</p><dl className="mt-telemetry-table">{rows.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl><p className="mt-body-note">{mission.telemetryNote ?? 'Oxygen autonomy is shown as time remaining. Return margins account for the estimated journey back.'}</p></>
+  return <><h2>Telemetry</h2><p className="mt-panel-description">Simulated mission time and return resources</p><dl className="mt-telemetry-table">{rows.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl><p className="mt-body-note">{mission.telemetryNote ?? 'Oxygen autonomy is shown as time remaining. Return margins account for the estimated journey back.'}</p></>
 }
 
 export default function MissionInfoPanel({ mission, region, image, activeTab, page, contentRef, onTabChange, onPageChange, onReturn, onInspectStop, collapsed = false }) {
