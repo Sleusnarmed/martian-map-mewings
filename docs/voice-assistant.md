@@ -7,6 +7,9 @@ con reconocimiento de voz (probar Chrome o Edge). Qwen ejecuta inferencia local;
 el reconocimiento del navegador puede enviar audio a su servicio y necesitar
 Internet. No se implementó transcripción local offline. Las voces instaladas del
 sistema se prefieren para leer las respuestas y avisos.
+Qwen y los avisos usan el mismo selector `missionSpeechVoice` y velocidad 0.95,
+preservando la identidad de voz de la aplicación. El texto de Qwen y su
+reconocimiento siguen en español.
 
 En una terminal, ejecutar `npm run ai:serve`; en otra, `npm run dev`. Si Vite ya
 estaba abierto antes de configurar la API, reiniciarlo. Opcionalmente ejecutar

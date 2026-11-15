@@ -1,4 +1,5 @@
 import { publishCaption } from './speechCaptions.js'
+import { missionSpeechVoice } from '../mission-detail/missionSpeechVoice.js'
 
 export const voiceActive = status => ['listening', 'processing', 'speaking'].includes(status)
 const errors = {
@@ -51,9 +52,9 @@ export function createVoiceSession(env, onCommand) {
       if (index >= chunks.length) { publishCaption(env, 'qwen', ''); update({ status: 'result', message: '' }); return }
       const chunk = chunks[index++].trim()
       const message = new env.SpeechSynthesisUtterance(chunk)
-      message.lang = 'es-MX'; message.rate = 1
-      const voices = env.speechSynthesis.getVoices()
-      message.voice = voices.find(voice => voice.localService && voice.lang.startsWith('es')) ?? voices.find(voice => voice.lang.startsWith('es')) ?? null
+      message.lang = 'es-MX'; message.rate = 0.95
+      const voice = missionSpeechVoice(env)
+      if (voice) message.voice = voice
       utterance = message
       const valid = () => ticket === generation && utterance === message
       message.onstart = () => {

@@ -1,4 +1,5 @@
 import { publishCaption } from '../local-ai/speechCaptions.js'
+import { missionSpeechVoice } from './missionSpeechVoice.js'
 // One owner for notification tones and speech. Inject a browser-shaped environment for tests.
 export function createMissionAudio(env) {
   const AudioContext = env.AudioContext || env.webkitAudioContext
@@ -49,10 +50,7 @@ export function createMissionAudio(env) {
     const message = new env.SpeechSynthesisUtterance(notice.text)
     message.lang = notice.lang
     message.rate = 0.95
-    const voices = env.speechSynthesis.getVoices()
-    const voice = voices.find((item) => item.localService && item.lang === notice.lang)
-      || voices.find((item) => item.localService && item.lang.startsWith(notice.lang.split('-')[0]))
-      || voices.find((item) => item.lang === notice.lang)
+    const voice = missionSpeechVoice(env)
     if (voice) message.voice = voice
     const ownsMessage = () => ticket === generation && utterance === message
     message.onstart = () => { if (ownsMessage()) { publishCaption(env, 'alerts', notice.text); update({ status: 'speaking' }) } }
