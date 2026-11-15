@@ -1250,3 +1250,23 @@
 .terrain-poi-details p { margin-top: .5rem; }
 .terrain-poi-details small { display: block; margin-top: .5rem; color: #b2c2da; }
 .terrain-poi-details a { display: block; margin-top: .5rem; color: #eafe07; text-decoration: underline; }
+
+/* Persistent HTML annotations avoid tile-depth and pick-pass flicker. */
+.terrain-poi-overlay { position: absolute; inset: 0; pointer-events: none; z-index: 10; overflow: hidden; }
+.terrain-poi-marker {
+  position: absolute; left: 0; top: 0; width: 0; height: 0;
+  pointer-events: auto; border: 0; padding: 0; color: #f5f7fd;
+  background: transparent; cursor: pointer;
+}
+.terrain-poi-marker[hidden] { display: none; }
+.terrain-poi-dot {
+  position: absolute; left: -6px; top: -6px; width: 12px; height: 12px;
+  border: 2px solid #07173f; border-radius: 50%; background: #eafe07;
+}
+.terrain-poi-name {
+  position: absolute; bottom: 16px; left: 0; transform: translateX(-50%);
+  padding: 5px 9px; border: 1px solid #7d99c280; border-radius: 3px;
+  background: #07173ff2; font-size: 13px; white-space: nowrap;
+}
+.terrain-poi-marker:hover, .terrain-poi-marker:focus-visible { z-index: 1; }
+.terrain-poi-marker:focus-visible .terrain-poi-name { outline: 2px solid #eafe07; outline-offset: 2px; }

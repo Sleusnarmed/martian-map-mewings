@@ -10,12 +10,11 @@ import { useEnvironmentClock } from './useEnvironmentClock'
 import { focusTerrain } from './focusTerrain'
 import { useTerrainScene } from './useTerrainScene'
 import { useTerrainFraming } from './useTerrainFraming'
-import { useTerrainMarkers } from './useTerrainMarkers'
 import { useTerrainLayers } from './useTerrainLayers'
 import { useMapLayers } from './MapLayerContext.js'
 import TerrainControlsPanel from './TerrainControlsPanel'
 import TerrainMapControls from './TerrainMapControls'
-import TerrainPointDetails from './TerrainPointDetails.jsx'
+import TerrainPoints from './TerrainPoints.jsx'
 import { buildMarsSky } from '../mars-sky/marsSkyModel'
 import { useMarsSceneSky } from '../mars-sky/useMarsSceneSky'
 import './terrain.css'
@@ -75,7 +74,6 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
 
   useTerrainFraming({ container, viewerRef, controlsTarget })
 
-  useTerrainMarkers({ viewerRef, state, pointsOfInterest, mode: navigation.mode })
 
   const ready = state.status === 'ready'
   useEffect(() => { setReady(ready); return () => setReady(false) }, [ready, setReady])
@@ -83,7 +81,8 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
   return <div className="terrain-embedded">
     <section id="map-viewport" className="map-shell" aria-label="Interactive Jezero terrain" tabIndex={-1}>
       <div className="cesium-host" ref={container} />
-      {exploring && ready && <TerrainPointDetails viewer={imageryViewer} points={pointsOfInterest} />}
+      {ready && <TerrainPoints viewer={imageryViewer} data={state.data} points={pointsOfInterest}
+        mode={navigation.mode} onInspect={setInspection} />}
       {!ready && <div className="terrain-load-status" role="status">{state.status === 'error' ? state.message : 'Loading Jezero terrain…'}</div>}
       {state.status === 'error' && <button className="detail-retry" onClick={() => { setState({status:'loading'}); setAttempt(n => n + 1) }}>Retry map</button>}
     </section>
