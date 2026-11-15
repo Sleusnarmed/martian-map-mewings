@@ -32,7 +32,7 @@ function drawFigures(ctx, width, height) {
       ctx.stroke();
     }
     const { x, y } = byId.get(chains[0][0]);
-    ctx.fillText(name, x * width + 7, y * height - 6);
+    if (width >= 600) ctx.fillText(name, x * width + 7, y * height - 6);
   }
 }
 

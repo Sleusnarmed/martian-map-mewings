@@ -115,7 +115,7 @@
   display: grid;
   grid-template-areas: 'intro stage' 'world stage';
   grid-template-columns: minmax(17rem, .85fr) minmax(0, 1.6fr);
-  grid-template-rows: 1fr 1fr;
+  grid-template-rows: auto auto;
   align-items: center;
   gap: 1.5rem clamp(1.6rem, 5vw, 5.5rem);
   align-self: center;
@@ -174,15 +174,14 @@
 .solar-mission {
   display: inline-flex;
   align-items: center;
-  gap: 1.2rem;
+  gap: .65rem;
   margin-top: .85rem;
   padding: .6rem .1rem;
   text-align: left;
   color: var(--space-yellow);
   background: transparent;
 }
-.solar-mission strong { display: block; }
-.solar-mission small { display: block; margin-top: .13rem; font-size: .77rem; color: #cbd6e9; }
+
 .solar-mission .material-symbols-outlined { transition: transform .2s; }
 .solar-mission:hover .material-symbols-outlined { transform: translateX(.26rem); }
 
@@ -334,7 +333,8 @@
   .solar-stage::before { width: 92%; }
   .solar-stage::after { width: 77%; }
   .solar-preview { width: min(66%, 42vh, 25rem); }
-  .solar-world { min-height: 10rem; max-width: none; }
+  .solar-mission { margin-top: .4rem; }
+  .solar-world { min-height: 9rem; max-width: none; }
 }
 
 @media (max-width: 500px) {

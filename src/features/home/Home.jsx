@@ -122,6 +122,9 @@ export default function Home({ onZoneSelected, expanded = false, onExpandedChang
           <div className="solar-copy">
             <h1>Martian <span>Map</span></h1>
             <p className="solar-intro">Explora el sistema solar y planifica una expedición en Marte.</p>
+            <button className="solar-mission" onClick={openMars}>
+              <strong>Explorar Marte</strong><Icon>arrow_forward</Icon>
+            </button>
           </div>
 
           <div className="solar-stage" aria-label="Vista del planeta seleccionado">
@@ -129,7 +132,7 @@ export default function Home({ onZoneSelected, expanded = false, onExpandedChang
               <Icon>chevron_left</Icon>
             </button>
             <div className="solar-preview" ref={preview}>
-              <button className="solar-mars-hit" hidden={!isMars} aria-label="Explorar Marte" onClick={openMars} />
+              <button className="solar-mars-hit" hidden={!isMars} aria-label="Abrir el globo de Marte" onClick={openMars} />
               <Planet world={world} />
             </div>
             <button className="solar-arrow solar-arrow--right" aria-label="Planeta siguiente" aria-keyshortcuts="ArrowRight" onClick={() => moveWorld(1)}>
@@ -141,14 +144,7 @@ export default function Home({ onZoneSelected, expanded = false, onExpandedChang
             <p className="solar-kind">{world.kind}</p>
             <h2>{world.name}</h2>
             <p className="solar-description">{world.description}</p>
-            {isMars ? (
-              <button className="solar-mission" onClick={openMars}>
-                <span><strong>Explorar Marte</strong><small>{world.detail}</small></span>
-                <Icon>arrow_forward</Icon>
-              </button>
-            ) : (
-              <p className="solar-detail">{world.detail}</p>
-            )}
+            <p className="solar-detail">{world.detail}</p>
           </section>
         </main>
 
