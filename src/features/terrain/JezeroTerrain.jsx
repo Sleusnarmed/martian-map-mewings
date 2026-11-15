@@ -7,6 +7,9 @@ import { createTerrainProvider } from './createTerrainProvider.js'
 import { constrainCamera, MIN_CLEARANCE, MAX_CAMERA_HEIGHT } from './cameraLimits.js'
 import { boundedZoomDistance } from './terrainZoom.js'
 import region from './region.json'
+import { geologyLayer, hiriseLayer, orbitalDetailLayer, orbitalLayer, useWildcatImagery } from './wildcatImagery'
+import { useSlopeLayer } from './useSlopeLayer'
+import { pickTerrainRay } from './pickTerrain'
 import './terrain.css'
 
 const EMPTY_POIS = []
@@ -22,7 +25,7 @@ function focusTerrain(context, longitude, latitude, range) {
   context.viewer.scene.requestRender()
 }
 
-function makeMaterial(data, contours, spacing) {
+function makeMaterial(data, contours, spacing, elevationColors, baseOpacity) {
   const canvas = document.createElement('canvas')
   canvas.width = 256; canvas.height = 1
   const ctx = canvas.getContext('2d')
@@ -31,11 +34,15 @@ function makeMaterial(data, contours, spacing) {
   ctx.fillStyle = gradient; ctx.fillRect(0, 0, 256, 1)
   return new Cesium.Material({ fabric: {
     type: 'JezeroElevation',
+    uniforms: { elevationColors: elevationColors ? 1.0 : 0.0, baseOpacity },
     materials: {
-      elevation: { type: 'ElevationRamp', uniforms: { image: canvas.toDataURL('image/png'), minimumHeight: data.minimumHeight, maximumHeight: data.maximumHeight } },
+      elevation: { type: 'ElevationRamp', uniforms: { image: canvas.toDataURL(), minimumHeight: data.minimumHeight, maximumHeight: data.maximumHeight } },
       contour: { type: 'ElevationContour', uniforms: { spacing, width: contours ? 1 : 0, color: Cesium.Color.fromCssColorString(region.contourColor).withAlpha(0.45) } },
     },
-    components: { diffuse: 'mix(elevation.diffuse, contour.diffuse, contour.alpha)', alpha: '1.0' },
+    components: {
+      diffuse: 'mix(mix(vec3(0.32, 0.29, 0.27), elevation.diffuse, elevationColors), contour.diffuse, contour.alpha / max(0.0001, contour.alpha + baseOpacity * (1.0 - contour.alpha)))',
+      alpha: 'contour.alpha + baseOpacity * (1.0 - contour.alpha)',
+    },
   } })
 }
 
@@ -46,7 +53,19 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
   const selectCallback = useRef(onPointSelect)
   const [state, setState] = useState({ status: 'loading' })
   const [attempt, setAttempt] = useState(0)
-  const [contours, setContours] = useState(true)
+  const [contours, setContours] = useState(initialPointId !== 'wildcat-ridge')
+  const [elevationColors, setElevationColors] = useState(false)
+  const [orbitalVisible, setOrbitalVisible] = useState(true)
+  const [geologyVisible, setGeologyVisible] = useState(false)
+  const [slopesVisible, setSlopesVisible] = useState(false)
+  const [nearDetail, setNearDetail] = useState(initialPointId === 'wildcat-ridge')
+  const imageryViewer = state.status === 'ready' ? state.viewer : null
+  const orbital = useWildcatImagery(imageryViewer, state.data?.bounds, orbitalLayer, orbitalVisible)
+  const orbitalDetail = useWildcatImagery(imageryViewer, state.data?.bounds, orbitalDetailLayer, orbitalVisible)
+  const hirise = useWildcatImagery(imageryViewer, state.data?.bounds, hiriseLayer, orbitalVisible && nearDetail)
+  const geology = useWildcatImagery(imageryViewer, state.data?.bounds, geologyLayer, geologyVisible, 0.7)
+  const slopeStatus = useSlopeLayer(imageryViewer, state.data, slopesVisible)
+  const imageryVisible = [orbital.status, orbitalDetail.status, hirise.status, geology.status, slopeStatus].includes('ready')
   const [spacing, setSpacing] = useState(100)
   const [inspection, setInspection] = useState(null)
   const [selectedPoint, setSelectedPoint] = useState(initialPointId)
@@ -76,6 +95,7 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
           useBrowserRecommendedResolution: false,
         })
         viewer.scene.globe.cartographicLimitRectangle = rectangle
+        viewer.scene.globe.baseColor = Cesium.Color.fromCssColorString('#88553b')
         viewer.scene.globe.showGroundAtmosphere = false
         viewer.scene.globe.enableLighting = false
         viewer.scene.globe.depthTestAgainstTerrain = true
@@ -92,7 +112,7 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
         controls.enableCollisionDetection = false
         controls.enableZoom = false
         controls.tiltEventTypes = [Cesium.CameraEventType.MIDDLE_DRAG, { eventType: Cesium.CameraEventType.LEFT_DRAG, modifier: Cesium.KeyboardEventModifier.CTRL }]
-        viewer.scene.globe.maximumScreenSpaceError = 3
+        viewer.scene.globe.maximumScreenSpaceError = 2
         viewer.scene.globe.tileCacheSize = 160
         // Load and display each coarse level before requesting finer descendants.
         // Parent coverage remains visible while individual child tiles refine.
@@ -157,7 +177,7 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
             selectCallback.current?.(id)
           }
           const ray = viewer.camera.getPickRay(click.position)
-          const position = viewer.scene.globe.pick(ray, viewer.scene)
+          const position = pickTerrainRay(ray, data)
           if (!position) { setInspection(null); return }
           const cartographic = ellipsoid.cartesianToCartographic(position)
           const lon = Cesium.Math.toDegrees(cartographic.longitude)
@@ -165,7 +185,7 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
           const elevation = sampleHeight(data, lon, lat)
           setInspection(elevation === null ? null : { lon, lat, elevation })
         }, Cesium.ScreenSpaceEventType.LEFT_CLICK)
-        setState({ status: 'ready', data })
+        setState({ status: 'ready', data, viewer })
       } catch (error) {
         if (controller.signal.aborted) return
         if (viewer && !viewer.isDestroyed()) viewer.destroy()
@@ -181,13 +201,27 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
     const context = viewerRef.current
     if (!context || state.status !== 'ready') return
     const globe = context.viewer.scene.globe
-    if (!globe.material) globe.material = makeMaterial(context.data, contours, spacing)
+    const baseOpacity = elevationColors ? (imageryVisible ? 0.60 : 1.0) : 0.0
+    if (!globe.material) globe.material = makeMaterial(context.data, contours, spacing, elevationColors, baseOpacity)
     else {
+      globe.material.uniforms.elevationColors = elevationColors ? 1.0 : 0.0
+      globe.material.uniforms.baseOpacity = baseOpacity
       globe.material.materials.contour.uniforms.width = contours ? 1 : 0
       globe.material.materials.contour.uniforms.spacing = spacing
     }
     context.viewer.scene.requestRender()
-  }, [state, contours, spacing])
+  }, [state, contours, spacing, elevationColors, imageryVisible])
+
+  useEffect(() => {
+    if (!imageryViewer) return
+    const update = () => {
+      const position = imageryViewer.camera.positionCartographic
+      const lon = Cesium.Math.toDegrees(position.longitude), lat = Cesium.Math.toDegrees(position.latitude)
+      const [west, south, east, north] = hiriseLayer.bounds
+      setNearDetail(position.height < 5000 && lon > west - 0.1 && lon < east + 0.1 && lat > south - 0.1 && lat < north + 0.1)
+    }
+    return imageryViewer.camera.changed.addEventListener(update)
+  }, [imageryViewer])
 
   function focus(lon, lat, range) {
     focusTerrain(viewerRef.current, lon, lat, range)
@@ -280,11 +314,16 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
       <h2>Map view</h2>
       <p className="mt-panel-description" role="status">{ready ? refining ? 'Refining terrain…' : 'Jezero · true-scale relief' : state.status === 'error' ? 'Map unavailable' : 'Loading terrain…'}</p>
       <div className="field-map-actions"><button className="md-button md-button-outline" disabled={!ready} onClick={() => { focus(region.center.longitude, region.center.latitude, 75000); selectCallback.current?.('jezero') }}>Jezero</button><button className="md-button md-button-outline" disabled={!wildcat} onClick={() => { focus(wildcat.longitude, wildcat.latitude, 3500); selectCallback.current?.('wildcat-ridge') }}>Wildcat Ridge</button></div>
+      <label className="control-row"><span>Orbital imagery</span><input type="checkbox" checked={orbitalVisible} disabled={!ready} onChange={e => setOrbitalVisible(e.target.checked)} /></label>
+      <label className="control-row"><span>Elevation colors</span><input type="checkbox" checked={elevationColors} disabled={!ready} onChange={e => setElevationColors(e.target.checked)} /></label>
+      <label className="control-row"><span>Geology</span><input type="checkbox" checked={geologyVisible} disabled={!ready} onChange={e => setGeologyVisible(e.target.checked)} /></label>
+      <label className="control-row"><span>Regional slopes</span><input type="checkbox" checked={slopesVisible} disabled={!ready} onChange={e => setSlopesVisible(e.target.checked)} /></label>
+      {orbitalVisible && orbital.status !== 'ready' && <p role="status">{orbital.status === 'error' ? 'Orbital imagery unavailable; terrain remains available.' : 'Loading orbital imagery…'}</p>}
       <label className="control-row"><span>Contour lines</span><input type="checkbox" checked={contours} disabled={!ready} onChange={e => setContours(e.target.checked)} /></label>
       <label className="control-row">Contour interval<select disabled={!ready || !contours} value={spacing} onChange={e => setSpacing(Number(e.target.value))}><option value="50">50 m</option><option value="100">100 m</option><option value="250">250 m</option></select></label>
-      {ready && <div className="field-map-elevation"><p>Elevation · m, MOLA</p><div className="elevation-ramp" style={{background:`linear-gradient(90deg, ${region.palette.join(',')})`}} /><div className="legend-values"><span>{Math.round(state.data.minimumHeight)}</span><span>{Math.round(state.data.maximumHeight)}</span></div></div>}
+      {ready && elevationColors && <div className="field-map-elevation"><p>Elevation · m, MOLA</p><div className="elevation-ramp" style={{background:`linear-gradient(90deg, ${region.palette.join(',')})`}} /><div className="legend-values"><span>{Math.round(state.data.minimumHeight)}</span><span>{Math.round(state.data.maximumHeight)}</span></div></div>}
       <output className="field-map-inspection">{inspection ? `${inspection.lat.toFixed(5)}° N · ${inspection.lon.toFixed(5)}° E · ${inspection.elevation.toFixed(0)} m` : 'Tap terrain to inspect elevation.'}</output>
-      <details className="field-map-sources"><summary>Data & sources</summary><p>MRO · CTX / NASA / JPL / USGS<br />Source DEM: 20 m per pixel<br />Vertical reference: MOLA</p><a href={DEM_SOURCE} target="_blank" rel="noreferrer">Source dataset</a>{wildcat && <a href={wildcat.source} target="_blank" rel="noreferrer">Wildcat Ridge position</a>}<p>Colors show elevation from historical terrain data. Surface imagery and the mission resource cases are separate data sources.</p></details>
+      <details className="field-map-sources"><summary>Data & sources</summary><p>MRO · CTX / NASA / JPL / USGS<br />Regional CTX DEM: 20 m source<br />Wildcat HiRISE: 1 m source, 3 m display<br />Vertical reference: MOLA</p><a href={DEM_SOURCE} target="_blank" rel="noreferrer">Source dataset</a>{wildcat && <a href={wildcat.source} target="_blank" rel="noreferrer">Wildcat Ridge position</a>}<a href={hiriseLayer.source} target="_blank" rel="noreferrer">HiRISE imagery</a><a href="https://doi.org/10.5066/P9REJ9JN" target="_blank" rel="noreferrer">HiRISE elevation</a><a href={geologyLayer.source} target="_blank" rel="noreferrer">Geology source</a><p>Orbital imagery uses illustrative colorization. Elevation colors are optional. Mission cases remain separate demo data.</p></details>
     </aside>, controlsTarget)}
   </div>
   return <main className="terrain-app">
@@ -300,7 +339,7 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
         <label className="control-row"><span>Contour lines</span><input type="checkbox" checked={contours} disabled={!ready} onChange={e => setContours(e.target.checked)} /></label>
         <label className="control-row">Contour interval<select disabled={!ready || !contours} value={spacing} onChange={e => setSpacing(Number(e.target.value))}><option value="50">50 m</option><option value="100">100 m</option><option value="250">250 m</option></select></label>
         </fieldset>
-        <details className="source-card"><summary>Data & sources</summary><strong>MRO · Context Camera</strong><p>NASA / JPL / USGS<br />Source DEM: 20 m per pixel<br />Vertical reference: MOLA</p><a href={DEM_SOURCE} target="_blank" rel="noreferrer">View source dataset ↗</a>{wildcat && <p><a href={wildcat.source} target="_blank" rel="noreferrer">Wildcat Ridge coordinates ↗</a></p>}<p>Prepared from historical NASA data. Colors and shading are derived from elevation, not a surface photograph.</p><p>The cyan arrow is a mock position and heading, not live tracking. Syrtis Major is the regional context.</p><a href={region.center.source} target="_blank" rel="noreferrer">Jezero center · USGS ↗</a></details>
+        <details className="source-card"><summary>Data & sources</summary><strong>MRO · Context Camera</strong><p>NASA / JPL / USGS<br />Regional CTX DEM: 20 m source<br />Wildcat HiRISE: 1 m source, 3 m display<br />Vertical reference: MOLA</p><a href={DEM_SOURCE} target="_blank" rel="noreferrer">View source dataset ↗</a>{wildcat && <p><a href={wildcat.source} target="_blank" rel="noreferrer">Wildcat Ridge coordinates ↗</a></p>}<p>Prepared from historical NASA data. Colors and shading are derived from elevation, not a surface photograph.</p><p>The cyan arrow is a mock position and heading, not live tracking. Syrtis Major is the regional context.</p><a href={region.center.source} target="_blank" rel="noreferrer">Jezero center · USGS ↗</a></details>
       </aside>
       <section className="map-shell" aria-label="Interactive Jezero terrain">
         <div className="cesium-host" ref={container} />

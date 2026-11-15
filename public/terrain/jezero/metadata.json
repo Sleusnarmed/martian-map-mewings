@@ -10,6 +10,7 @@
   ],
   "radius": 3396190.0,
   "heightFile": "heights.f32",
+  "detailFile": "wildcat-hi.json",
   "encoding": "float32-little-endian",
   "minimumHeight": -2921.87109375,
   "maximumHeight": -803.5125732421875,

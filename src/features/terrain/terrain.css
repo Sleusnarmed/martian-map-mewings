@@ -76,3 +76,264 @@
 
 .terrain-load-status { position: absolute; top: 24px; left: 24px; right: 24px; width: fit-content; padding: 14px 18px; background: var(--space-deep); color: white; border: 1px solid var(--space-yonder); pointer-events: none; }
 .detail-retry { position: absolute; right: 20px; bottom: 110px; background: var(--space-deep); color: var(--space-yellow); border: 1px solid var(--space-yellow); padding: 12px; }
+
+.wildcat-terrain .terrain-header[hidden],
+.wildcat-terrain .terrain-panel[hidden] { display: none; }
+
+.wildcat-terrain .terrain-workspace { position: relative; overflow: hidden; }
+.wildcat-terrain .terrain-layer-toggle,
+.wildcat-terrain .terrain-panel {
+  position: absolute;
+  left: 20px;
+  z-index: 2;
+  background: var(--space-deep);
+  border: 1px solid var(--space-yonder);
+  border-radius: 8px;
+  color: white;
+}
+.wildcat-terrain .terrain-layer-toggle {
+  top: 72px;
+  min-height: 44px;
+  padding: 8px 14px;
+  font-weight: 700;
+  color: var(--space-yellow);
+}
+.wildcat-terrain .terrain-panel {
+  top: 124px;
+  max-width: calc(100% - 40px);
+  max-height: calc(100% - 194px);
+  padding: 16px 18px;
+  overflow: auto;
+}
+.wildcat-terrain .panel-section { margin-bottom: 12px; }
+.wildcat-terrain .map-legend {
+  position: static;
+  width: auto;
+  margin-bottom: 16px;
+  pointer-events: auto;
+}
+
+@media (max-width: 700px) {
+  .journey-screen .terrain-app.wildcat-terrain { height: 100%; min-height: 0; }
+  .wildcat-terrain .map-shell { flex: 1; height: auto; min-height: 0; }
+  .wildcat-terrain .map-reset { top: 12px; }
+  .wildcat-terrain .map-badge { max-width: calc(100% - 132px); flex-wrap: wrap; gap: 3px; }
+  .wildcat-terrain .terrain-layer-toggle { top: auto; bottom: 70px; left: 12px; }
+  .wildcat-terrain .terrain-panel {
+    display: block;
+    top: auto;
+    bottom: 122px;
+    left: 12px;
+    width: min(340px, calc(100% - 24px));
+    max-width: none;
+    max-height: calc(100% - 186px);
+  }
+}
+
+.wildcat-terrain .terrain-panel {
+  width: 342px;
+  scrollbar-color: var(--space-yonder) var(--space-deep);
+}
+
+.wildcat-layer-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  margin-bottom: 16px;
+}
+
+.wildcat-layer-tabs button,
+.wildcat-photo-dialog button {
+  min-height: 44px;
+  padding: 6px 8px;
+  border: 1px solid var(--space-yonder);
+  border-radius: 5px;
+  background: var(--space-deep);
+  color: white;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.wildcat-layer-tabs button[aria-pressed="true"] {
+  background: var(--space-electric);
+  box-shadow: inset 0 -2px var(--space-yellow);
+}
+
+.wildcat-layer-tabs button:hover,
+.wildcat-photo-dialog button:hover { background: var(--space-electric); }
+
+.wildcat-filter,
+.wildcat-observation {
+  padding: 6px 0 10px;
+  border-top: 1px solid var(--space-yonder);
+  font-size: 13px;
+}
+
+.wildcat-filter .control-row { min-height: 40px; font-weight: 700; }
+
+.wildcat-filter p,
+.wildcat-environment p,
+.wildcat-photo figcaption { margin: 8px 0; line-height: 1.5; font-size: 13px; }
+
+.wildcat-opacity {
+  display: grid;
+  gap: 6px;
+  margin: 12px 0;
+}
+
+.wildcat-opacity input { width: 100%; accent-color: var(--space-yellow); }
+.wildcat-detail-button { min-height: 40px; padding: 7px 10px; border: 1px solid var(--space-yonder); border-radius: 6px; color: #fff; background: #23416e; }
+.wildcat-detail-button:hover { background: #31568b; }
+
+.wildcat-geology-legend summary,
+.wildcat-observation summary {
+  cursor: pointer;
+  padding: 8px 0;
+  font-weight: 700;
+}
+
+.wildcat-geology-legend ul {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 10px;
+  list-style: none;
+  padding: 0;
+  margin: 4px 0;
+  font-size: 12px;
+}
+
+.wildcat-geology-legend li { display: flex; gap: 6px; align-items: baseline; }
+.wildcat-geology-legend li span {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+  border: 1px solid #ffffff60;
+}
+
+.wildcat-environment .wildcat-reading { font-size: 1.2rem; font-weight: 700; }
+.wildcat-reading small { display: block; font-size: 13px; font-weight: 400; }
+.wildcat-sky-toggle { border-top: 1px solid var(--space-yonder); }
+
+.wildcat-photo { margin: 0 0 12px; }
+.wildcat-photo > button {
+  display: block;
+  width: 100%;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--space-yonder);
+  border-radius: 5px;
+  background: var(--space-deep);
+}
+
+.wildcat-photo img { display: block; width: 100%; height: auto; }
+
+.wildcat-photo-dialog {
+  padding: 12px;
+  max-width: min(900px, 94vw);
+  max-height: 94dvh;
+  background: var(--space-deep);
+  border: 1px solid var(--space-yonder);
+  color: white;
+}
+
+.wildcat-photo-dialog::backdrop { background: #000c; }
+.wildcat-photo-dialog form { display: flex; justify-content: flex-end; margin-bottom: 8px; }
+.wildcat-photo-dialog img { max-height: 78dvh; object-fit: contain; }
+
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.layer-explanation { font-size: 12px; line-height: 1.5; color: #c1cce0; }
+.terrain-view-tools, .terrain-zoom-tools, .terrain-context, .environment-timeline {
+  position: absolute; z-index: 1; color: #f5f7fc; border: 1px solid #60729180;
+  border-radius: 10px; background: #0b1631f0; box-shadow: 0 6px 24px #0003;
+}
+.terrain-view-tools { top: 76px; right: 20px; display: flex; padding: 4px; gap: 4px; }
+.terrain-view-tools button, .terrain-zoom-tools button, .timeline-controls button, .timeline-controls select {
+  min-height: 40px; border: 1px solid transparent; background: transparent; color: #f5f7fc; padding: 7px 10px; border-radius: 6px; font: inherit; font-size: 12px; cursor: pointer;
+}
+.terrain-view-tools button[aria-pressed=true] { background: #1355a5; color: white; }
+.terrain-view-tools button:hover, .terrain-zoom-tools button:hover, .timeline-controls button:hover { background: #23416e; }
+.wildcat-terrain button:focus-visible, .wildcat-terrain input:focus-visible, .wildcat-terrain select:focus-visible, .wildcat-terrain summary:focus-visible { outline: 2px solid #eafe07; outline-offset: 3px; }
+.terrain-zoom-tools { top: 140px; right: 20px; display: grid; width: 48px; }
+.terrain-zoom-tools button { font-size: 16px; padding: 8px 3px; }
+.terrain-crosshair { position: absolute; left: 50%; top: calc((100% - 60px) / 2); transform: translate(-50%, -50%); font: 300 28px/1 Arial, sans-serif; color: white; text-shadow: 0 1px 3px #000, 1px 0 3px #000; pointer-events: none; }
+.map-exploring .cesium-host canvas { cursor: grab; touch-action: none; }
+.map-exploring .cesium-host canvas:active { cursor: grabbing; }
+.map-exploring .terrain-crosshair {
+  z-index: 1; width: 34px; height: 34px; display: grid; place-items: center; border: 1px solid #fff9;
+  border-radius: 50%; box-shadow: 0 0 4px #0009; background: #0c162e30;
+}
+.terrain-drive-button { touch-action: none; user-select: none; }
+.terrain-zoom-tools .terrain-drive-button:active { background: #28628d; }
+.map-exploring .terrain-zoom-tools { width: 92px; grid-template-columns: 1fr 1fr; }
+.map-exploring .terrain-zoom-tools > :first-child { grid-column: 1 / -1; }
+.map-exploring .terrain-context { right: 122px; }
+.route-guide {
+  position: absolute; z-index: 1; left: 20px; bottom: 80px; width: min(325px, calc(100% - 40px));
+  padding: 12px 14px; color: #f5f7fc; border: 1px solid #60729180; border-radius: 10px;
+  background: #0b1631f0; box-shadow: 0 6px 24px #0003;
+}
+.route-guide-top { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #aec6e6; }
+.route-swatch { width: 15px; height: 3px; border-radius: 2px; background: #4de9ff; }
+.route-next { display: flex; align-items: center; gap: 10px; margin: 9px 0 5px; font-size: 14px; }
+.route-arrow { display: inline-grid; place-items: center; flex: 0 0 35px; height: 35px; border-radius: 50%; background: #23416e; color: #4de9ff; font-size: 22px; }
+.route-next p { margin: 3px 0 0; font-size: 12px; color: #c7d5e8; font-variant-numeric: tabular-nums; }
+.route-guide progress { display: block; width: 100%; height: 6px; margin: 8px 0; accent-color: #4de9ff; }
+.route-guide-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.route-guide-actions button { min-height: 34px; padding: 5px 9px; color: white; background: #23416e; border-radius: 5px; font-size: 12px; }
+.route-guide-actions button:hover:not(:disabled) { background: #31568b; }
+.route-guide-actions button:disabled { opacity: .5; }
+.terrain-context { right: 80px; top: 140px; width: 265px; padding: 12px 14px; font-size: 12px; }
+.terrain-context summary { cursor: pointer; font-weight: 700; }
+.terrain-context summary span { display: block; font-size: 11px; font-weight: 400; color: #aec6e6; margin-top: 6px; }
+.terrain-context p { font-size: 12px; line-height: 1.45; margin: 10px 0; }
+.context-coordinates { font-variant-numeric: tabular-nums; color: #d8e8fa; }
+.terrain-context dl { margin: 8px 0; }
+.terrain-context dl div { display: flex; justify-content: space-between; gap: 12px; padding: 5px 0; }
+.terrain-context dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+.terrain-context dt, .context-limit { color: #b2c2da; }
+.terrain-caution { padding: 8px 10px; border-left: 3px solid #f7b158; background: #e69e281a; color: #ffda9e; }
+.slope-key { display: flex; gap: 8px; }
+.slope-key span { border-top: 4px solid #f6da61; padding-top: 5px; flex: 1; font-size: 11px; }
+.slope-key span:nth-child(2) { border-color: #f79a3d; }.slope-key span:nth-child(3) { border-color: #f0424d; }
+.terrain-context small { font-size: 11px; color: #b2c2da; line-height: 1.4; display: block; }
+.terrain-scale { position: absolute; bottom: 88px; left: 24px; pointer-events: none; color: white; text-shadow: 0 1px 4px black, 0 0 3px black; font-size: 12px; }
+.terrain-scale i { display: block; width: 100px; height: 7px; border: 2px solid white; border-top: 0; box-shadow: 0 1px 2px #000; margin: 5px 0; }
+.terrain-scale small { font-size: 10px; }
+.environment-timeline { right: 20px; bottom: 80px; width: 385px; padding: 12px 14px; }
+.timeline-heading { display: flex; justify-content: space-between; gap: 12px; font-size: 12px; }
+.timeline-heading > span { font-size: 15px; font-variant-numeric: tabular-nums; color: #eafe07; white-space: nowrap; }
+.timeline-controls { display: flex; align-items: center; gap: 8px; margin: 8px 0 4px; }
+.timeline-controls button, .timeline-controls select { background: #18294a; }
+.timeline-controls select { width: 94px; }
+.timeline-slider { flex: 1; min-width: 0; }
+.timeline-slider input { width: 100%; accent-color: #eafe07; min-height: 35px; cursor: pointer; }
+.environment-timeline p { display: flex; justify-content: space-between; font-size: 12px; margin: 6px 0; font-variant-numeric: tabular-nums; }
+.environment-timeline small { font-size: 10px; color: #a9bedb; }
+.observation-summary { display: block; padding-top: 6px; font-size: 16px; color: #e8f1ff; font-variant-numeric: tabular-nums; }
+@media (max-height: 720px) and (min-width: 701px) {
+  .terrain-context { max-height: calc(100% - 390px); overflow: auto; }
+}
+@media (max-width: 900px) {
+  .terrain-context { width: 225px; }
+  .environment-timeline { width: 330px; }
+}
+@media (max-width: 700px) {
+  .wildcat-terrain .terrain-layer-toggle { top: 72px; bottom: auto; }
+  .wildcat-terrain .terrain-panel { top: 124px; bottom: 222px; max-height: none; z-index: 3; }
+  .terrain-view-tools { top: 72px; right: 12px; }
+  .terrain-view-tools button { padding: 5px 8px; font-size: 11px; }
+  .terrain-zoom-tools { top: 132px; right: 12px; }
+  .terrain-context { top: 132px; right: 70px; width: min(245px, calc(100% - 82px)); max-height: calc(100% - 370px); overflow: auto; }
+  .environment-timeline { bottom: 76px; right: 12px; left: 12px; width: auto; padding: 10px 12px; }
+  .terrain-scale { bottom: 225px; left: 12px; }
+  .map-exploring .route-guide { left: 12px; bottom: 202px; width: min(250px, calc(100% - 78px)); padding: 8px 10px; }
+  .map-exploring .terrain-context { right: 110px; width: min(205px, calc(100% - 122px)); }
+  .map-exploring .route-next { margin: 4px 0; }
+  .map-exploring .route-guide-top { font-size: 10px; }
+  .map-exploring .environment-timeline small { display: none; }
+}
+
+@media (max-width: 700px) {
+  .wildcat-terrain .terrain-panel { width: min(342px, calc(100% - 24px)); }
+}
