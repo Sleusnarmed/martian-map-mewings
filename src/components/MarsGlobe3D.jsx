@@ -144,7 +144,7 @@ export default function MarsGlobe3D({ onZoneSelected, compact = false }) {
       className="mars-globe-view relative w-full h-full overflow-hidden select-none text-white"
     >
       {/* Globo 3D de Marte */}
-      <div ref={containerRef} className="w-full h-full touch-none" aria-label="Vista interactiva de Marte" />
+      <div ref={containerRef} className="w-full h-full touch-none" aria-label="Interactive Mars view" />
 
       <GlobeHeader {...{ compact, isTransitioning, navLevel, activeRegion, handleBackToRegions }} />
       <GlobeInspector {...{ inspectedItem, compact, isTransitioning, tooltipPos }} />
