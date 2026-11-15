@@ -15,6 +15,7 @@ import { useMapLayers } from './MapLayerContext.js'
 import TerrainControlsPanel from './TerrainControlsPanel'
 import TerrainMapControls from './TerrainMapControls'
 import TerrainPoints from './TerrainPoints.jsx'
+import { useTerrainMarkers } from './useTerrainMarkers.js'
 import { buildMarsSky } from '../mars-sky/marsSkyModel'
 import { useMarsSceneSky } from '../mars-sky/useMarsSceneSky'
 import './terrain.css'
@@ -73,6 +74,7 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
   }, [state, focusPointId, focusRevision, pointsOfInterest])
 
   useTerrainFraming({ container, viewerRef, controlsTarget })
+  useTerrainMarkers({ viewerRef, state, pointsOfInterest, mode: navigation.mode })
 
 
   const ready = state.status === 'ready'
@@ -82,7 +84,7 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
     <section id="map-viewport" className="map-shell" aria-label="Interactive Jezero terrain" tabIndex={-1}>
       <div className="cesium-host" ref={container} />
       {ready && <TerrainPoints viewer={imageryViewer} data={state.data} points={pointsOfInterest}
-        mode={navigation.mode} onInspect={setInspection} />}
+        mode={navigation.mode} />}
       {!ready && <div className="terrain-load-status" role="status">{state.status === 'error' ? state.message : 'Loading Jezero terrain…'}</div>}
       {state.status === 'error' && <button className="detail-retry" onClick={() => { setState({status:'loading'}); setAttempt(n => n + 1) }}>Retry map</button>}
     </section>
