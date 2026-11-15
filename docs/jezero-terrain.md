@@ -2,7 +2,7 @@
 
 Scope: local Cesium terrain, tilted 2.5D navigation, elevation shading, contour lines and points of interest. Starts at Jezero. No routes, movement simulation, Delta marker, or globe transition. The colors encode elevation; they are not orbital imagery or geological classifications.
 
-The application now uses the component's `embedded` mode below Gerardo's `MissionWorkspace`. This mode removes the standalone header/sidebar/footer, exposes layers and sources in the workspace's Map view portal, and omits the mock crew arrow. `focusPointId`/`focusRevision` refocus the existing camera; `onPointSelect` opens the corresponding science brief. `controlsTarget` is the portal destination. Only the component's original terrain provider, geographic camera limits and verified POIs are used. The A–B mission readouts remain fixtures; a base coordinate and a validated geographic route are not supplied by this integration.
+`JezeroTerrain` is the map adapter mounted below `MissionWorkspace`. It exposes layers and sources through the workspace's Map view portal. `focusPointId`/`focusRevision` refocus the existing camera; `onPointSelect` opens the corresponding science brief. `controlsTarget` is the portal destination. The obsolete standalone terrain screen and its mock arrow have been removed. See [architecture.md](architecture.md) for module ownership. The mission readouts remain fixtures, separate from the preset exploration route.
 
 The elevation-ramp canvas is serialized to a PNG data URL before entering Cesium's material cache. This preserves the same palette and avoids cloning a DOM canvas when the terrain is mounted again after returning from the globe.
 

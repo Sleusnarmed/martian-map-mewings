@@ -7,7 +7,7 @@ const Terrain = lazy(() => import('./features/terrain/JezeroTerrain'))
 const MissionWorkspace = lazy(() => import('./features/mission-detail/MissionWorkspace'))
 
 function MissionTerrain(props) {
-  return <Suspense fallback={<SpaceLoader />}><Terrain {...props} embedded pointsOfInterest={JEZERO_POINTS} /></Suspense>
+  return <Suspense fallback={<SpaceLoader />}><Terrain {...props} pointsOfInterest={JEZERO_POINTS} /></Suspense>
 }
 
 export default function App() {
