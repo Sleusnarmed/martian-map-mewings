@@ -144,3 +144,28 @@ test('effect cleanup and reconnect do not duplicate initial notification playbac
   f.advance(260)
   assert.equal(f.spoken.length, 1)
 })
+
+test('alert voice publishes subtitles and clears them when muted', () => {
+  const f = fixture({ tone: false })
+  const captions = []
+  f.env.CustomEvent = class { constructor(type, options) { this.type = type; this.detail = options.detail } }
+  f.env.dispatchEvent = event => captions.push(event.detail)
+  f.audio.present(f.notice('subtitle'))
+  f.spoken[0].onstart()
+  assert.deepEqual(captions.at(-1), { source: 'alerts', text: 'Notice subtitle' })
+  f.audio.toggle()
+  assert.equal(captions.at(-1).text, '')
+})
+
+test('assistant suspension prevents overlapping alert audio and resumes a deferred notice', () => {
+  const f = fixture()
+  f.audio.setSuspended(true)
+  f.audio.present(f.notice('during-assistant'))
+  f.advance(1000)
+  assert.equal(f.spoken.length, 0)
+  assert.equal(f.oscillators.length, 0)
+  f.audio.setSuspended(false)
+  f.advance(260)
+  assert.equal(f.spoken.length, 1)
+  assert.equal(f.spoken[0].text, 'Notice during-assistant')
+})

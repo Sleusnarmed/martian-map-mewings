@@ -1,3 +1,4 @@
+import { publishCaption } from '../local-ai/speechCaptions.js'
 // One owner for notification tones and speech. Inject a browser-shaped environment for tests.
 export function createMissionAudio(env) {
   const AudioContext = env.AudioContext || env.webkitAudioContext
@@ -11,6 +12,8 @@ export function createMissionAudio(env) {
   let currentNotice = null
   let generation = 0
   let listening = false
+  let suspended = false
+  let deferredNotice = false
   let activated = Boolean(env.navigator?.userActivation?.hasBeenActive)
 
   function update(values) {
@@ -24,6 +27,7 @@ export function createMissionAudio(env) {
   }
 
   function cancel() {
+    publishCaption(env, 'alerts', '')
     generation += 1
     timers.forEach((timer) => env.clearTimeout(timer))
     timers.clear()
@@ -51,10 +55,11 @@ export function createMissionAudio(env) {
       || voices.find((item) => item.lang === notice.lang)
     if (voice) message.voice = voice
     const ownsMessage = () => ticket === generation && utterance === message
-    message.onstart = () => { if (ownsMessage()) update({ status: 'speaking' }) }
-    message.onend = () => { if (ownsMessage()) { utterance = null; update({ status: 'idle' }) } }
+    message.onstart = () => { if (ownsMessage()) { publishCaption(env, 'alerts', notice.text); update({ status: 'speaking' }) } }
+    message.onend = () => { if (ownsMessage()) { publishCaption(env, 'alerts', ''); utterance = null; update({ status: 'idle' }) } }
     message.onerror = (event) => {
       if (!ownsMessage()) return
+      publishCaption(env, 'alerts', '')
       utterance = null
       update({ status: event.error === 'not-allowed' ? 'blocked' : event.error === 'canceled' || event.error === 'interrupted' ? 'idle' : 'error' })
     }
@@ -90,7 +95,7 @@ export function createMissionAudio(env) {
 
   async function play(withChime) {
     cancel()
-    if (!currentNotice?.text?.trim() || snapshot.muted) return
+    if (!currentNotice?.text?.trim() || snapshot.muted || suspended) return
     if (!activated) { update({ status: 'blocked' }); return }
     const notice = currentNotice
     const ticket = generation
@@ -125,11 +130,18 @@ export function createMissionAudio(env) {
   }
 
   return {
+    setSuspended(value) {
+      if (suspended === value) return
+      suspended = value
+      cancel(); update({ status: 'idle' })
+      if (!suspended && !snapshot.muted && deferredNotice) { deferredNotice = false; void play(true) }
+    },
     subscribe(listener) { listeners.add(listener); return () => listeners.delete(listener) },
     getSnapshot: () => snapshot,
     present(notice) {
       cancel()
       currentNotice = notice
+      if (suspended) deferredNotice = true
       if (!listening) {
         env.addEventListener('pointerdown', onGesture, true)
         env.addEventListener('keydown', onGesture, true)

@@ -1,8 +1,8 @@
 import useMissionSpeech from './useMissionSpeech.js'
 import MissionIcon from './MissionIcon.jsx'
 
-export default function VoiceControls({ text, noticeId, lang = 'en-US' }) {
-  const { speechAvailable, chimeAvailable, status, muted, toggle } = useMissionSpeech(text, lang, noticeId)
+export default function VoiceControls({ text, noticeId, lang = 'en-US', suspended = false }) {
+  const { speechAvailable, chimeAvailable, status, muted, toggle } = useMissionSpeech(text, lang, noticeId, suspended)
   const active = ['chime', 'queued', 'speaking'].includes(status)
   const unavailable = !speechAvailable && !chimeAvailable
   const label = muted ? 'Muted' : active ? 'Mute' : status === 'blocked' ? 'Enable voice' : 'Voice'

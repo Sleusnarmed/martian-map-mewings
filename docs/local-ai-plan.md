@@ -1,11 +1,31 @@
 # Plan de IA local para la demo
 
-Estado: primera conexión local implementada; integración visual pendiente.
+Estado: asistente por voz integrado al HUD, con control de capas, explicación de
+rutas y subtítulos. La transcripción usa el navegador y puede requerir Internet.
 Máquina indicada por Gerardo: Ryzen 7 250, RTX 5060 con 8 GB de VRAM y 32 GB RAM.
 
 ## Inicio de implementación y reparto de trabajo
 
 ### Avance verificado el 15 de noviembre de 2026
+
+La entrega actual se documenta en [voice-assistant.md](voice-assistant.md).
+Qwen interpreta una orden de voz por pulsación y controla nueve capas mediante
+el mismo estado que los botones del mapa. Para explicar rutas selecciona razones
+verificadas; las cifras y el texto de cada razón proceden del planificador.
+Se rechazan órdenes ambiguas, cambios de recursos o movimiento. Los errores del
+planificador ahora llevan códigos de motivo para explicar el fallo sin inventar
+una causa específica. Se implementaron subtítulos para Qwen y para las alertas,
+cancelación al cerrar/Escape/ocultar página y prioridad de nuevas alertas.
+
+Validación actual: 25/25 frases en el modelo real; 75 pruebas automatizadas.
+En la pasada final la mayoría de clasificaciones tardó 1.3–1.8 s; hubo un caso
+de 3.4 s y otro de 12.0 s con el mapa y otras consultas en uso. No se garantiza
+latencia constante. Se verificó en el navegador una explicación de ruta real con
+tiempos 18.1/17.8 minutos y pendiente máxima 17.2 grados. La captura de micrófono
+se activó y canceló; todavía hace falta validar una frase hablada por Gerardo con
+su micrófono. Los callbacks de transcripción y errores sí tienen pruebas.
+
+Los párrafos siguientes registran las entregas anteriores y su alcance entonces.
 
 Optimización de latencia: usar `npm run ai:warm` antes de la demo para cargar
 Qwen con contexto 2048 y solicitar retención durante 30 minutos. Las consultas
