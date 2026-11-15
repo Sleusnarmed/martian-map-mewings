@@ -15,12 +15,17 @@ resources and notices. The isolated mission preview retains its case fixtures.
 | Globe setup | `features/globe/createGlobeViewer.js` | Cesium configuration and orbital imagery |
 | Globe markers | `features/globe/addGlobeMarkers.js`, `createGlobeBadge.js` | Entity creation and canvas labels |
 | Globe UI | `features/globe/GlobeHeader`, `GlobeInspector`, `GlobeSidebar` | Presentational controls; actions come from the coordinator |
-| Mission | `features/mission-detail/MissionWorkspace.jsx` | Case, information/alerts, resources, voice and panel state |
+| Mission coordination | `features/mission-detail/MissionWorkspace.jsx` | Case, information/alerts, resources, voice and panel state |
+| Mission presentation | `MissionRegions.jsx`, `MissionControlRail.jsx` | Region navigation and panel/audio controls; callbacks and assistant-active state come from the workspace |
+| Preview location | `features/mission-detail/readPreviewLocation.js` | Parse the existing scenario, panel, tab and page query parameters |
+| Route UI coordination | `features/route-planner/RoutePlanner.jsx` | Mission context and page transitions |
+| Route pages | `PlanPage.jsx`, `TraversePage.jsx`, `LimitsPage.jsx`, `EventsPage.jsx` | Page markup and existing dispatch actions; `RouteAssessment.jsx` shares readings and `ManualPoint.jsx` owns coordinate-entry state |
 | Terrain coordination | `features/terrain/JezeroTerrain.jsx` | Connect scene, layer state, exploration and the mission panel slot |
 | Terrain lifecycle | `useTerrainScene.js` | Async data loading, viewer creation, camera/input guards, cleanup |
 | Terrain presentation | `TerrainControlsPanel.jsx` | Map, exploration and layer control groups; no viewer construction |
+| Terrain style / sources | `TerrainStyleControls.jsx`, `TerrainDataSources.jsx` | Display settings, legend, coordinate readout and provenance links |
 | Persistent map tools | `TerrainMapControls.jsx` | Perspective, compass and 3D movement in the workspace's external navigation slot |
-| Terrain framing / markers / material | `useTerrainFraming.js`, `TerrainPoints.jsx`, `useTerrainMaterial.js` | Independent synchronization effects with matching cleanup |
+| Terrain framing / markers / material | `useTerrainFraming.js`, `useTerrainMarkers.js`, `TerrainPoints.jsx`, `useTerrainMaterial.js` | Independent synchronization effects with matching cleanup |
 | Terrain data | `terrainData.js`, `createTerrainProvider.js` | DEM validation, sampling, tile availability and bounded caches |
 | Exploration | `useTerrainNavigation.js`, `useExplorerControls.js` | Camera inspection, independent of mission position |
 | Layer coordination | `useTerrainLayers.js` | Layer preferences and scene synchronization |
@@ -64,3 +69,17 @@ Manually check in Firefox: home expansion/collapse, region and Jezero selection,
 mission panels, map focus, all three view modes, route movement, layer toggles,
 historical replay, Back navigation and repeated mount/unmount. Node tests and
 production builds do not verify WebGL rendering or visual layout.
+
+## Refactoring boundaries
+
+Page components receive the existing state and dispatch API; they do not copy
+mission state or run planning calculations. `MissionWorkspace` retains audio
+arbitration (`assistantActive`), preview state and panel transitions. Its control
+rail passes the same props to the existing voice and EVA components. Local-AI
+client modules, server, models, scripts and dependencies remain unchanged.
+
+Extracted components preserve their original DOM, labels, event handlers and
+mount conditions. Terrain rendering, hover detection, lifecycle effects, cache
+limits, coordinates, telemetry formulas and planner algorithms are independent
+of this presentation refactor. The bright-star catalogue is data, not a UI
+module, and stays intact. No new abstraction layer or dependency is required.
