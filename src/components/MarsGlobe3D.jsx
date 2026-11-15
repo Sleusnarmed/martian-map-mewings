@@ -41,6 +41,8 @@ export default function MarsGlobe3D({ onZoneSelected, compact = false, active = 
     const frame = requestAnimationFrame(() => {
       const viewer = viewerRef.current?.viewer;
       if (viewer && !viewer.isDestroyed()) {
+        // Match the carousel planets' apparent size without moving the globe.
+        viewer.camera.frustum.fov = Cesium.Math.toRadians(compact ? 34 : 60);
         viewer.resize();
         setNavLevel('regions'); setActiveRegion(null); setInspectedItem(null); setIsSidebarOpen(true);
         if (compact) viewerRef.current.motion.restart(false, false);

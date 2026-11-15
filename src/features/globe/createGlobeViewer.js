@@ -32,6 +32,7 @@ export function createGlobeViewer(container, compact) {
   });
 
   viewer.resolutionScale = Math.min(1, 2 / (window.devicePixelRatio || 1));
+  viewer.camera.frustum.fov = Cesium.Math.toRadians(compact ? 34 : 60);
   const controls = viewer.scene.screenSpaceCameraController;
   controls.inertiaSpin = 0;
   controls.inertiaTranslate = 0;
