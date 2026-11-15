@@ -1,0 +1,66 @@
+/* Extension of the existing mission controls; no new palette or display system. */
+.route-pages { display: flex; gap: 4px; margin: -8px 0 16px; border-bottom: 1px solid var(--md-overlay-border); }
+.route-pages button { flex: 1; min-height: 44px; padding: 8px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: var(--md-muted); font-size: 13px; }
+.route-pages button[aria-pressed=true] { color: var(--md-neon-yellow); border-bottom-color: currentColor; }
+.route-pages button:hover { color: var(--md-white); }
+.route-endpoints { display: grid; gap: 8px; margin: 16px 0; }
+.route-endpoint { display: flex; align-items: center; gap: 12px; min-height: 62px; padding: 8px 12px; border: 1px solid var(--md-overlay-border); border-radius: 4px; background: transparent; color: var(--md-white); text-align: left; }
+.route-endpoint[aria-pressed=true] { border-color: var(--md-neon-yellow); }
+.route-endpoint > span:last-child { display: grid; gap: 5px; min-width: 0; }
+.route-endpoint strong { font-size: 13px; font-weight: 600; }
+.route-endpoint small { font: 11px 'Mission DM Mono', monospace; color: var(--md-muted); }
+.route-letter { color: var(--md-neon-yellow); font: 20px 'Mission DM Mono', monospace; }
+.route-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.route-actions > button { flex: 1; min-width: 110px; }
+.route-status { margin-top: 12px !important; color: var(--md-muted); font-size: 13px; line-height: 1.5; }
+.route-status.is-warning { color: var(--md-neon-yellow); }
+.route-manual { margin-top: 16px; border-top: 1px solid var(--md-overlay-border); }
+.route-manual summary { min-height: 44px; align-content: center; color: var(--md-muted); font-size: 13px; cursor: pointer; }
+.route-inputs { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; margin-top: 16px; }
+.route-inputs label { display: grid; gap: 6px; font-size: 12px; color: var(--md-muted); }
+.route-inputs input, .route-speed select { min-height: 44px; min-width: 0; width: 100%; padding: 8px; background: var(--md-deep-blue); color: var(--md-white); border: 1px solid var(--md-border); border-radius: 4px; font: inherit; }
+.route-inputs input { font-family: 'Mission DM Mono',monospace; caret-color: var(--md-neon-yellow); }
+.route-inputs input:disabled, .route-speed select:disabled { opacity: .6; }
+.route-speed { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; font-size: 12px; color: var(--md-muted); }
+.route-speed select { width: auto; max-width: 65%; }
+.route-readings { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; margin: 16px 0; }
+.route-readings dt { color: var(--md-muted); font-size: 11px; }
+.route-readings dd { margin: 4px 0 0; font: 18px 'Mission DM Mono',monospace; }
+.route-hazard { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12px; border-top: 1px solid var(--md-overlay-border); }
+.has-route-planner .field-map-toggle { top: 124px; }
+.coordinate-inspector { position: absolute; z-index: 3; left: 24px; top: 190px; width: 310px; max-width: calc(100vw - 48px); padding: 16px; background: var(--md-overlay); color: var(--md-white); border: 1px solid var(--md-overlay-border); border-radius: 12px; }
+.coordinate-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.coordinate-heading strong { font: 14px 'Mission Inter',sans-serif; }
+.coordinate-inspector button { min-height: 44px; padding: 8px; color: var(--md-white); border: 1px solid var(--md-border); border-radius: 4px; background: transparent; font-size: 12px; }
+.coordinate-inspector button:hover { background: rgb(0 66 166 / 70%); }
+.coordinate-heading button { border: 0; color: var(--md-muted); }
+.coordinate-inspector output { display: block; margin: 8px 0; font: 12px 'Mission DM Mono',monospace; }
+.coordinate-inspector p { font-size: 12px; color: var(--md-muted); }
+.coordinate-block { width: 100%; margin-top: 8px; }
+.route-map-key { font-size: 12px; color: var(--md-muted); margin-top: 12px !important; }
+.route-source-note { font-size: 11px; line-height: 1.5; color: var(--md-muted); margin-top: 12px !important; }
+@media (min-width: 700px) and (max-width: 950px) and (orientation: landscape) {
+  .coordinate-inspector { width: 250px; padding: 12px; }
+}
+@media (min-width: 700px) and (orientation: portrait) {
+  .md-demo.has-route-planner .field-information { top: 35dvh; }
+  .md-demo.has-route-planner .field-deck { height: min(480px, calc(65dvh - 220px)); }
+  .md-demo.has-route-planner .field-alerts, .md-demo.has-route-planner .field-map-panel { max-height: min(480px, calc(65dvh - 220px)); }
+}
+@media (max-width: 699px) {
+  .has-route-planner .field-control-rail { top: 112px; left: 16px; right: 16px; width: auto; display: flex; gap: 6px; }
+  .has-route-planner .field-control-rail > * { flex: 1; min-width: 0; }
+  .has-route-planner .field-rail-button, .has-route-planner .field-voice .md-button { min-height: 48px; padding: 8px; gap: 4px; font-size: 11px !important; }
+  .has-route-planner .field-audio-error { position: absolute; top: 48px; right: 0; margin: 0; width: 150px; text-align: right; }
+  .coordinate-inspector { top: 230px; left: 16px; right: 16px; width: auto; max-width: none; padding: 16px; }
+  .coordinate-inspector output { font-size: 11px; line-height: 1.6; overflow-wrap: anywhere; }
+  .coordinate-inspector .route-actions { gap: 4px; }
+  .coordinate-inspector .route-actions > button { min-width: 0; }
+  .coordinate-heading strong { font-size: 12px; }
+  .coordinate-heading button { padding-inline: 4px; }
+  .has-route-planner .field-map-toggle { top: 174px; }
+  .md-demo.has-route-planner .field-information { top: 230px; }
+  .md-demo.has-route-planner .field-deck { height: max(140px, calc(100dvh - 422px)); }
+  .md-demo.has-route-planner .field-alerts, .md-demo.has-route-planner .field-map-panel { max-height: max(140px, calc(100dvh - 422px)); }
+  .md-demo.has-route-planner:has(.coordinate-inspector) .field-information { visibility: hidden; pointer-events: none; }
+}

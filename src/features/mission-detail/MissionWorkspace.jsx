@@ -1,4 +1,6 @@
-import { useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useRouteMission } from '../route-planner/RouteMissionContext.js'
+import CoordinateInspector from '../route-planner/CoordinateInspector.jsx'
 import MissionHUD from './MissionHUD.jsx'
 import MissionInfoPanel from './MissionInfoPanel.jsx'
 import MissionAlerts from './MissionAlerts.jsx'
@@ -22,6 +24,7 @@ function readPreviewLocation() {
 }
 
 export default function MissionWorkspace({ MapComponent, initialRegionId = 'wildcat-ridge', onBackToGlobe, integrated = false }) {
+  const planned = useRouteMission()
   const [preview] = useState(readPreviewLocation)
   const information = useFadingView({ tab: preview.activeTab, page: preview.page, regionId: initialRegionId }, (value) => `${value.tab}-${value.page}-${value.regionId}`)
   const [mapSelection, setMapSelection] = useState({ id: initialRegionId, revision: 0 })
@@ -36,12 +39,19 @@ export default function MissionWorkspace({ MapComponent, initialRegionId = 'wild
   const selectedScenario = demoScenarios.find((scenario) => scenario.id === scenarioId)
   const baseMission = hideData ? missingMission : selectedScenario
   // Demo adapter only: no telemetry stream or navigation hardware is connected.
-  const mission = returning && !hideData ? {
+  const fixtureMission = returning && !hideData ? {
     ...baseMission, mode: 'return', status: 'in-progress', nextWaypointName: 'Base',
     remainingDistanceMeters: baseMission.returnDistanceMeters,
     notice: { ...baseMission.notice, id: `${baseMission.notice.id}-return`, title: 'Return route selected',
       text: 'Return to point A, Base. Follow the return route and monitor your time and oxygen margins.' },
   } : baseMission
+  const mission = planned?.mission ?? fixtureMission
+  const lastNotice = useRef(null)
+  useEffect(() => {
+    if (!planned || lastNotice.current === mission.notice?.id) return
+    lastNotice.current = mission.notice?.id
+    if (mission.notice?.level === 'warning') setOpenPanel('alerts')
+  }, [planned, mission.notice, setOpenPanel])
   useLayoutEffect(() => {
     if (openPanel === 'information' && focusAfterOpen.current) {
       document.getElementById(`mission-tab-${focusAfterOpen.current}`)?.focus()
@@ -54,6 +64,8 @@ export default function MissionWorkspace({ MapComponent, initialRegionId = 'wild
     information.change((current) => ({ ...current, page: current.tab === 'science' ? Math.max(0, Math.min(2, typeof update === 'function' ? update(current.page) : update)) : 0 }))
   }
   function openInformation(tab) {
+    planned?.dispatch({ type: 'dismiss-inspection' })
+    planned?.dispatch({ type: 'pick', target: null })
     changeTab(tab); setOpenPanel('information')
     focusInformationTab(tab)
   }
@@ -64,6 +76,8 @@ export default function MissionWorkspace({ MapComponent, initialRegionId = 'wild
     } else focusAfterOpen.current = tab
   }
   function togglePanel(name) {
+    planned?.dispatch({ type: 'dismiss-inspection' })
+    planned?.dispatch({ type: 'pick', target: null })
     focusAfterOpen.current = null
     setOpenPanel((current) => current === name ? null : name)
   }
@@ -82,7 +96,7 @@ export default function MissionWorkspace({ MapComponent, initialRegionId = 'wild
   }
 
   return (
-    <div className={`md-demo field-shell ${integrated ? 'has-terrain' : ''}`}>
+    <div className={`md-demo field-shell ${integrated ? 'has-terrain' : ''} ${planned ? 'has-route-planner' : ''}`}>
       <a className="md-skip-link" href="#map-viewport" onClick={event => { event.preventDefault(); document.getElementById('map-viewport')?.focus() }}>Skip to map</a>
       {MapComponent && <MapComponent onPointSelect={id => selectRegion(id, false)} focusPointId={mapSelection.id} focusRevision={mapSelection.revision} controlsTarget={mapToolsTarget} initialPointId={initialRegionId} />}
       {onBackToGlobe && <button className="field-globe-back" onClick={onBackToGlobe}><MissionIcon name="chevron-left" size={16} />Globo de Marte</button>}
@@ -93,10 +107,11 @@ export default function MissionWorkspace({ MapComponent, initialRegionId = 'wild
         <span aria-hidden="true">/</span>
         <button aria-current={selectedRegionId === 'wildcat-ridge' ? 'location' : undefined} onClick={() => selectRegion('wildcat-ridge')}>Wildcat Ridge</button>
       </nav>
-      <details className="field-demo">
+      {!planned && <details className="field-demo">
         <summary>Mission case</summary>
         <div className="field-demo-content"><label htmlFor="mission-case">Mission case</label><select id="mission-case" value={scenarioId} onChange={(event) => selectScenario(event.target.value)}>{demoScenarios.map((scenario) => <option key={scenario.id} value={scenario.id}>{scenario.label}</option>)}</select><button className="md-button md-button-outline" aria-pressed={hideData} onClick={() => { focusAfterOpen.current = null; setHideData(!hideData); setReturning(false); changePage(0); setOpenPanel(!hideData || scenarioId.includes('delay') ? 'alerts' : 'information') }}>No data</button></div>
-      </details>
+      </details>}
+      {planned && <CoordinateInspector />}
       {integrated && <button className="field-rail-button field-map-toggle" aria-expanded={openPanel === 'map'} aria-controls="mission-map-view" onClick={() => togglePanel('map')}><MissionIcon name="layers" /><span>Map view</span></button>}
       <div className="field-information" ref={overlayRef}>
         <MissionInfoPanel mission={mission} region={regions[selectedRegionId]} image={wildcatImage} activeTab={activeTab} page={page} contentRef={information.ref} onTabChange={changeTab} onPageChange={changePage} onReturn={() => { setReturning(true); openInformation('route') }} onInspectStop={() => selectRegion('wildcat-ridge')} collapsed={openPanel !== 'information'} />

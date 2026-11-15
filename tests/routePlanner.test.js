@@ -1,5 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import fs from 'node:fs'
 import { DEFAULT_SETTINGS, findPath, planMission, terrainSample } from '../src/features/route-planner/planner.js'
 import { distanceBetween, buildRoute } from '../src/features/route-planner/routeGeometry.js'
 import { initialMission, missionReducer, missionPresentation } from '../src/features/route-planner/missionState.js'
@@ -61,6 +62,8 @@ test('HUD, time and position follow traversal; delay triggers reserve alert', ()
   const delayed = missionReducer(next, { type: 'delay', seconds: 7100 })
   assert.equal(delayed.notice.title, 'Return reserve low')
   assert.equal(delayed.playing, false)
+  assert.equal(delayed.phase, 'calculating')
+  assert.equal(planMission(terrain, delayed.request).status, 'resources')
 })
 test('discovery pauses before crossing an obstacle and requests a new path', () => {
   const start = missionReducer(readyState(), { type: 'obstacle-ahead' })
@@ -72,10 +75,54 @@ test('discovery pauses before crossing an obstacle and requests a new path', () 
   assert.ok(distanceBetween(advanced.position, advanced.hazards[0]) > advanced.hazards[0].radius + 5)
   assert.equal(advanced.request.hazards.length, 1)
   assert.equal(planMission(terrain, advanced.request).status, 'ready')
+  const replanned = missionReducer(advanced, { type: 'planned', id: advanced.request.id, result: planMission(terrain, advanced.request) })
+  assert.ok(missionPresentation(replanned).routeProgress > 0)
+  assert.equal(replanned.notice.level, 'warning')
 })
 test('editing endpoints invalidates routes and stale worker replies', () => {
   const ready = readyState()
   const changed = missionReducer(ready, { type: 'endpoint', target: 'b', point: { ...b, latitude: 18.456 } })
   assert.equal(changed.result, null)
   assert.deepEqual(missionReducer(changed, { type: 'planned', id: 1, result: ready.result }), changed)
+})
+test('return at A completes at zero distance; return from mid-route preserves progress', () => {
+  const ready = readyState()
+  const home = missionReducer(ready, { type: 'return' })
+  assert.equal(missionPresentation(home).remainingDistanceMeters, 0)
+  assert.equal(missionPresentation(home).returnDurationSeconds, 0)
+  const moved = missionReducer(ready, { type: 'advance', metres: 100 })
+  const back = missionReducer(moved, { type: 'return' })
+  const planned = missionReducer(back, { type: 'planned', id: back.request.id, result: planMission(terrain, back.request) })
+  assert.equal(missionPresentation(planned).routeProgress, missionPresentation(moved).routeProgress)
+  const arrived = missionReducer(planned, { type: 'advance', metres: 1000 })
+  assert.equal(arrived.phase, 'arrived')
+  assert.equal(missionPresentation(arrived).routeProgress, 0)
+})
+test('return can explicitly warn when reachable without the full reserve', () => {
+  const result = planMission(terrain, { ...request, start: b, goal: a, mode: 'return', remainingSeconds: 1300, oxygenSeconds: 1300 })
+  assert.equal(result.status, 'ready')
+  assert.equal(result.reserveWarning, true)
+})
+test('known blockages survive endpoint edits and clearing a route', () => {
+  let state = missionReducer(initialMission(), { type: 'hazard', point: { longitude: 77.405, latitude: 18.455 } })
+  state = missionReducer(state, { type: 'endpoint', target: 'a', point: a })
+  assert.equal(state.hazards.length, 1)
+  state = missionReducer(state, { type: 'reset' })
+  assert.equal(state.hazards.length, 1)
+})
+test('real Wildcat DEM supports a computed route and finite directional return estimates', () => {
+  function readGrid(name) {
+    const base = new URL('../public/terrain/jezero/', import.meta.url)
+    const metadata = JSON.parse(fs.readFileSync(new URL(name, base)))
+    const bytes = fs.readFileSync(new URL(metadata.heightFile, base))
+    return { ...metadata, heights: Float32Array.from({ length: metadata.width * metadata.height }, (_, i) => bytes.readFloatLE(i * 4)) }
+  }
+  const data = readGrid('metadata.json'); data.detail = readGrid('wildcat-hi.json')
+  const start = { longitude: 77.4022, latitude: 18.4516 }, goal = { longitude: 77.40588851, latitude: 18.45863707 }
+  const result = planMission(data, { ...request, start, goal, base: start, settings: DEFAULT_SETTINGS, remainingSeconds: 3600, oxygenSeconds: 3600 })
+  assert.equal(result.status, 'ready', result.message)
+  assert.ok(result.route.length > distanceBetween(start, goal))
+  assert.ok(result.route.maxSlope <= DEFAULT_SETTINGS.maxSlope)
+  assert.ok(result.requiredSeconds < 3600)
+  assert.ok(result.route.waypoints.every(point => Number.isFinite(point.height)))
 })

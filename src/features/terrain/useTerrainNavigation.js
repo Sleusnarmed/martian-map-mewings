@@ -5,7 +5,7 @@ import { orbitalDetailLayer } from './wildcatImagery'
 import { detailWeight, sampleHeight } from './terrainData'
 import { pickTerrainRay } from './pickTerrain'
 import { cameraGroundPoint, LOWERED_PITCH, placeExplorer, useExplorerControls } from './useExplorerControls'
-import { bearingTo, routePosition } from './wildcatRoute'
+import { bearingTo, routePosition } from '../route-planner/routeGeometry.js'
 
 function screenPoint(viewer, data, x, y) {
   const ray = viewer.camera.getPickRay(new Cesium.Cartesian2(x, y))
@@ -65,7 +65,7 @@ export function useTerrainNavigation(viewer, data, route) {
   }
 
   useEffect(() => {
-    if (!viewer || !data) return
+    if (!viewer || viewer.isDestroyed() || !data) return
     let lastUpdate = 0, trailingFrame
     const update = () => {
       const now = performance.now()

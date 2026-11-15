@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { Cartesian3, Math as CesiumMath } from 'cesium'
 import { constrainCamera, explorationClearance } from './cameraLimits'
 import { sampleHeight } from './terrainData'
-import { moveAlongGround } from './wildcatRoute'
+import { moveAlongGround } from '../route-planner/routeGeometry.js'
 
 const keys = {
   ArrowUp: 'forward', KeyW: 'forward', ArrowDown: 'back', KeyS: 'back',

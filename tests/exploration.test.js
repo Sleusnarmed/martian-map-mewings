@@ -6,7 +6,7 @@ import { observationAt, clockLabel } from '../src/features/terrain/environmentMo
 import { slopeAt, pitchForRange, surfaceDistance } from '../src/features/terrain/terrainAnalysis.js'
 import { sampleHeight, sampleRegionalHeight } from '../src/features/terrain/terrainData.js'
 import { createTerrainProvider, TILE_SIZE } from '../src/features/terrain/createTerrainProvider.js'
-import { bearingTo, buildWildcatRoute, moveAlongGround, routePosition } from '../src/features/terrain/wildcatRoute.js'
+import { bearingTo, buildRoute, moveAlongGround, routePosition } from '../src/features/route-planner/routeGeometry.js'
 import { constrainCamera, explorationClearance } from '../src/features/terrain/cameraLimits.js'
 import { pickTerrainRay } from '../src/features/terrain/pickTerrain.js'
 
@@ -86,7 +86,10 @@ test('HiRISE refines only the covered tiles and rejoins CTX at the edge', async 
 })
 
 test('moving forward and backward updates progress along the simulated route', () => {
-  const route = buildWildcatRoute(data)
+  const route = buildRoute([
+    { longitude: 77.4022, latitude: 18.4516 }, { longitude: 77.4037, latitude: 18.4534 },
+    { longitude: 77.4052, latitude: 18.4555 }, { longitude: 77.40588851, latitude: 18.45863707 },
+  ], data.radius)
   const [start, first, second, destination] = route.waypoints
   const heading = bearingTo(start, first, data.radius)
   const moved = moveAlongGround(start, heading, 30, data.radius)

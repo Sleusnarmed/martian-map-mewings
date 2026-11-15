@@ -127,7 +127,8 @@ export function findPath(data, start, goal, settings, hazards = [], surveys = []
       // The final connector is directional too; never shortcut/smooth through constraints.
       if (!edge(points.at(-2), points.at(-1))) return { error: 'The destination connection exceeds the selected constraints.' }
       const route = buildRoute(points, data.radius, settings.pace)
-      return { route: { ...route, maxSlope: Math.max(...points.map(p => p.slope)), gridMetres: cellSize, bounds, visited, source: local ? 'HiRISE / CTX elevation' : 'CTX regional elevation', priority: settings.priority } }
+      const maximum = points.slice(1).reduce((slope, point, i) => Math.max(slope, edge(points[i], point)?.maximum ?? Infinity), 0)
+      return { route: { ...route, maxSlope: maximum, gridMetres: cellSize, bounds, visited, source: local ? 'HiRISE / CTX elevation' : 'CTX regional elevation', priority: settings.priority } }
     }
     visited++
     const x = id % cols, y = Math.floor(id / cols)
@@ -165,7 +166,10 @@ export function planMission(data, request) {
   const activity = mode === 'return' ? 0 : settings.activitySeconds
   const required = outward.route.duration + (mode === 'return' ? 0 : returnSeconds) + activity + settings.reserveSeconds
   const available = Math.min(remainingSeconds, oxygenSeconds)
-  if (required > available) return { status: 'resources', message: 'No compatible route found with the selected time, oxygen and return reserve. Shorten the route or review the planning assumptions.', requiredSeconds: required, availableSeconds: available, currentReturn: currentReturn.route }
+  const reserveWarning = mode === 'return' && required > available && outward.route.duration <= available
+  if (required > available && !reserveWarning) return { status: 'resources', message: 'No compatible route found with the selected time, oxygen and return reserve. Shorten the route or review the planning assumptions.', requiredSeconds: required, availableSeconds: available, currentReturn: currentReturn.route }
   return { status: 'ready', route: outward.route, currentReturn: currentReturn.route, goalReturn: returnPlan.route,
-    requiredSeconds: required, availableSeconds: available, explanation: `Route avoids known blocked areas and slopes above ${settings.maxSlope}°. Return and ${Math.round(settings.reserveSeconds / 60)} min reserve included.` }
+    requiredSeconds: required, availableSeconds: available, reserveWarning, explanation: reserveWarning
+      ? 'Return is estimated to be reachable, but the required reserve cannot be maintained. Prioritize the return and monitor resources.'
+      : `Route avoids known blocked areas and slopes above ${settings.maxSlope}°. Return and ${Math.round(settings.reserveSeconds / 60)} min reserve included.` }
 }

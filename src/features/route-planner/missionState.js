@@ -6,7 +6,7 @@ const notice = (id, title, text, level = 'info') => ({ id: String(id), title, te
 export function initialMission() {
   return { a: null, b: null, inspection: null, pickTarget: null, position: null, mode: 'outbound', phase: 'selecting',
     settings: { ...DEFAULT_SETTINGS }, elapsed: 0, delay: 0, legDistance: 0, completedDistance: 0,
-    result: null, request: null, revision: 0, hazards: [], surveys: [], event: 0, playing: false, rate: 10,
+    result: null, request: null, revision: 0, hazards: [], surveys: [], coverageBounds: null, event: 0, playing: false, rate: 10, returnOrigin: 1,
     notice: notice('select', 'Select your route', 'Tap the map to inspect coordinates, then set point A and point B.') }
 }
 
@@ -24,9 +24,10 @@ function survey(surveys, point) {
 function requestPlan(state, reason = 'calculate', mode = state.mode) {
   if (!state.a || !state.b) return state
   const start = state.position ?? state.a, goal = mode === 'return' ? state.a : state.b
-  if (distanceBetween(start, goal) < 1) return alert({ ...state, phase: 'arrived', mode, playing: false }, 'Destination reached', mode === 'return' ? 'You are back at point A.' : 'You have reached point B.')
+  if (distanceBetween(start, goal) < 1) return alert({ ...state, phase: 'arrived', mode, playing: false, result: mode === 'return' ? null : state.result }, 'Destination reached', mode === 'return' ? 'You are back at point A.' : 'You have reached point B.')
   const id = state.revision + 1
-  return { ...state, revision: id, phase: 'calculating', playing: false, mode,
+  const returnOrigin = mode === 'return' ? missionPresentation(state).routeProgress ?? state.returnOrigin : state.returnOrigin
+  return { ...state, revision: id, phase: 'calculating', playing: false, mode, returnOrigin,
     completedDistance: state.completedDistance + state.legDistance, legDistance: 0,
     request: { id, reason, start, goal, base: state.a, mode, settings: state.settings,
       hazards: state.hazards.filter(h => h.known), surveys: state.surveys,
@@ -35,6 +36,7 @@ function requestPlan(state, reason = 'calculate', mode = state.mode) {
 }
 
 export function returnEstimate(state) {
+  if (state.phase === 'arrived' && state.mode === 'return') return 0
   if (!state.result?.route || !state.result.currentReturn) return state.result?.currentReturn?.duration ?? null
   const route = state.result.route
   if (state.mode === 'return') return Math.max(0, route.duration - pointOnRoute(route, state.legDistance).seconds)
@@ -56,6 +58,11 @@ function checkResources(state) {
 
 function advance(state, amount, units) {
   if (state.phase !== 'ready' || !state.result?.route) return state
+  const available = Math.min(state.settings.budgetSeconds, state.settings.oxygenSeconds) - state.elapsed
+  if (available <= 0) return alert({ ...state, playing: false }, 'Resources exhausted', 'No time or oxygen autonomy remains in the current planning assumptions. Stop the traverse and review mission data.', 'warning')
+  if (state.mode !== 'return' && available - returnEstimate(state) < state.settings.reserveSeconds) {
+    return alert({ ...state, playing: false }, 'Return reserve low', 'Outbound movement is paused. Review the return route and remaining resources.', 'warning')
+  }
   const route = state.result.route
   let next = state, remaining = amount
   // Survey at short intervals even during accelerated playback; never teleport past a hidden obstacle.
@@ -79,7 +86,8 @@ function advance(state, amount, units) {
     }
     remaining -= units === 'metres' ? step : delta
     const checked = checkResources(next)
-    if (checked !== next) return checked
+    if (checked !== next && next.mode !== 'return') return checked
+    next = checked
   }
   if (route.length - next.legDistance <= 0.01) {
     return alert({ ...next, phase: 'arrived', playing: false }, 'Destination reached', next.mode === 'return'
@@ -101,7 +109,7 @@ export function missionReducer(state, action) {
     case 'endpoint': {
       if (!['a', 'b'].includes(action.target) || !action.point || !Number.isFinite(action.point.longitude) || !Number.isFinite(action.point.latitude)) return state
       const next = { ...initialMission(), settings: state.settings, revision: state.revision + 1, event: state.event,
-        a: state.a, b: state.b, inspection: action.point, [action.target]: action.point }
+        a: state.a, b: state.b, inspection: action.point, hazards: state.hazards.filter(h => h.known), [action.target]: action.point }
       next.position = next.a
       next.surveys = next.a ? survey([], next.a) : []
       return alert(next, next.a && next.b ? 'Endpoints ready' : 'Select the other endpoint', next.a && next.b
@@ -117,9 +125,13 @@ export function missionReducer(state, action) {
     case 'planned': {
       if (action.id !== state.request?.id) return state
       const ready = action.result.status === 'ready'
-      const updated = { ...state, result: action.result, request: null, phase: ready ? 'ready' : 'blocked', position: state.position ?? state.a }
-      return alert(updated, ready ? state.mode === 'return' ? 'Return route ready' : 'Route ready' : 'Route unavailable',
-        ready ? action.result.explanation + ' Review the route before continuing.' : action.result.message, ready ? 'info' : 'warning')
+      const bounds = action.result.route?.bounds
+      const coverageBounds = bounds && state.coverageBounds ? [Math.min(bounds[0], state.coverageBounds[0]), Math.min(bounds[1], state.coverageBounds[1]), Math.max(bounds[2], state.coverageBounds[2]), Math.max(bounds[3], state.coverageBounds[3])] : bounds ?? state.coverageBounds
+      const updated = { ...state, result: action.result, request: null, phase: ready ? 'ready' : 'blocked', position: state.position ?? state.a, coverageBounds }
+      const obstacle = state.request.reason === 'obstacle'
+      const warning = !ready || obstacle || action.result.reserveWarning
+      return alert(updated, ready ? obstacle ? 'Route updated after obstacle' : state.mode === 'return' ? 'Return route ready' : 'Route ready' : 'Route unavailable',
+        ready ? (obstacle ? 'Blocked area observed. The updated route avoids it. ' : '') + action.result.explanation + ' Review before continuing.' : action.result.message, warning ? 'warning' : 'info')
     }
     case 'advance': return advance(state, action.metres ?? 25, 'metres')
     case 'tick': return state.playing ? advance(state, action.seconds, 'seconds') : state
@@ -129,7 +141,7 @@ export function missionReducer(state, action) {
       if (!state.a || !state.result || state.phase === 'calculating') return state
       const seconds = action.seconds ?? 480
       const changed = { ...state, elapsed: state.elapsed + seconds, delay: state.delay + seconds, playing: false }
-      return checkResources(alert(changed, 'Mission delay', `${Math.round(seconds / 60)} minutes added. Review the updated return margin.`))
+      return requestPlan(checkResources(alert(changed, 'Mission delay', `${Math.round(seconds / 60)} minutes added. Rechecking the route and return margin.`)), 'delay')
     }
     case 'hazard': {
       if (!action.point || state.hazards.length >= 32) return state
@@ -149,20 +161,21 @@ export function missionReducer(state, action) {
       const next = { ...state, hazards: state.hazards.filter(h => h.id !== action.id), playing: false }
       return state.a && state.b ? requestPlan(next, 'obstacle-removed') : next
     }
-    case 'reset': return { ...initialMission(), settings: state.settings, revision: state.revision + 1, event: state.event + 1 }
+    case 'reset': return { ...initialMission(), settings: state.settings, hazards: state.hazards.filter(h => h.known), revision: state.revision + 1, event: state.event + 1 }
     default: return state
   }
 }
 
 export function missionPresentation(state) {
   const route = state.result?.route
-  const remaining = route ? Math.max(0, route.length - state.legDistance) : null
+  const remaining = state.phase === 'arrived' ? 0 : route ? Math.max(0, route.length - state.legDistance) : null
   const seconds = returnEstimate(state)
-  const fraction = route ? state.legDistance / Math.max(1, route.length) : null
+  const fraction = route ? state.mode === 'return' ? state.legDistance / Math.max(1, route.length)
+    : (state.completedDistance + state.legDistance) / Math.max(1, state.completedDistance + route.length) : null
   return { id: 'planned-mission', mode: state.mode, status: state.phase === 'arrived' ? 'arrived' : 'in-progress',
     nextWaypointName: state.mode === 'return' ? state.a?.name ?? 'Point A' : state.b?.name ?? (state.b ? 'Point B' : 'Select point B'),
     startName: state.a?.name ?? 'Start', destinationName: state.b?.name ?? 'Destination',
-    routeProgress: fraction === null ? null : state.mode === 'return' ? 1 - fraction : fraction,
+    routeProgress: state.phase === 'arrived' ? state.mode === 'return' ? 0 : 1 : fraction === null ? null : state.mode === 'return' ? state.returnOrigin * (1 - fraction) : fraction,
     remainingDistanceMeters: remaining, returnDurationSeconds: seconds,
     returnMarginSeconds: seconds === null ? null : state.settings.budgetSeconds - state.elapsed - seconds,
     oxygenRemainingSeconds: Math.max(0, state.settings.oxygenSeconds - state.elapsed),

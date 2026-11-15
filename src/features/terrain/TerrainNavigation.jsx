@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import RouteGuide, { DriveButton } from './RouteGuide'
+import { DriveButton } from './RouteGuide'
 
 export default function TerrainNavigation({ navigation, slopes, orbitalReady, ctxDetailReady, hiriseReady, threshold }) {
   const [contextOpen, setContextOpen] = useState(() => window.matchMedia('(min-width: 701px)').matches)
@@ -26,7 +26,7 @@ export default function TerrainNavigation({ navigation, slopes, orbitalReady, ct
         <button onClick={() => zoom(1.55)} aria-label="Zoom out">−</button>
       </>}
     </div>
-    {walking && <><div className="terrain-crosshair" aria-hidden="true">+</div><RouteGuide navigation={navigation} /></>}
+    {walking && <><div className="terrain-crosshair" aria-hidden="true">+</div><p className="mt-panel-description">Camera inspection only. Use Information → Route → Traverse to advance the mission.</p></>}
     <details key={mode} className="terrain-context" open={!walking && contextOpen}
       onToggle={walking ? undefined : event => setContextOpen(event.currentTarget.open)}>
       <summary>{walking ? 'Explorer position' : 'At map center'} <span>{context?.outside ? 'Outside coverage' : `${Math.round(context?.heading ?? 0) % 360}° heading`}</span></summary>
