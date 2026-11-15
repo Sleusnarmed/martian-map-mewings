@@ -25,6 +25,8 @@ export default function TerrainPoints({ viewer, data, points, mode }) {
     ], mode)
     function pick(position) {
       const id = viewer.scene.pick(position)?.id?.properties?.poiId?.getValue()
+      // Picking performs an offscreen render; schedule the visible frame too.
+      viewer.scene.requestRender()
       const point = visible.find(item => item.id === id)
       return point ? { ...point, elevation: sampleHeight(data, point.longitude, point.latitude) } : null
     }
