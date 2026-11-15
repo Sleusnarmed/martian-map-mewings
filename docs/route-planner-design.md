@@ -43,3 +43,14 @@ movement. 2.5D preserves a user's oblique view. Local slope, elevation, view til
 and image coverage remain available in Map view. The existing HiRISE crop is
 repackaged as sourced geographic tiles; near-field texture loading is bounded,
 with no generated texture or invented additional terrain detail.
+
+## Persistent map controls and image lifetime
+
+Keep the same Operate identity. Put perspective controls immediately beside Map
+view and north below it; 3D movement shares the lower row. No panel must be opened
+to inspect the terrain in 3D, including before choosing A/B. The map panel retains
+terrain readings and layers. In compact layouts, controls clear the information
+deck and inspector; narrow landscape reserves the left side for map tools.
+Only current near-field images remain decoded; abort stale requests and explicitly
+release image/GPU resources. Resolution improvements require measured source data;
+the proposed 25 cm crop and local LLM remain preparation/planning work.

@@ -19,13 +19,15 @@ resources and notices. The isolated mission preview retains its case fixtures.
 | Terrain coordination | `features/terrain/JezeroTerrain.jsx` | Connect scene, layer state, exploration and the mission panel slot |
 | Terrain lifecycle | `useTerrainScene.js` | Async data loading, viewer creation, camera/input guards, cleanup |
 | Terrain presentation | `TerrainControlsPanel.jsx` | Map, exploration and layer control groups; no viewer construction |
+| Persistent map tools | `TerrainMapControls.jsx` | Perspective, compass and 3D movement in the workspace's external navigation slot |
 | Terrain framing / markers / material | `useTerrainFraming.js`, `useTerrainMarkers.js`, `useTerrainMaterial.js` | Independent synchronization effects with matching cleanup |
 | Terrain data | `terrainData.js`, `createTerrainProvider.js` | DEM validation, sampling, tile availability and bounded caches |
 | Exploration | `useTerrainNavigation.js`, `useExplorerControls.js` | Camera inspection, independent of mission position |
 | Layer coordination | `useTerrainLayers.js` | Layer preferences and scene synchronization |
 | Layer services | `wildcatImagery.js`, `useSlopeLayer.js`, `useSolarHeatingLayer.js` | Imagery ownership, visibility, analysis overlays |
+| Near-field image lifetime | `useNearbyImagery.js`, `nearbyTileCache.js`, `createPatchProvider.js` | Current window only, two abortable downloads, release layers and ImageBitmaps on eviction |
 
-Paths in the final five rows are relative to `src/features/terrain`.
+Unqualified filenames in the terrain rows are relative to `src/features/terrain`.
 
 ## Lifecycle rules
 

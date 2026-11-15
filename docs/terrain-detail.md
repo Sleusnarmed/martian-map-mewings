@@ -10,13 +10,22 @@ coarser levels use bicubic reduction. Embedded origin metadata accompanies every
 shipping tile. The source image remains available for regeneration.
 
 A UrlTemplateImageryProvider streams the visible pyramid in map views. During
-3D exploration, a separate 3×3 window of full-resolution SingleTile image patches
+3D exploration, a separate 3×3 window of full-resolution image patches
 follows the camera, biased 90 m ahead. This keeps close-up detail independent of
-the finite DEM leaf level. At most nine patches are visible, twelve are cached
-(about 4.7 MiB decoded RGBA, excluding GPU/mipmaps and the existing base layers),
-and two patches load concurrently. Outdated results are ignored; leaving 3D or
-turning orbital imagery off removes the patches. CTX remains underneath while
-images load. A failed patch is retried by toggling orbital imagery off/on.
+the finite DEM leaf level. At most nine decoded patches are retained (about
+3.5 MiB RGBA, excluding in-flight decoding, GPU/mipmaps and existing base layers),
+and two load concurrently. Each request uses AbortController; leaving its window
+cancels the request and immediately removes the corresponding layer/GPU textures
+and closes its ImageBitmap. A decode that finishes after cancellation is closed
+without restoring an obsolete layer. Leaving 3D or hiding imagery releases the
+whole window. Browser HTTP/disk caching may retain the compressed download for a
+later visit; that is separate from decoded/GPU memory. CTX remains underneath
+while patches load. Failed patches retry on reentry or an imagery off/on toggle.
+
+2D/2.5D/3D controls are persistent beside Map view, with the north compass below
+Map view. 3D movement controls sit beside the compass. These controls work with
+all panels closed; 3D can start at map center without a route. Map view retains
+terrain information, zoom, layers and source controls.
 
 The DEM remains bounded at the existing source levels and cache. Its leaf error
 stays zero: the installed Cesium renderer can attempt to traverse missing
@@ -51,6 +60,29 @@ For the documented Wildcat coordinates, defaults currently yield roughly 482 m,
 the preview needs about 46 min total for each resource. Displayed minima round
 up to the next tenth of a minute so entering them does not undersupply the plan.
 
+## Higher-resolution source preparation
+
+The current app still uses its existing ~0.55 m/pixel crop. USGS lists a nominal
+25 cm/pixel HiRISE orthomosaic for Jezero under the same dataset DOI, with the
+[published product page](https://astrogeology.usgs.gov/search/map/Mars/Mars2020/JEZ_hirise_soc_006_orthoMosaic_25cm_Eqc_latTs0_lon0_first).
+That is a possible ~2.2× improvement per image dimension, not a new source already
+installed here. The publisher's page fetch returned HTTP 403 during this task;
+its indexed catalog identifies the product, but a crop's coverage/georeferencing
+and the actual source file must be checked before promising replacement assets.
+
+Next data task: obtain the source, validate its CRS and Wildcat coverage, crop
+only the required bounds, preserve no-data/alpha, and build a geographic pyramid
+at its native resolution. Use GDAL/QGIS or a repeatable raster preparation tool;
+do not load a whole mission mosaic in the browser. The nearby window should be
+selected by ground distance rather than the old hardcoded eight tiles per side
+when a finer level is added. Image resolution and the existing ~3 m relief remain
+separate; a finer DTM needs its own source/preparation. Even 25 cm orbital imagery
+cannot provide rover-camera detail at eye level. Upscaling or sharpened fictional
+rocks would not add measured terrain information.
+
+For local assistant design, hardware assumptions and the 6 km guard rationale,
+see [the local AI plan](local-ai-plan.md).
+
 ## Validation and finish review
 
 55 Node tests, ESLint, the integrated build and the isolated mission build passed.
@@ -77,3 +109,26 @@ Independent fresh-context finish disposition: **ship**.
 - Material fixes: none outstanding in the review.
 - Keep: assessment first, separate resource minima, explicit traversal lock with
   visible route, horizontal navigation, camera/mission independence.
+
+## Persistent controls and unloading review
+
+Fresh-context finish disposition: **ship**, scoped to the controls/lifetime
+refinement. Persistence: updated contract, source limits and local-AI plan retain
+the existing design system. Fidelity: six complete desktop/portrait/compact
+captures show perspective beside Map view, north below, and movement outside the
+panel; the narrow landscape and mobile layouts retain Calculate. Ceiling:
+Operate refinement; the image remains the existing source resolution. Material
+fixes: none outstanding. Keep: persistent controls, independent exploration,
+current-window ownership and explicit data limits.
+
+58 Node tests and ESLint passed. Both final builds passed with the existing
+Cesium chunk warning. New asynchronous lifetime tests cover two concurrent loads,
+immediate eviction, aborts, late decodes, disposal and failure/reentry. Browser
+checks covered 3D without A/B, POI selection, route calculation and 25 m advance,
+external compass/movement, 2.5D, imagery off/on and no console errors. The one
+regex detector pass found zero anti-patterns; its radius advisory was fixed and
+element/contrast rules did not run. No new shipping raster was created.
+
+Capture evidence is local in `.impeccable/review/map-controls/`, including
+1243×699 desktop, 768×1024 portrait, 390×843 compact and 768×600 landscape. The
+final functional smoke and both builds completed after the finish verdict.
