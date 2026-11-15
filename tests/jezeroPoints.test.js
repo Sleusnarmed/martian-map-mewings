@@ -49,3 +49,14 @@ test('both published positions have finite elevation in the shipped Jezero and l
     assert.ok(Number.isFinite(sampleHeight({ ...regional, detail }, longitude, latitude)))
   }
 })
+
+test('original Jezero center and Wildcat reference match USGS and NASA PDS coordinates', () => {
+  const region = JSON.parse(fs.readFileSync(new URL('../src/features/terrain/region.json', import.meta.url)))
+  assert.equal(region.center.latitude, 18.41)
+  assert.equal(region.center.longitude, 77.69)
+  assert.equal(region.center.source, 'https://planetarynames.wr.usgs.gov/Feature/14300')
+  const wildcat = JEZERO_POINTS.find(p => p.id === 'wildcat-ridge')
+  assert.equal(wildcat.latitude, 18.45863707)
+  assert.equal(wildcat.longitude, 77.40588851)
+  assert.ok(wildcat.reference.includes('14-1'))
+})

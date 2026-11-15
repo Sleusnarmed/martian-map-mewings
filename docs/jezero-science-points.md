@@ -36,8 +36,10 @@ parent outcrops. They are not outcrop centers or perimeter definitions.
 
 Marker anchors use the exact published longitude/latitude and the loaded DEM elevation, with no artificial height offset;
 no published sample elevation is substituted into the terrain. POIs are persistent HTML annotations projected from their world coordinates after
-each rendered frame. Canvas-relative CSS pixels are converted to the visible
-overlay coordinates, including the canvas offset used for side-panel framing.
+each rendered frame. The annotation layer is mounted beside the Cesium canvas in its own container.
+Canvas-relative CSS pixels therefore use the same coordinate origin as the terrain,
+including panel framing, scrolling and ancestor transforms; no second screen-space
+offset or scale is applied.
 They are readable through relief, not evidence of direct line
 of sight. Behind-camera and off-screen anchors are hidden; hover does not invoke
 Cesium picking or recreate marker entities. Clicking selects the published
@@ -50,3 +52,18 @@ opening a source link requires connectivity.
 repeated switches, and finite coverage in the shipped regional and local grids.
 The `walk` perspective is the UI's **3D** mode. Checking Cesium `SCENE3D` would be
 wrong here: its engine also renders the 2D/2.5D camera perspectives.
+
+## Recheck of all geographic coordinates
+
+Rechecked 2026-11-15. The [USGS/IAU Jezero entry](https://planetarynames.wr.usgs.gov/Feature/14300)
+reports the center at 18.41° N, 77.69° E (planetocentric, positive-east). The center
+is published to 0.01°, not metre precision. It is not the centroid of the displayed
+image crop or an independently fitted crater rim. The [Hazeltop report, PDF page 58](https://pds-geosciences.wustl.edu/missions/mars2020/Mars%202020%20Initial%20Reports%20Volume%202%20Release%202.pdf#page=58)
+lists Wildcat's sample reference at 18.45863707° N, 77.40588851° E. Both agree with
+the stored values, as do Swift Run and Shuyak above. These coordinates were not
+shifted to compensate for a rendering error.
+
+Regression checks now use a real Cesium Camera and SceneTransforms to project and
+inverse-project all four targets across viewport sizes, headings, tilt and zoom.
+They verify numeric placement without WebGL; they do not establish independent
+survey accuracy or replace a browser/imagery registration inspection.
