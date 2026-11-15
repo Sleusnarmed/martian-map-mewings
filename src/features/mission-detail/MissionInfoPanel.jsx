@@ -28,7 +28,7 @@ function TelemetryPage({ mission }) {
   return <><h2>Telemetry</h2><p className="mt-panel-description">Simulated mission time and return resources</p><dl className="mt-telemetry-table">{rows.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl><p className="mt-body-note">{mission.telemetryNote ?? 'Oxygen autonomy is shown as time remaining. Return margins account for the estimated journey back.'}</p></>
 }
 
-export default function MissionInfoPanel({ mission, region, sciencePoint, image, activeTab, page, contentRef, onTabChange, onPageChange, onReturn, onInspectStop, collapsed = false }) {
+export default function MissionInfoPanel({ mission, region, sciencePoint, routePoint, onUseSciencePoint, image, activeTab, page, contentRef, onTabChange, onPageChange, onReturn, onInspectStop, collapsed = false }) {
   const planned = useRouteMission()
   const tabRefs = useRef([])
   const panelRef = useRef(null)
@@ -47,6 +47,11 @@ export default function MissionInfoPanel({ mission, region, sciencePoint, image,
         <div ref={contentRef} className="mt-panel-content">
         {activeTab === 'route' && (planned ? <RoutePlanner /> : <RoutePage mission={mission} onReturn={onReturn} onInspectStop={onInspectStop} />)}
         {activeTab === 'science' && (sciencePoint ? <TerrainPointDetails selection={sciencePoint} page={page} /> : <RegionDetail key={region?.id} region={region} image={image} page={page} />)}
+        {activeTab === 'science' && planned && routePoint && <div className="mt-route-actions" aria-label="Use science point in route">
+          {['a', 'b'].map(target => <button key={target} className="md-button md-button-outline" disabled={!planned.terrain}
+            aria-pressed={planned.state[target]?.latitude === routePoint.latitude && planned.state[target]?.longitude === routePoint.longitude}
+            onClick={() => onUseSciencePoint(target, routePoint)}>Use as {target.toUpperCase()}</button>)}
+        </div>}
         {activeTab === 'telemetry' && <TelemetryPage mission={mission} />}
         </div>
       </section>

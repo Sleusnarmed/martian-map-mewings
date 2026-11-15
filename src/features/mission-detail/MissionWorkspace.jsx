@@ -4,6 +4,8 @@ import readPreviewLocation from "./readPreviewLocation.js";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useRouteMission } from "../route-planner/RouteMissionContext.js";
 import CoordinateInspector from "../route-planner/CoordinateInspector.jsx";
+import { JEZERO_POINTS } from '../terrain/pointsOfInterest.js';
+import terrainRegion from '../terrain/region.json';
 import MissionHUD from "./MissionHUD.jsx";
 import MissionInfoPanel from "./MissionInfoPanel.jsx";
 import MissionAlerts from "./MissionAlerts.jsx";
@@ -185,6 +187,10 @@ export default function MissionWorkspace({
       return;
     }
     planned?.dispatch({ type: "dismiss-inspection" });
+    if (planned?.state.pickTarget) {
+      openInformation("route");
+      return;
+    }
     if (point.id === "jezero" || point.id === "wildcat-ridge") {
       selectRegion(point.id, false);
       return;
@@ -280,6 +286,11 @@ export default function MissionWorkspace({
           mission={mission}
           region={regions[selectedRegionId]}
           sciencePoint={sciencePoint}
+          routePoint={sciencePoint ?? (selectedRegionId === 'jezero' ? { ...terrainRegion.center, id: 'jezero', name: 'Jezero crater' } : JEZERO_POINTS.find(point => point.id === selectedRegionId))}
+          onUseSciencePoint={(target, point) => {
+            planned?.dispatch({ type: 'endpoint', target, point });
+            openInformation('route');
+          }}
           image={wildcatImage}
           activeTab={activeTab}
           page={page}

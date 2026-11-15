@@ -72,10 +72,11 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
   const [selectedSciencePoint, setSelectedSciencePoint] = useState(null)
   const clearScienceSelection = useCallback(() => { setSelectedSciencePoint(null); scienceCallback.current?.(null) }, [])
   const setInspection = useCallback(point => {
+    inspect(point)
     if (point?.id) {
       setSelectedSciencePoint(point)
       scienceCallback.current?.(point)
-    } else inspect(point)
+    }
   }, [inspect])
   const [refining, setRefining] = useState(false)
   useEffect(() => { selectCallback.current = onPointSelect }, [onPointSelect])

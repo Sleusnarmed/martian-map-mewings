@@ -15,6 +15,13 @@ Science to its first page; switching to Route or Telemetry preserves the chosen
 site. Selecting a region restores its regional brief. Native marker labels and
 the automatic zoom for overlapping symbols remain available.
 
+Science includes **Use as A** and **Use as B**, including the regional Jezero
+and Wildcat briefs. Assignment opens Route with the chosen coordinates and
+preserves the other endpoint. Alternatively, select A or B in Route and tap a
+science symbol: its published position fills that endpoint directly, retaining
+the Route view. Science browsing without an active endpoint request still
+opens Science. Changing an endpoint invalidates any previous calculated route.
+
 A click on overlapping science symbols zooms toward the closest geographic pair.
 Coordinates are never displaced to make room. The camera preserves 2D or oblique
 perspective; a group selected during surface exploration opens a closer oblique
