@@ -3,6 +3,55 @@
 Estado: planeación; no instala modelos ni incorpora inferencia a la aplicación.
 Máquina indicada por Gerardo: Ryzen 7 250, RTX 5060 con 8 GB de VRAM y 32 GB RAM.
 
+## Inicio de implementación y reparto de trabajo
+
+Rama de trabajo: `codex/gerardo-local-ai`, creada desde `master` después del
+merge `2f6c8df`. Esta etapa prepara la integración; todavía no hay un asistente
+conectado. En la revisión inicial no se encontró `ollama` en el PATH de la sesión;
+esto no descarta una instalación fuera de PATH.
+
+Gerardo prepara Ollama para Windows y descarga `qwen3:4b`. Después de instalar,
+abre una terminal nueva y ejecuta:
+
+```powershell
+ollama --version
+ollama pull qwen3:4b
+ollama run qwen3:4b "Responde en español con una frase: estás listo para asistir una misión en Marte."
+ollama ps
+```
+
+El último comando se ejecuta mientras el modelo sigue cargado y permite revisar
+CPU/GPU. La descarga necesita Internet; probar inferencia sin Internet después
+no implica que todas las fuentes cartográficas de la aplicación sean offline.
+No se necesita entrenar un modelo ni contratar una API para este alcance.
+
+Trabajo delegable al agente, en entregas pequeñas:
+
+1. Servicio Node local: comprobación de disponibilidad, configuración del modelo,
+   límites de contexto, cancelación y timeout. Adaptador de misión de solo lectura
+   sobre `RouteMissionContext`. Se puede preparar con respuestas de prueba mientras
+   se instala Ollama; esas pruebas no sustituyen evaluar el modelo real.
+2. Consulta por texto: recursos limitantes, mínimos e ida/vuelta desde los mismos
+   resultados del HUD. Validar revisión del estado para evitar respuestas antiguas.
+3. Preferencias compartidas de capas: extraer el estado de `useTerrainLayers` y
+   conectar herramientas validadas; botones y asistente usan la misma interfaz.
+4. Solicitud de ruta con A/B seleccionados y preferencias ya admitidas por el
+   planificador. La comparación necesita calcular alternativas explícitas antes
+   de describirlas; no basta pedir al modelo que invente una ruta mejor.
+5. Salida de voz existente, pruebas de comandos en español y medición con Cesium
+   en 3D. Documentar arranque y crear commits por entrega.
+
+Gerardo valida los comandos que quiere presentar y la comodidad del HUD en la
+máquina de la demo. El agente puede escribir integración, pruebas, documentación
+y scripts de diagnóstico. La elección final del modelo depende de mediciones
+con el mapa abierto, no solo de que una respuesta aislada funcione.
+
+Primer entregable recomendado: consultas de texto sobre la misión y control de
+capas. Cierre: números iguales al HUD, capas correctas, respuesta clara a datos
+faltantes y aplicación operativa si Ollama no está disponible. Después se añaden
+rutas y voz. Transcripción local y ampliación del alcance geográfico quedan para
+una fase posterior.
+
 ## Alcance inicial
 
 El asistente interpreta español, consulta la misión, explica resultados del
