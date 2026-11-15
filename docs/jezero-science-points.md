@@ -34,17 +34,13 @@ accuracy. Skinner Ridge is close to Wildcat Ridge; its location was not shifted
 for visual spacing. Shuyak and Swift Run are sample locations representing their
 parent outcrops. They are not outcrop centers or perimeter definitions.
 
-Marker anchors use the exact published longitude/latitude and the loaded DEM elevation, with no artificial height offset;
-no published sample elevation is substituted into the terrain. POIs are persistent HTML annotations projected from their world coordinates after
-each rendered frame. The annotation layer is mounted beside the Cesium canvas in its own container.
-Canvas-relative CSS pixels therefore use the same coordinate origin as the terrain,
-including panel framing, scrolling and ancestor transforms; no second screen-space
-offset or scale is applied.
-They are readable through relief, not evidence of direct line
-of sight. Behind-camera and off-screen anchors are hidden; hover does not invoke
-Cesium picking or recreate marker entities. Clicking selects the published
-coordinates directly. The
-coordinate inspector still uses the actual DEM elevation and published lon/lat.
+Markers use the original native Cesium entities, not a projected HTML overlay.
+Jezero and Wildcat retain their original styling and display offsets (40 m and
+25 m above sampled DEM elevation respectively). These offsets lift annotations
+for readability; they do not change their published longitude/latitude or the
+inspector elevation. New 3D-only points use the existing 2 m display offset.
+React renders the science detail card only; Cesium positions and picks markers.
+
 Source metadata and summaries are bundled, so hovering needs no network request;
 opening a source link requires connectivity.
 
@@ -63,7 +59,6 @@ lists Wildcat's sample reference at 18.45863707° N, 77.40588851° E. Both agree
 the stored values, as do Swift Run and Shuyak above. These coordinates were not
 shifted to compensate for a rendering error.
 
-Regression checks now use a real Cesium Camera and SceneTransforms to project and
-inverse-project all four targets across viewport sizes, headings, tilt and zoom.
-They verify numeric placement without WebGL; they do not establish independent
-survey accuracy or replace a browser/imagery registration inspection.
+The original Cesium marker implementation was restored after the HTML overlay
+failed the user's visual checks. Source-coordinate tests do not establish
+independent survey accuracy or replace browser/imagery registration inspection.
