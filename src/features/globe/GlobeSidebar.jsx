@@ -9,7 +9,7 @@ export default function GlobeSidebar({ compact, isTransitioning, isSidebarOpen, 
           className="absolute left-3 sm:left-5 top-18 sm:top-20 z-30 min-h-[44px] px-4 py-2.5 bg-[#07173F]/95 hover:bg-[#0042A6] active:scale-95 text-[#EAFE07] border-2 border-[#2E96F5] rounded-xl shadow-2xl flex items-center gap-2 text-xs font-bold uppercase tracking-wider transition cursor-pointer"
         >
           <span>☰</span>
-          <span>{navLevel === "zones" ? "Zonas" : "Regiones"}</span>
+          <span>{navLevel === "zones" ? "Zones" : "Regions"}</span>
         </button>
       )}
 
@@ -19,16 +19,16 @@ export default function GlobeSidebar({ compact, isTransitioning, isSidebarOpen, 
           <div className="flex items-start justify-between gap-2 pb-2.5 mb-2.5 border-b border-[#2E96F5]/30">
             <div>
               <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-[#EAFE07] block">
-                Regiones de Marte
+                Mars regions
               </span>
               <span className="text-[11px] text-white/70">
-                Toca para ubicar · Toca el pin para entrar
+                Tap to locate · Tap a pin to enter
               </span>
             </div>
 
             <button
               onClick={() => setIsSidebarOpen(false)}
-              title="Ocultar barra lateral"
+              title="Hide sidebar"
               className="shrink-0 min-h-[34px] px-2.5 py-1 rounded-lg bg-[#0042A6]/60 hover:bg-[#0960E1] text-white/90 hover:text-white border border-[#2E96F5]/50 text-xs font-bold transition cursor-pointer"
             >
               ‹
@@ -51,18 +51,18 @@ export default function GlobeSidebar({ compact, isTransitioning, isSidebarOpen, 
                       </span>
                     </div>
                     <p className="text-[11px] text-white/85 truncate mt-0.5">
-                      {region.code} · Operativa
+                      {region.code} · Operational
                     </p>
                   </div>
                   <span className="shrink-0 text-[10px] font-bold uppercase px-2.5 py-1.5 rounded-lg bg-[#07173F] text-[#EAFE07] border border-[#2E96F5]/60">
-                    Ubicar
+                    Locate
                   </span>
                 </button>
               ) : (
                 <button
                   key={region.id}
                   onClick={() => focusRegionOnGlobe(region)}
-                  title="Región sin datos hiperlocales disponibles"
+                  title="No local data available for this region"
                   className="w-full min-h-[48px] flex items-center justify-between gap-2 text-left px-3 py-2 rounded-xl bg-slate-900/75 border border-slate-700/60 opacity-65 hover:opacity-95 transition cursor-pointer"
                 >
                   <div className="min-w-0">
@@ -77,7 +77,7 @@ export default function GlobeSidebar({ compact, isTransitioning, isSidebarOpen, 
                     </p>
                   </div>
                   <span className="shrink-0 text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">
-                    Inactiva
+                    Inactive
                   </span>
                 </button>
               ),
@@ -95,19 +95,19 @@ export default function GlobeSidebar({ compact, isTransitioning, isSidebarOpen, 
             <div className="flex items-start justify-between gap-2 pb-2.5 mb-3 border-b border-[#2E96F5]/30">
               <div>
                 <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-[#EAFE07] block">
-                  Zonas en {activeRegion.name}
+                  Zones in {activeRegion.name}
                 </span>
                 <span className="text-[11px] text-white/75">
-                  Toca un punto en el mapa o elige aquí:
+                  Tap a map point or choose here:
                 </span>
               </div>
 
               <button
                 onClick={() => setIsSidebarOpen(false)}
-                title="Ocultar barra lateral"
+                title="Hide sidebar"
                 className="shrink-0 min-h-[34px] px-2.5 py-1 rounded-lg bg-[#0042A6]/60 hover:bg-[#0960E1] text-white/90 hover:text-white border border-[#2E96F5]/50 text-xs font-bold transition cursor-pointer"
               >
-                ‹ Ocultar
+                ‹ Hide
               </button>
             </div>
 

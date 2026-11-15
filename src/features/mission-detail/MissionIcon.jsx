@@ -1,6 +1,8 @@
 // Small line icons following the Space Apps lightweight symbol guidance.
 export default function MissionIcon({ name, size = 18 }) {
   const paths = {
+    microphone: <><rect x="8" y="2" width="8" height="13" rx="4" /><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3m-4 0h8" /></>,
+    close: <path d="m6 6 12 12M18 6 6 18" />,
     layers: <><path d="m3 7 9-4 9 4-9 4-9-4Zm0 5 9 4 9-4M3 17l9 4 9-4" /></>,
     'arrow-up-right': <><path d="M7 17 17 7M7 7h10v10" /></>,
     chevron: <path d="m9 5 7 7-7 7" />,

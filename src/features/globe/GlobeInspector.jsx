@@ -24,7 +24,7 @@ export default function GlobeInspector({ inspectedItem, compact, isTransitioning
             >
               {inspectedItem.type === "region"
                 ? inspectedItem.code
-                : "ZONA DE INTERÉS"}
+                : "POINT OF INTEREST"}
             </span>
             <span className="text-[11px] font-mono text-white/75">
               {inspectedItem.lat.toFixed(2)}°N, {inspectedItem.lon.toFixed(2)}°E
@@ -58,10 +58,10 @@ export default function GlobeInspector({ inspectedItem, compact, isTransitioning
           >
             <span>
               {inspectedItem.type === "region" && !inspectedItem.available
-                ? "Sin datos hiperlocales disponibles aún"
+                ? "No local data available yet"
                 : inspectedItem.type === "region"
-                  ? "Toca este punto para desplegar sub-zonas"
-                  : "Toca este punto para abrir mapa táctico"}
+                  ? "Tap this point to show subregions"
+                  : "Tap this point to open the tactical map"}
             </span>
             <span>
               {inspectedItem.type === "region" && !inspectedItem.available

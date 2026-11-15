@@ -14,12 +14,12 @@ export default function GlobeHeader({ compact, isTransitioning, navLevel, active
             <div className="h-6 w-[1px] bg-[#2E96F5]/40" />
             <div>
               <span className="text-[10px] sm:text-[11px] font-bold tracking-widest uppercase text-[#EAFE07] block">
-                VISTA MARS · PLANETA MARTE
+                VISTA MARS · PLANET MARS
               </span>
               <span className="text-xs text-white/85">
                 {navLevel === "zones" && activeRegion
-                  ? `Región: ${activeRegion.name}`
-                  : "Selección de Región Orbital"}
+                  ? `Region: ${activeRegion.name}`
+                  : "Orbital region selection"}
               </span>
             </div>
           </div>
@@ -29,7 +29,7 @@ export default function GlobeHeader({ compact, isTransitioning, navLevel, active
               onClick={handleBackToRegions}
               className="pointer-events-auto min-h-[42px] px-4 py-2 text-xs font-bold uppercase tracking-wider bg-[#07173F]/95 hover:bg-[#0042A6] active:scale-95 text-[#EAFE07] border border-[#2E96F5] rounded-xl transition cursor-pointer"
             >
-              ← Volver a Regiones
+              ← Back to regions
             </button>
           )}
         </header>

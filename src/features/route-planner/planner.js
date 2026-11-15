@@ -54,17 +54,17 @@ class Frontier {
 }
 
 export function findPath(data, start, goal, settings, hazards = [], surveys = []) {
-  if (![start, goal].every(p => p && Number.isFinite(p.longitude) && Number.isFinite(p.latitude))) return { error: 'Select valid start and destination coordinates.' }
+  if (![start, goal].every(p => p && Number.isFinite(p.longitude) && Number.isFinite(p.latitude))) return { reasonCode: 'coordinates', error: 'Select valid start and destination coordinates.' }
   const span = distanceBetween(start, goal, data.radius)
-  if (span > MAX_ROUTE_SPAN) return { error: 'Choose points within 6 km for local route planning. Zoom into Wildcat Ridge.' }
-  if (span < 1) return { error: 'A and B must be at least 1 metre apart.' }
+  if (span > MAX_ROUTE_SPAN) return { reasonCode: 'span', error: 'Choose points within 6 km for local route planning. Zoom into Wildcat Ridge.' }
+  if (span < 1) return { reasonCode: 'coincident', error: 'A and B must be at least 1 metre apart.' }
   const knownHazards = hazards.filter(h => h.known !== false)
   const sample = p => {
     const value = terrainSample(data, p)
     return value && value.slope <= settings.maxSlope && !blockedByHazard(p, knownHazards, data.radius) ? value : null
   }
   const a = sample(start), b = sample(goal)
-  if (!a || !b) return { error: 'An endpoint is outside usable elevation coverage, blocked, or above the slope limit. Move it or review the limits.' }
+  if (!a || !b) return { reasonCode: 'endpoint', error: 'An endpoint is outside usable elevation coverage, blocked, or above the slope limit. Move it or review the limits.' }
   const local = [start, goal].every(p => detailWeight(data.detail, p.longitude, p.latitude) >= 0.99)
   const metresLat = RAD * data.radius, metresLon = metresLat * Math.cos((start.latitude + goal.latitude) / 2 * RAD)
   const pad = Math.max(120, span * 0.45)
@@ -111,7 +111,7 @@ export function findPath(data, start, goal, settings, hazards = [], surveys = []
     return candidates
   }
   const first = endpointNode(start, a), last = endpointNode(goal, b)
-  if (!first.length || !last.length) return { error: 'No traversable connection at an endpoint. Move it farther from the blocked terrain.' }
+  if (!first.length || !last.length) return { reasonCode: 'endpoint', error: 'No traversable connection at an endpoint. Move it farther from the blocked terrain.' }
   const g = new Float64Array(nodes.length).fill(Infinity), parents = new Int32Array(nodes.length).fill(-1)
   const frontier = new Frontier()
   const estimate = id => distanceBetween(nodes[id], goal, data.radius) / (settings.priority === 'distance' ? 1 : settings.pace)
@@ -171,7 +171,7 @@ export function findPath(data, start, goal, settings, hazards = [], surveys = []
     const maximum = clean.slice(1).reduce((slope, p, i) => Math.max(slope, edge(clean[i], p).maximum), 0)
     return { route: { ...route, maxSlope: maximum, gridMetres: cellSize, bounds, visited, source: local ? 'HiRISE / CTX elevation' : 'CTX regional elevation', priority: settings.priority } }
   }
-  return { error: 'No route found within this search area and slope limit. Move an endpoint or review blocked areas.' }
+  return { reasonCode: 'search', error: 'No route found within this search area and slope limit. Move an endpoint or review blocked areas.' }
 }
 
 function pathOrHome(data, start, goal, settings, hazards, surveys) {
@@ -181,12 +181,12 @@ function pathOrHome(data, start, goal, settings, hazards, surveys) {
 
 export function planMission(data, request) {
   const { start, goal, base, settings, hazards, surveys, remainingSeconds, oxygenSeconds, mode } = request
-  if (!settings || ![settings.pace, settings.maxSlope, remainingSeconds, oxygenSeconds, settings.reserveSeconds, settings.activitySeconds].every(Number.isFinite) || settings.pace <= 0 || settings.maxSlope <= 0) return { status: 'error', message: 'Planning limits are invalid. Review the resource settings.' }
+  if (!settings || ![settings.pace, settings.maxSlope, remainingSeconds, oxygenSeconds, settings.reserveSeconds, settings.activitySeconds].every(Number.isFinite) || settings.pace <= 0 || settings.maxSlope <= 0) return { status: 'error', reasonCode: 'settings', message: 'Planning limits are invalid. Review the resource settings.' }
   const currentReturn = pathOrHome(data, start, base, settings, hazards, surveys)
   const outward = findPath(data, start, goal, settings, hazards, surveys)
-  if (!outward.route) return { status: 'blocked', message: outward.error, currentReturn: currentReturn.route ?? null }
+  if (!outward.route) return { status: 'blocked', reasonCode: outward.reasonCode, message: outward.error, currentReturn: currentReturn.route ?? null }
   const returnPlan = mode === 'return' ? { route: buildRoute([base], data.radius, settings.pace) } : pathOrHome(data, goal, base, settings, hazards, surveys)
-  if (!returnPlan.route || !currentReturn.route) return { status: 'blocked', message: 'A return path could not be established under these limits.', currentReturn: currentReturn.route ?? null }
+  if (!returnPlan.route || !currentReturn.route) return { status: 'blocked', reasonCode: 'return', message: 'A return path could not be established under these limits.', currentReturn: currentReturn.route ?? null }
   // At every point, backtracking + the verified start return is available.
   // Budget against that conservative fallback as well as the destination return.
   const returnSeconds = Math.max(returnPlan.route.duration, outward.route.reverseDuration + currentReturn.route.duration)

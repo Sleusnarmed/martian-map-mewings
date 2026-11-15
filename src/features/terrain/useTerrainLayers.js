@@ -6,14 +6,18 @@ import { useSolarHeatingLayer } from './useSolarHeatingLayer'
 import { skyColor } from './environmentModel'
 import { useTerrainMaterial } from './useTerrainMaterial'
 import { useNearbyImagery } from './useNearbyImagery'
+import { useMapLayers } from './MapLayerContext.js'
 
 // Layer preferences and their Cesium synchronization, independent of mission state.
 export function useTerrainLayers({ viewerRef, state, initialPointId, minute, exploring }) {
-  const [contours, setContours] = useState(initialPointId !== 'wildcat-ridge')
-  const [elevationColors, setElevationColors] = useState(false)
-  const [orbitalVisible, setOrbitalVisible] = useState(true)
-  const [geologyVisible, setGeologyVisible] = useState(false)
-  const [slopesVisible, setSlopesVisible] = useState(false)
+  const { visibility, setVisibility } = useMapLayers()
+  const { contours, elevation: elevationColors, orbital: orbitalVisible, geology: geologyVisible, slopes: slopesVisible, heat: heatVisible } = visibility
+  const setContours = value => setVisibility('contours', value)
+  const setElevationColors = value => setVisibility('elevation', value)
+  const setOrbitalVisible = value => setVisibility('orbital', value)
+  const setGeologyVisible = value => setVisibility('geology', value)
+  const setSlopesVisible = value => setVisibility('slopes', value)
+  const setHeatVisible = value => setVisibility('heat', value)
   const [nearDetail, setNearDetail] = useState(initialPointId === 'wildcat-ridge')
   const [geologyOpacity, setGeologyOpacity] = useState(0.7)
   const [slopeThreshold, setSlopeThreshold] = useState(15)
@@ -24,7 +28,6 @@ export function useTerrainLayers({ viewerRef, state, initialPointId, minute, exp
   const nearbyStatus = useNearbyImagery(imageryViewer, orbitalVisible && exploring)
   const geology = useWildcatImagery(imageryViewer, state.data?.bounds, geologyLayer, geologyVisible, geologyOpacity)
   const slopeStatus = useSlopeLayer(imageryViewer, state.data, slopesVisible)
-  const [heatVisible, setHeatVisible] = useState(false)
   const [heatOpacity, setHeatOpacity] = useState(0.6)
   const heatStatus = useSolarHeatingLayer(imageryViewer, state.data, heatVisible, minute, heatOpacity)
   useEffect(() => {

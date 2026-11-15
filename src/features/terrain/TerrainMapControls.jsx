@@ -2,9 +2,9 @@ export default function TerrainMapControls({ navigation, ready }) {
   const { mode, chooseMode } = navigation;
 
   const modes = [
-    ["map", "2D", "Vista cenital 2D"],
-    ["auto", "2.5D", "Vista orbital inclinada 2.5D"],
-    ["walk", "3D", "Vista inmersiva 3D en superficie"],
+    ["map", "2D", "2D overhead view"],
+    ["auto", "2.5D", "2.5D oblique orbital view"],
+    ["walk", "3D", "3D immersive surface view"],
   ];
 
   return (

@@ -5,6 +5,9 @@ import MissionHUD from "./MissionHUD.jsx";
 import MissionInfoPanel from "./MissionInfoPanel.jsx";
 import MissionAlerts from "./MissionAlerts.jsx";
 import VoiceControls from "./VoiceControls.jsx";
+import EvaVoiceControls from '../local-ai/EvaVoiceControls.jsx';
+import SpeechCaptions from '../local-ai/SpeechCaptions.jsx';
+import '../local-ai/local-ai.css';
 import useFadingView from "./useFadingView.js";
 import {
   demoScenarios,
@@ -68,6 +71,7 @@ export default function MissionWorkspace({
   });
   const [mapToolsTarget, setMapToolsTarget] = useState(null);
   const [mapNavigationTarget, setMapNavigationTarget] = useState(null);
+  const [assistantActive, setAssistantActive] = useState(false);
   const {
     tab: activeTab,
     page,
@@ -377,6 +381,7 @@ export default function MissionWorkspace({
         </button>
 
         <VoiceControls
+          suspended={assistantActive}
           noticeId={mission.notice?.id}
           text={mission.notice?.text}
         />
@@ -392,11 +397,13 @@ export default function MissionWorkspace({
             <span>Map view</span>
           </button>
         )}
+        {planned && <EvaVoiceControls onActiveChange={setAssistantActive} />}
       </div>
 
       <span className="field-sr-only" role="status" aria-live="polite">
         {mission.notice?.title}
       </span>
+      <SpeechCaptions hasRoute={hasDefinedRoute} />
 
       {/* Barra inferior visible únicamente cuando hay una ruta definida */}
       {hasDefinedRoute && (
