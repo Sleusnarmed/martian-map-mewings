@@ -18,6 +18,7 @@ function cesiumAssets() {
 
 // https://vite.dev/config/
 export default defineConfig({
+  server: { proxy: { '/api/assistant': 'http://127.0.0.1:3001' } },
   plugins: [cesiumAssets(), react(),
     tailwindcss(),
   ],

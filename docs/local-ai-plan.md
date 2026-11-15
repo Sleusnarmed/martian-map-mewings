@@ -1,9 +1,47 @@
 # Plan de IA local para la demo
 
-Estado: planeación; no instala modelos ni incorpora inferencia a la aplicación.
+Estado: primera conexión local implementada; integración visual pendiente.
 Máquina indicada por Gerardo: Ryzen 7 250, RTX 5060 con 8 GB de VRAM y 32 GB RAM.
 
 ## Inicio de implementación y reparto de trabajo
+
+### Avance verificado el 15 de noviembre de 2026
+
+Ollama responde en loopback y tiene `qwen3:4b` Q4_K_M, digest
+`359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7`.
+Se implementó `server/local-ai.mjs`, con comprobación de disponibilidad,
+clasificación estructurada, una consulta concurrente, timeout de 30 segundos,
+cancelación y límites de entrada. Contexto: 2048; generación: 80 tokens;
+temperatura: 0; `think: false`.
+
+El adaptador `src/features/local-ai/missionAssistant.js` responde usando los
+valores del reducer/HUD y rechaza consultas cuya misión haya cambiado durante
+la inferencia. Todavía no está montado en React: no hay botón ni chat visible.
+Las acciones de capas, rutas y voz siguen pendientes. La primera entrega limita
+al modelo a identificar la consulta; las respuestas numéricas son plantillas.
+
+Arranque de desarrollo, en terminales separadas:
+
+```powershell
+npm run ai:serve
+```
+
+```powershell
+npm run dev
+```
+
+Vite redirige `/api/assistant` al servicio local en el puerto 3001. Reiniciar
+Vite si estaba abierto antes de cambiar la configuración. Esta conexión es de
+desarrollo; el despliegue deberá servir la API bajo el mismo origen.
+Diagnóstico independiente de la UI: `npm run ai:check`.
+
+Seis consultas reales: 6/6 clasificaciones esperadas; primera 3850 ms, siguientes
+491–618 ms. No es una evaluación amplia de fiabilidad ni un benchmark con
+movimiento del mapa. `/api/ps` reportó 2 882 021 620 bytes de tamaño y
+`size_vram: 0`: no se ha confirmado aceleración GPU, aunque la inferencia funciona.
+Revisar selección de GPU/runtime antes de asumir uso de la RTX. Pasaron 64
+pruebas automatizadas, lint y build. Próximo hito: UI de consultas conectada al
+estado vivo y evaluación conjunta con Cesium; después, acciones de capas.
 
 Rama de trabajo: `codex/gerardo-local-ai`, creada desde `master` después del
 merge `2f6c8df`. Esta etapa prepara la integración; todavía no hay un asistente
