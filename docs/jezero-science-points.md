@@ -66,5 +66,6 @@ independent survey accuracy or replace browser/imagery registration inspection.
 Native marker stability: perspective changes toggle entity visibility instead of
 recreating entities. All POI annotations bypass terrain depth testing, including
 Wildcat, so they remain readable through relief (not proof of line of sight).
-Hover picking requests a visible render in the on-demand scene. Coordinates,
+Hover uses CPU hit testing against native entity projections and pauses during
+camera movement; it does not run GPU picking or request extra render passes. Coordinates,
 DEM display offsets and native Cesium positioning are unchanged.
