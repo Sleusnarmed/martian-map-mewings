@@ -40,3 +40,13 @@ test('bounded input and unavailable engine fail explicitly', async () => {
   await assert.rejects(classifyQuestion('a'.repeat(1001)), /INVALID_QUESTION/)
   await assert.rejects(classifyQuestion('estado', { fetchImpl: async () => ({ ok: false }) }), /MODEL_UNAVAILABLE/)
 })
+
+test('inference explicitly disables reasoning and bounds context and generation', async () => {
+  await classifyQuestion('estado', { fetchImpl: async (_url, options) => {
+    const body = JSON.parse(options.body)
+    assert.equal(body.think, false)
+    assert.equal(body.options.num_ctx, 2048)
+    assert.equal(body.options.num_predict, 80)
+    return { ok: true, json: async () => ({ message: { content: '{"intent":"status"}' } }) }
+  } })
+})

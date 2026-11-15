@@ -6,6 +6,7 @@
   "scripts": {
     "ai:serve": "node server/local-ai.mjs",
     "ai:check": "node scripts/check-local-ai.mjs",
+    "ai:warm": "node scripts/warm-local-ai.mjs",
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",

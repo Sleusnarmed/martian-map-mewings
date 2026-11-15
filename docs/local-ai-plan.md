@@ -7,6 +7,16 @@ Máquina indicada por Gerardo: Ryzen 7 250, RTX 5060 con 8 GB de VRAM y 32 GB RA
 
 ### Avance verificado el 15 de noviembre de 2026
 
+Optimización de latencia: usar `npm run ai:warm` antes de la demo para cargar
+Qwen con contexto 2048 y solicitar retención durante 30 minutos. Las consultas
+posteriores del servicio mantienen su retención de 5 minutos. La clasificación
+usa explícitamente `think: false`; en consola interactiva se puede usar
+`/set nothink`. Ocultar el texto de razonamiento no equivale a desactivarlo.
+Segunda medición real: primera consulta 7842 ms con modelo inicialmente ausente
+de `/api/ps`; las siguientes cinco, 743–859 ms, con 6/6 clasificaciones correctas.
+Estos tiempos corresponden a clasificación corta, no a conversación libre.
+El endpoint de intención ahora incluye `milliseconds` para medir la inferencia.
+
 Ollama responde en loopback y tiene `qwen3:4b` Q4_K_M, digest
 `359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7`.
 Se implementó `server/local-ai.mjs`, con comprobación de disponibilidad,

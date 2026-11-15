@@ -52,8 +52,9 @@ export function createLocalAiServer() {
       let input
       try { input = JSON.parse(body) } catch { return send(400, { error: 'INVALID_JSON' }) }
       if (!input || typeof input.question !== 'string' || !input.question.trim() || input.question.length > 1000) return send(400, { error: 'INVALID_QUESTION' })
+      const started = performance.now()
       const result = await classifyQuestion(input.question, { signal: controller.signal })
-      send(200, result)
+      send(200, { ...result, milliseconds: Math.round(performance.now() - started) })
     } catch {
       send(controller.signal.aborted ? 504 : 502, { error: controller.signal.aborted ? 'ASSISTANT_TIMEOUT' : 'MODEL_UNAVAILABLE' })
     } finally { clearTimeout(timer); busy = false }
