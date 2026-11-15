@@ -108,28 +108,25 @@ export function findPath(data, start, goal, settings, hazards = [], surveys = []
       const connection = edge({ ...point, ...value }, nodes[id])
       if (connection) candidates.push({ id, connection })
     }
-    return candidates.sort((l, r) => l.connection.distance - r.connection.distance)[0]
+    return candidates
   }
   const first = endpointNode(start, a), last = endpointNode(goal, b)
-  if (!first || !last) return { error: 'No traversable connection at an endpoint. Move it farther from the blocked terrain.' }
+  if (!first.length || !last.length) return { error: 'No traversable connection at an endpoint. Move it farther from the blocked terrain.' }
   const g = new Float64Array(nodes.length).fill(Infinity), parents = new Int32Array(nodes.length).fill(-1)
   const frontier = new Frontier()
-  const estimate = id => distanceBetween(nodes[id], nodes[last.id], data.radius) / (settings.priority === 'distance' ? 1 : settings.pace)
-  g[first.id] = 0; frontier.push(first.id, 0, estimate(first.id))
+  const estimate = id => distanceBetween(nodes[id], goal, data.radius) / (settings.priority === 'distance' ? 1 : settings.pace)
+  const exits = new Map(last.map(({ id }) => [id, edge(nodes[id], { ...goal, ...b })]).filter(([, connection]) => connection))
+  for (const { id, connection } of first) {
+    g[id] = connection.cost; frontier.push(id, connection.cost, connection.cost + estimate(id))
+  }
+  let bestGoal = -1, bestCost = Infinity
   let visited = 0
   while (frontier.items.length) {
     const item = frontier.pop(), id = item.node
     if (item.cost > g[id]) continue
-    if (id === last.id) {
-      const path = []
-      for (let cursor = id; cursor !== -1; cursor = parents[cursor]) path.push(nodes[cursor])
-      const points = [{ ...start, ...a }, ...path.reverse(), { ...goal, ...b }]
-      // The final connector is directional too; never shortcut/smooth through constraints.
-      if (!edge(points.at(-2), points.at(-1))) return { error: 'The destination connection exceeds the selected constraints.' }
-      const route = buildRoute(points, data.radius, settings.pace)
-      const maximum = points.slice(1).reduce((slope, point, i) => Math.max(slope, edge(points[i], point)?.maximum ?? Infinity), 0)
-      return { route: { ...route, maxSlope: maximum, gridMetres: cellSize, bounds, visited, source: local ? 'HiRISE / CTX elevation' : 'CTX regional elevation', priority: settings.priority } }
-    }
+    if (item.score >= bestCost) break
+    const exit = exits.get(id)
+    if (exit && g[id] + exit.cost < bestCost) { bestCost = g[id] + exit.cost; bestGoal = id }
     visited++
     const x = id % cols, y = Math.floor(id / cols)
     for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
@@ -143,6 +140,36 @@ export function findPath(data, start, goal, settings, hazards = [], surveys = []
       if (cost >= g[next]) continue
       g[next] = cost; parents[next] = id; frontier.push(next, cost, cost + estimate(next))
     }
+  }
+  if (bestGoal !== -1) {
+    const path = []
+    for (let cursor = bestGoal; cursor !== -1; cursor = parents[cursor]) path.push(nodes[cursor])
+    const points = [{ ...start, ...a }, ...path.reverse(), { ...goal, ...b }]
+      .filter((p, i, all) => i === 0 || distanceBetween(all[i - 1], p, data.radius) > 0.001)
+    // Remove grid zigzags only after checking the whole replacement corridor.
+    // No splines: they can cut through slopes or blocked areas without validation.
+    const clean = [points[0]]
+    for (let i = 0; i < points.length - 1;) {
+      let chosen = i + 1, originalCost = 0
+      for (let j = i + 1; j <= Math.min(points.length - 1, i + 24); j++) {
+        originalCost += edge(points[j - 1], points[j]).cost
+        const direct = edge(points[i], points[j])
+        if (direct && direct.cost <= originalCost * 1.01) chosen = j
+      }
+      clean.push(points[chosen]); i = chosen
+    }
+    // Retain sampled heights for directed timing, traversal and terrain-following display.
+    const sampled = [clean[0]]
+    for (let i = 1; i < clean.length; i++) {
+      const count = Math.max(1, Math.ceil(distanceBetween(clean[i - 1], clean[i], data.radius) / (local ? 3 : 15)))
+      for (let j = 1; j <= count; j++) {
+        const point = interpolatePoint(clean[i - 1], clean[i], j / count)
+        sampled.push({ ...point, ...sample(point) })
+      }
+    }
+    const route = buildRoute(sampled, data.radius, settings.pace)
+    const maximum = clean.slice(1).reduce((slope, p, i) => Math.max(slope, edge(clean[i], p).maximum), 0)
+    return { route: { ...route, maxSlope: maximum, gridMetres: cellSize, bounds, visited, source: local ? 'HiRISE / CTX elevation' : 'CTX regional elevation', priority: settings.priority } }
   }
   return { error: 'No route found within this search area and slope limit. Move an endpoint or review blocked areas.' }
 }
@@ -167,8 +194,17 @@ export function planMission(data, request) {
   const required = outward.route.duration + (mode === 'return' ? 0 : returnSeconds) + activity + settings.reserveSeconds
   const available = Math.min(remainingSeconds, oxygenSeconds)
   const reserveWarning = mode === 'return' && required > available && outward.route.duration <= available
-  if (required > available && !reserveWarning) return { status: 'resources', message: 'No compatible route found with the selected time, oxygen and return reserve. Shorten the route or review the planning assumptions.', requiredSeconds: required, availableSeconds: available, currentReturn: currentReturn.route }
-  return { status: 'ready', route: outward.route, currentReturn: currentReturn.route, goalReturn: returnPlan.route,
+  const resources = [
+    ['time', 'Mission time', remainingSeconds, settings.budgetSeconds],
+    ['oxygen', 'O₂ autonomy', oxygenSeconds, settings.oxygenSeconds],
+  ].map(([id, label, availableSeconds, total]) => ({ id, label, availableSeconds, requiredSeconds: required,
+    minimumTotalSeconds: required + Math.max(0, total - availableSeconds), shortfallSeconds: Math.max(0, required - availableSeconds) }))
+  const limited = required > available
+  return { status: limited ? 'resources' : 'ready', route: outward.route, currentReturn: currentReturn.route, goalReturn: returnPlan.route,
+    resources, executionAllowed: !limited, outboundSeconds: mode === 'return' ? 0 : outward.route.duration,
+    returnSeconds: mode === 'return' ? outward.route.duration : returnPlan.route.duration, conservativeReturnSeconds: mode === 'return' ? outward.route.duration : returnSeconds,
+    activitySeconds: activity, reserveSeconds: settings.reserveSeconds,
+    message: limited ? 'Route calculated. Traversal is locked by insufficient resources. Open Route → Plan to review the minimums or shorten the route.' : undefined,
     requiredSeconds: required, availableSeconds: available, reserveWarning, explanation: reserveWarning
       ? 'Return is estimated to be reachable, but the required reserve cannot be maintained. Prioritize the return and monitor resources.'
       : `Route avoids known blocked areas and slopes above ${settings.maxSlope}°. Return and ${Math.round(settings.reserveSeconds / 60)} min reserve included.` }

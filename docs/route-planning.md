@@ -26,7 +26,10 @@ Local language models, conversational commands and D* Lite remain pending.
 
 For a reproducible test, manually enter A = 18.4516° N, 77.4022° E and
 B = 18.45863707° N, 77.40588851° E. These are documentation/test inputs only.
-With the current DEM and defaults the computed path is approximately 506 m.
+With the current DEM and defaults the computed path is approximately 482 m
+(18.1 min outward and 17.8 min searched return). Resource minimums include the
+conservative return allowance, activity and reserve, so they can exceed the sum
+of those two displayed travel times.
 
 ## Planning contract
 
@@ -42,14 +45,20 @@ With the current DEM and defaults the computed path is approximately 506 m.
   and a modest unobserved-ground penalty. Distance preference minimizes distance,
   while preserving the same constraints. The heuristic is a lower bound.
 - Exact A/B connectors are checked. No visual path smoothing shortcuts hazards.
-  This is optimal for the discretized search with its selected endpoint connectors,
-  not a guarantee of the globally safest continuous path. Failure means no
+  All valid nearby endpoint connectors participate in the search. Grid zigzags
+  are removed only when the whole replacement edge passes constraints and adds
+  at most 1% to the original local search cost. Source-aware height samples remain
+  in the route for traversal and directed timing. This is not a guarantee of the
+  globally safest continuous path. Failure means no
   compatible route found in this bounded search, not proof of impossibility.
 - Before acceptance, check outbound + activity + return + reserve against both
   remaining time and oxygen autonomy. Return includes a conservative backtracking
   fallback and a separately searched path. Uphill/downhill durations differ.
-  A reachable return with insufficient reserve can be shown with an explicit
-  warning; an outbound plan cannot spend the required reserve.
+  A resource shortage preserves the calculated route as a preview, including
+  return plans. Start/advance remain locked. Plan shows separate time/oxygen
+  availability, shortfalls and minimum total autonomy, including elapsed time.
+  Change Limits and recalculate to enable an affordable excursion. Terrain,
+  coverage and hazard constraints continue to reject physically invalid paths.
 - Known hazards are retained when endpoints change. Replacing endpoints resets
   excursion time/position. Worker versions reject stale results; replacing a
   request terminates its worker. There is no network call for route planning.

@@ -33,3 +33,13 @@ Local DEM routing, assumptions, observations and historical environment remain
 distinct. Layer visibility never changes routing constraints. Camera exploration
 is independent of mission traversal. The standalone mission preview retains its
 fixture adapter. No new raster assets or design-system changes are planned.
+
+## Detail and feasibility refinement · 2026-11-14
+
+Retain the Operate composition and identity. After calculation, Plan leads with
+outbound/return times and resource requirements; editing endpoints is collapsible.
+Resource-limited routes remain visible and explain each shortage; Traverse locks
+movement. 2.5D preserves a user's oblique view. Local slope, elevation, view tilt
+and image coverage remain available in Map view. The existing HiRISE crop is
+repackaged as sourced geographic tiles; near-field texture loading is bounded,
+with no generated texture or invented additional terrain detail.

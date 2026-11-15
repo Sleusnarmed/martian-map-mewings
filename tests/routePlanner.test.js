@@ -41,6 +41,46 @@ test('mission feasibility includes return, activity, oxygen and reserve', () => 
   assert.equal(planMission(terrain, { ...request, oxygenSeconds: 600 }).status, 'resources')
   assert.equal(planMission(terrain, { ...request, remainingSeconds: 600 }).status, 'resources')
 })
+
+test('insufficient resources retain the route, identify each shortage and forbid traversal', () => {
+  const result = planMission(terrain, { ...request, remainingSeconds: 500, oxygenSeconds: 600 })
+  assert.equal(result.status, 'resources')
+  assert.ok(result.route.length > 0)
+  assert.equal(result.executionAllowed, false)
+  assert.ok(result.outboundSeconds > 0 && result.returnSeconds > 0)
+  assert.ok(result.requiredSeconds >= result.outboundSeconds + result.returnSeconds + settings.activitySeconds + settings.reserveSeconds)
+  assert.deepEqual(result.resources.map(r => r.id), ['time', 'oxygen'])
+  for (const r of result.resources) {
+    assert.equal(r.shortfallSeconds, result.requiredSeconds - r.availableSeconds)
+    assert.equal(r.minimumTotalSeconds, result.requiredSeconds + 7200 - r.availableSeconds)
+  }
+  const start = readyState()
+  const state = missionReducer({ ...start, request: { ...request, id: 99, reason: 'calculate' } }, { type: 'planned', id: 99, result })
+  assert.equal(state.phase, 'preview')
+  assert.match(state.notice.title, /more resources/)
+  assert.equal(missionReducer(state, { type: 'play' }).playing, false)
+  assert.equal(missionReducer(state, { type: 'advance', metres: 25 }).elapsed, state.elapsed)
+  assert.equal(missionReducer(state, { type: 'tick', seconds: 10 }).legDistance, state.legDistance)
+})
+
+test('resource checks distinguish oxygen-only and time-only shortages', () => {
+  for (const id of ['time', 'oxygen']) {
+    const result = planMission(terrain, { ...request, [id === 'time' ? 'remainingSeconds' : 'oxygenSeconds']: 100 })
+    assert.deepEqual(result.resources.filter(r => r.shortfallSeconds > 0).map(r => r.id), [id])
+    assert.ok(result.route)
+  }
+})
+
+test('virtual endpoints remove reversed grid hooks and retain validated obstacle clearance', () => {
+  const result = findPath(terrain, a, b, { ...settings, priority: 'distance' })
+  assert.ok(result.route.length <= distanceBetween(a, b) * 1.01)
+  const points = result.route.waypoints
+  assert.ok(points[1].longitude > points[0].longitude)
+  assert.ok(points.at(-1).longitude > points.at(-2).longitude)
+  const hazard = { longitude: 77.405, latitude: 18.455, radius: 65, known: true }
+  const detour = findPath(terrain, a, b, settings, [hazard]).route
+  for (const point of detour.waypoints) assert.ok(distanceBetween(point, hazard) > hazard.radius + 5)
+})
 test('route durations distinguish uphill and downhill', () => {
   const route = buildRoute([{ ...a, height: 0 }, { ...b, height: 40 }])
   assert.ok(route.duration > route.reverseDuration)
@@ -98,10 +138,13 @@ test('return at A completes at zero distance; return from mid-route preserves pr
   assert.equal(arrived.phase, 'arrived')
   assert.equal(missionPresentation(arrived).routeProgress, 0)
 })
-test('return can explicitly warn when reachable without the full reserve', () => {
+test('return remains visible but locked when the full reserve cannot be maintained', () => {
   const result = planMission(terrain, { ...request, start: b, goal: a, mode: 'return', remainingSeconds: 1300, oxygenSeconds: 1300 })
-  assert.equal(result.status, 'ready')
+  assert.equal(result.status, 'resources')
   assert.equal(result.reserveWarning, true)
+  assert.equal(result.executionAllowed, false)
+  assert.ok(result.route && result.returnSeconds > 0)
+  assert.equal(result.outboundSeconds, 0)
 })
 test('known blockages survive endpoint edits and clearing a route', () => {
   let state = missionReducer(initialMission(), { type: 'hazard', point: { longitude: 77.405, latitude: 18.455 } })

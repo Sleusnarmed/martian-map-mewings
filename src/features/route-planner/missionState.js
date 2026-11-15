@@ -127,10 +127,11 @@ export function missionReducer(state, action) {
       const ready = action.result.status === 'ready'
       const bounds = action.result.route?.bounds
       const coverageBounds = bounds && state.coverageBounds ? [Math.min(bounds[0], state.coverageBounds[0]), Math.min(bounds[1], state.coverageBounds[1]), Math.max(bounds[2], state.coverageBounds[2]), Math.max(bounds[3], state.coverageBounds[3])] : bounds ?? state.coverageBounds
-      const updated = { ...state, result: action.result, request: null, phase: ready ? 'ready' : 'blocked', position: state.position ?? state.a, coverageBounds }
+      const preview = action.result.status === 'resources' && Boolean(action.result.route)
+      const updated = { ...state, result: action.result, request: null, phase: ready ? 'ready' : preview ? 'preview' : 'blocked', position: state.position ?? state.a, coverageBounds }
       const obstacle = state.request.reason === 'obstacle'
       const warning = !ready || obstacle || action.result.reserveWarning
-      return alert(updated, ready ? obstacle ? 'Route updated after obstacle' : state.mode === 'return' ? 'Return route ready' : 'Route ready' : 'Route unavailable',
+      return alert(updated, ready ? obstacle ? 'Route updated after obstacle' : state.mode === 'return' ? 'Return route ready' : 'Route ready' : preview ? 'Route needs more resources' : 'Route unavailable',
         ready ? (obstacle ? 'Blocked area observed. The updated route avoids it. ' : '') + action.result.explanation + ' Review before continuing.' : action.result.message, warning ? 'warning' : 'info')
     }
     case 'advance': return advance(state, action.metres ?? 25, 'metres')

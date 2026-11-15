@@ -26,6 +26,17 @@
 .route-readings { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; margin: 16px 0; }
 .route-readings dt { color: var(--md-muted); font-size: 11px; }
 .route-readings dd { margin: 4px 0 0; font: 18px 'Mission DM Mono',monospace; }
+.route-assessment { margin-top: 16px; border-top: 1px solid var(--md-overlay-border); }
+.route-plan-points > summary { min-height: 44px; align-content: center; cursor: pointer; font-size: 13px; color: var(--md-muted); }
+.route-plan-points:not(.has-result) > summary { display: none; }
+.route-assessment summary { min-height: 44px; align-content: center; cursor: pointer; font-size: 13px; color: var(--md-muted); }
+.route-assessment table { width: 100%; margin-top: 12px; border-collapse: collapse; text-align: left; font-size: 11px; }
+.route-assessment th, .route-assessment td { padding: 10px 4px; border-bottom: 1px solid var(--md-overlay-border); vertical-align: top; }
+.route-assessment thead th { font-weight: 400; color: var(--md-muted); }
+.route-assessment tbody th { font-weight: 500; }
+.route-assessment td { font-family: 'Mission DM Mono',monospace; white-space: nowrap; }
+.route-assessment small { display: block; margin-top: 5px; font-weight: 400; }
+.route-assessment .is-limiting { color: var(--md-neon-yellow); }
 .route-hazard { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12px; border-top: 1px solid var(--md-overlay-border); }
 .has-route-planner .field-map-toggle { top: 124px; }
 .coordinate-inspector { position: absolute; z-index: 3; left: 24px; top: 190px; width: 310px; max-width: calc(100vw - 48px); padding: 16px; background: var(--md-overlay); color: var(--md-white); border: 1px solid var(--md-overlay-border); border-radius: 12px; }

@@ -6,7 +6,7 @@ import { interpolatePoint, moveAlongGround } from './routeGeometry.js'
 
 const yellow = Color.fromCssColorString('#eafe07')
 const blue = Color.fromCssColorString('#2e96f5')
-function mapPosition(viewer, data, point, lift = 2) {
+function mapPosition(viewer, data, point, lift = 0.6) {
   const height = sampleHeight(data, point.longitude, point.latitude)
   return height === null ? null : Cartesian3.fromDegrees(point.longitude, point.latitude, height + lift, viewer.scene.globe.ellipsoid)
 }
@@ -35,7 +35,7 @@ export function useMissionMap(viewer, data, state, visibility) {
         for (let i = 0; i < count; i++) positions.push(mapPosition(viewer, data, interpolatePoint(segment.start, segment.end, i / count)))
       }
       positions.push(mapPosition(viewer, data, route.waypoints.at(-1)))
-      add({ polyline: { positions: positions.filter(Boolean), width: 4, arcType: ArcType.NONE,
+      add({ polyline: { positions: positions.filter(Boolean), width: 4, clampToGround: true, arcType: ArcType.GEODESIC, zIndex: 2,
         material: new PolylineOutlineMaterialProperty({ color: yellow, outlineColor: Color.fromCssColorString('#07173f'), outlineWidth: 1 }) } })
     }
     if (showHazards) for (const h of hazards.filter(h => h.known)) {
