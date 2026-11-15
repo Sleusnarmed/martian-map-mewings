@@ -2,6 +2,28 @@ export const DEM_SOURCE = 'https://astrogeology.usgs.gov/search/map/mars_2020_sc
 export const DEM_DOWNLOAD = 'https://planetarymaps.usgs.gov/mosaic/mars2020_trn/CTX/ScienceInvestigationMaps_JPL/M20_JezeroCrater_CTXDEM_20m.tif'
 
 export async function loadTerrain(url, signal) {
+  const regional = await loadHeightGrid(url, signal)
+  if (!regional.detailFile) return regional
+  try {
+    const detail = await loadHeightGrid(new URL(regional.detailFile, new URL(url, window.location.href)), signal)
+    if (detail.radius !== regional.radius || !Number.isFinite(detail.blendDegrees) || detail.blendDegrees <= 0 ||
+      !Number.isFinite(detail.displayResolutionMeters) || detail.displayResolutionMeters < 1 ||
+      detail.bounds[0] < regional.bounds[0] || detail.bounds[1] < regional.bounds[1] ||
+      detail.bounds[2] > regional.bounds[2] || detail.bounds[3] > regional.bounds[3]) {
+      throw new Error('HiRISE detail is outside the regional terrain package.')
+    }
+    return {
+      ...regional, detail,
+      minimumHeight: Math.min(regional.minimumHeight, detail.minimumHeight),
+      maximumHeight: Math.max(regional.maximumHeight, detail.maximumHeight),
+    }
+  } catch (error) {
+    if (signal?.aborted) throw error
+    return regional
+  }
+}
+
+async function loadHeightGrid(url, signal) {
   const response = await fetch(url, { signal })
   if (!response.ok || !response.headers.get('content-type')?.includes('json')) {
     throw new Error('Jezero elevation data has not been prepared yet.')
@@ -27,7 +49,7 @@ export async function loadTerrain(url, signal) {
 }
 
 // Grid samples run west to east, north to south. Heights remain in source metres.
-export function sampleHeight(data, longitude, latitude) {
+export function sampleRegionalHeight(data, longitude, latitude) {
   const [west, south, east, north] = data.bounds
   if (longitude < west || longitude > east || latitude < south || latitude > north) return null
   const x = (longitude - west) / (east - west) * (data.width - 1)
@@ -38,4 +60,20 @@ export function sampleHeight(data, longitude, latitude) {
   const at = (col, row) => data.heights[row * data.width + col]
   return (at(x0, y0) * (1 - fx) + at(x1, y0) * fx) * (1 - fy) +
     (at(x0, y1) * (1 - fx) + at(x1, y1) * fx) * fy
+}
+
+export function detailWeight(detail, longitude, latitude) {
+  if (!detail) return 0
+  const [west, south, east, north] = detail.bounds
+  const distance = Math.min(longitude - west, east - longitude, latitude - south, north - latitude)
+  const t = Math.max(0, Math.min(1, distance / detail.blendDegrees))
+  return t * t * (3 - 2 * t)
+}
+
+export function sampleHeight(data, longitude, latitude) {
+  const height = sampleRegionalHeight(data, longitude, latitude)
+  const weight = detailWeight(data.detail, longitude, latitude)
+  if (height === null || weight === 0) return height
+  const local = sampleRegionalHeight(data.detail, longitude, latitude)
+  return height + (local - height) * weight
 }

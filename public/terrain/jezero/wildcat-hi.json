@@ -1,0 +1,20 @@
+{
+  "width": 513,
+  "height": 513,
+  "bounds": [
+    77.39407908659932,
+    18.44682764659932,
+    77.41769793340069,
+    18.470446493400683
+  ],
+  "radius": 3396190,
+  "minimumHeight": -2555.6217754365866,
+  "maximumHeight": -2446.8236874713966,
+  "heightFile": "wildcat-hi.f32",
+  "sourceResolutionMeters": 1,
+  "displayResolutionMeters": 3,
+  "blendDegrees": 0.0018,
+  "source": "https://doi.org/10.5066/P9REJ9JN",
+  "sourceFilename": "JEZ_hirise_soc_006_DTM_MOLAtopography_DeltaGeoid_1m_Eqc_latTs0_lon0_blend40.tif",
+  "processing": "Geographic crop, bilinear resampling and feathering to CTX at the edge. MOLA heights preserved in metres."
+}

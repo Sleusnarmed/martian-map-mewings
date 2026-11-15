@@ -1,0 +1,594 @@
+{
+  "surface-temperature": {
+    "sol": 518,
+    "product": "WE__0518___________CAL_TIRS________________P02.CSV",
+    "field": "GROUND_TEMP",
+    "source": "https://pds-atmospheres.nmsu.edu/PDS/data/PDS4/Mars2020/mars2020_meda/data_calibrated_env/sol_0420_0539/sol_0518/WE__0518___________CAL_TIRS________________P02.CSV",
+    "readings": [
+      {
+        "time": "00:05:37",
+        "value": -76.62
+      },
+      {
+        "time": "01:05:37",
+        "value": -78.45
+      },
+      {
+        "time": "02:05:24",
+        "value": -80.21
+      },
+      {
+        "time": "03:05:37",
+        "value": -81.61
+      },
+      {
+        "time": "04:05:38",
+        "value": -83.1
+      },
+      {
+        "time": "05:05:38",
+        "value": -84.09
+      },
+      {
+        "time": "06:05:38",
+        "value": -84.72
+      },
+      {
+        "time": "07:15:00",
+        "value": -83.47
+      },
+      {
+        "time": "08:05:38",
+        "value": -76.78
+      },
+      {
+        "time": "09:05:38",
+        "value": -58.58
+      },
+      {
+        "time": "10:05:38",
+        "value": -39.66
+      },
+      {
+        "time": "11:05:38",
+        "value": -23.31
+      },
+      {
+        "time": "12:15:00",
+        "value": -11.59
+      },
+      {
+        "time": "13:05:38",
+        "value": -7.91
+      },
+      {
+        "time": "14:15:00",
+        "value": -9.7
+      },
+      {
+        "time": "15:05:35",
+        "value": -15.15
+      },
+      {
+        "time": "16:15:00",
+        "value": -29.5
+      },
+      {
+        "time": "17:05:37",
+        "value": -42.89
+      },
+      {
+        "time": "18:15:00",
+        "value": -57.29
+      },
+      {
+        "time": "19:05:24",
+        "value": -62.82
+      },
+      {
+        "time": "20:15:00",
+        "value": -67.77
+      },
+      {
+        "time": "21:05:38",
+        "value": -70.13
+      },
+      {
+        "time": "22:15:00",
+        "value": -72.96
+      },
+      {
+        "time": "23:05:38",
+        "value": -74.96
+      }
+    ]
+  },
+  "air-temperature": {
+    "sol": 518,
+    "product": "WE__0518___________CAL_ATS_________________P01.CSV",
+    "field": "ATS_LOCAL_TEMP1",
+    "source": "https://pds-atmospheres.nmsu.edu/PDS/data/PDS4/Mars2020/mars2020_meda/data_calibrated_env/sol_0420_0539/sol_0518/WE__0518___________CAL_ATS_________________P01.CSV",
+    "readings": [
+      {
+        "time": "00:05:36",
+        "value": -72.1
+      },
+      {
+        "time": "01:05:36",
+        "value": -74.57
+      },
+      {
+        "time": "02:05:23",
+        "value": -75.5
+      },
+      {
+        "time": "03:05:37",
+        "value": -78.06
+      },
+      {
+        "time": "04:05:37",
+        "value": -81.92
+      },
+      {
+        "time": "05:05:37",
+        "value": -85.34
+      },
+      {
+        "time": "06:05:37",
+        "value": -84.27
+      },
+      {
+        "time": "07:15:00",
+        "value": -83.39
+      },
+      {
+        "time": "08:05:37",
+        "value": -76.15
+      },
+      {
+        "time": "09:05:37",
+        "value": -63.66
+      },
+      {
+        "time": "10:05:37",
+        "value": -51.45
+      },
+      {
+        "time": "11:05:37",
+        "value": -40.62
+      },
+      {
+        "time": "12:15:00",
+        "value": -28.86
+      },
+      {
+        "time": "13:05:37",
+        "value": -41.65
+      },
+      {
+        "time": "14:15:00",
+        "value": -19.13
+      },
+      {
+        "time": "15:05:34",
+        "value": -16.19
+      },
+      {
+        "time": "16:15:00",
+        "value": -20.67
+      },
+      {
+        "time": "17:05:36",
+        "value": -33.56
+      },
+      {
+        "time": "18:15:00",
+        "value": -49.08
+      },
+      {
+        "time": "19:05:23",
+        "value": -61.22
+      },
+      {
+        "time": "20:15:00",
+        "value": -66.08
+      },
+      {
+        "time": "21:05:37",
+        "value": -67.78
+      },
+      {
+        "time": "22:15:00",
+        "value": -64.03
+      },
+      {
+        "time": "23:05:37",
+        "value": -74.31
+      }
+    ]
+  },
+  "pressure": {
+    "sol": 518,
+    "product": "WE__0518___________DER_PS__________________P02.CSV",
+    "field": "PRESSURE",
+    "source": "https://pds-atmospheres.nmsu.edu/PDS/data/PDS4/Mars2020/mars2020_meda/data_derived_env/sol_0420_0539/sol_0518/WE__0518___________DER_PS__________________P02.CSV",
+    "readings": [
+      {
+        "time": "00:05:10",
+        "value": 787.6
+      },
+      {
+        "time": "01:05:10",
+        "value": 784.81
+      },
+      {
+        "time": "02:05:09",
+        "value": 780.99
+      },
+      {
+        "time": "03:05:10",
+        "value": 778.94
+      },
+      {
+        "time": "04:05:10",
+        "value": 777.6
+      },
+      {
+        "time": "05:05:10",
+        "value": 778.71
+      },
+      {
+        "time": "06:05:10",
+        "value": 782.53
+      },
+      {
+        "time": "07:15:00",
+        "value": 795.56
+      },
+      {
+        "time": "08:05:11",
+        "value": 794.44
+      },
+      {
+        "time": "09:05:11",
+        "value": 789.23
+      },
+      {
+        "time": "10:05:11",
+        "value": 785.55
+      },
+      {
+        "time": "11:05:11",
+        "value": 781.89
+      },
+      {
+        "time": "12:15:00",
+        "value": 779.07
+      },
+      {
+        "time": "13:05:11",
+        "value": 776.48
+      },
+      {
+        "time": "14:15:00",
+        "value": 772.73
+      },
+      {
+        "time": "15:05:08",
+        "value": 769.13
+      },
+      {
+        "time": "16:15:00",
+        "value": 764.68
+      },
+      {
+        "time": "17:05:10",
+        "value": 762.6
+      },
+      {
+        "time": "18:15:00",
+        "value": 770.57
+      },
+      {
+        "time": "19:05:09",
+        "value": 782.57
+      },
+      {
+        "time": "20:15:00",
+        "value": 789.68
+      },
+      {
+        "time": "21:05:10",
+        "value": 793.83
+      },
+      {
+        "time": "22:15:00",
+        "value": 795.8
+      },
+      {
+        "time": "23:05:10",
+        "value": 794.21
+      }
+    ]
+  },
+  "humidity": {
+    "sol": 518,
+    "product": "WE__0518___________DER_RHS_________________P02.CSV",
+    "field": "LOCAL_RELATIVE_HUMIDITY",
+    "source": "https://pds-atmospheres.nmsu.edu/PDS/data/PDS4/Mars2020/mars2020_meda/data_derived_env/sol_0420_0539/sol_0518/WE__0518___________DER_RHS_________________P02.CSV",
+    "readings": [
+      {
+        "time": "00:05:12",
+        "value": 8.2
+      },
+      {
+        "time": "01:05:12",
+        "value": 9.3
+      },
+      {
+        "time": "02:05:11",
+        "value": 12.83
+      },
+      {
+        "time": "03:05:12",
+        "value": 19.71
+      },
+      {
+        "time": "04:05:12",
+        "value": 26.26
+      },
+      {
+        "time": "05:05:12",
+        "value": 27.25
+      },
+      {
+        "time": "06:05:12",
+        "value": 31.59
+      },
+      {
+        "time": "07:15:00",
+        "value": 26.44
+      },
+      {
+        "time": "08:05:12",
+        "value": 7.23
+      },
+      {
+        "time": "09:05:13",
+        "value": 0.27
+      },
+      {
+        "time": "10:05:13",
+        "value": 0
+      },
+      {
+        "time": "11:05:13",
+        "value": 0.01
+      },
+      {
+        "time": "12:15:00",
+        "value": 0.01
+      },
+      {
+        "time": "13:05:13",
+        "value": 0.03
+      },
+      {
+        "time": "14:15:00",
+        "value": 0.05
+      },
+      {
+        "time": "15:05:10",
+        "value": 0.04
+      },
+      {
+        "time": "16:15:00",
+        "value": 0.02
+      },
+      {
+        "time": "17:05:12",
+        "value": 0.02
+      },
+      {
+        "time": "18:15:00",
+        "value": 0.34
+      },
+      {
+        "time": "19:05:11",
+        "value": 0.66
+      },
+      {
+        "time": "20:15:00",
+        "value": 1.68
+      },
+      {
+        "time": "21:05:12",
+        "value": 2.55
+      },
+      {
+        "time": "22:15:00",
+        "value": 5.28
+      },
+      {
+        "time": "23:05:12",
+        "value": 5.81
+      }
+    ]
+  },
+  "wind": {
+    "sol": 312,
+    "product": "WE__0312___________DER_WS__________________P02.CSV",
+    "field": "HORIZONTAL_WIND_SPEED",
+    "source": "https://pds-atmospheres.nmsu.edu/PDS/data/PDS4/Mars2020/mars2020_meda/data_derived_env/sol_0300_0419/sol_0312/WE__0312___________DER_WS__________________P02.CSV",
+    "readings": [
+      {
+        "time": "00:05:14",
+        "value": 1.7,
+        "direction": 257.2
+      },
+      {
+        "time": "01:15:00",
+        "value": 1.52,
+        "direction": 231.98
+      },
+      {
+        "time": "02:15:00",
+        "value": 4.64,
+        "direction": 287.17
+      },
+      {
+        "time": "03:15:00",
+        "value": 1.44,
+        "direction": 11.59
+      },
+      {
+        "time": "04:15:00",
+        "value": 0.46,
+        "direction": 242.08
+      },
+      {
+        "time": "05:15:00",
+        "value": 1.64,
+        "direction": 297.09
+      },
+      {
+        "time": "06:14:56",
+        "value": 1.42,
+        "direction": 226.92
+      },
+      {
+        "time": "07:14:57",
+        "value": 2.72,
+        "direction": 122.04
+      },
+      {
+        "time": "08:01:07",
+        "value": 2,
+        "direction": 257.2
+      },
+      {
+        "time": "09:15:00",
+        "value": 2.81,
+        "direction": 131.93
+      },
+      {
+        "time": "10:16:37",
+        "value": 3.22,
+        "direction": 267.23
+      },
+      {
+        "time": "11:15:00",
+        "value": 6.98,
+        "direction": 112.14
+      },
+      {
+        "time": "12:15:00",
+        "value": 4.47,
+        "direction": 36.8
+      },
+      {
+        "time": "13:15:00",
+        "value": 7.95,
+        "direction": 92.23
+      },
+      {
+        "time": "14:15:00",
+        "value": 1.8,
+        "direction": 51.98
+      },
+      {
+        "time": "15:15:00",
+        "value": 9.63,
+        "direction": 46.92
+      },
+      {
+        "time": "16:15:00",
+        "value": 5.69,
+        "direction": 51.98
+      },
+      {
+        "time": "17:15:00",
+        "value": 3.7,
+        "direction": 82.22
+      },
+      {
+        "time": "18:15:00",
+        "value": 3.21,
+        "direction": 46.92
+      },
+      {
+        "time": "19:15:00",
+        "value": 0.73,
+        "direction": 1.56
+      },
+      {
+        "time": "20:15:00",
+        "value": 3.12,
+        "direction": 262.22
+      },
+      {
+        "time": "21:15:00",
+        "value": 2.93,
+        "direction": 262.22
+      },
+      {
+        "time": "22:15:00",
+        "value": 4.06,
+        "direction": 262.22
+      },
+      {
+        "time": "23:15:00",
+        "value": 3.27,
+        "direction": 297.09
+      }
+    ]
+  },
+  "solar": {
+    "sol": 518,
+    "product": "WE__0518___________CAL_RDS_________________P01.CSV",
+    "field": "RDS_TOP_7",
+    "source": "https://pds-atmospheres.nmsu.edu/PDS/data/PDS4/Mars2020/mars2020_meda/data_calibrated_env/sol_0420_0539/sol_0518/WE__0518___________CAL_RDS_________________P01.CSV",
+    "readings": [
+      {
+        "time": "07:15:00",
+        "value": 14.404
+      },
+      {
+        "time": "08:05:27",
+        "value": 52.686
+      },
+      {
+        "time": "09:05:27",
+        "value": 134.695
+      },
+      {
+        "time": "10:05:27",
+        "value": 210.943
+      },
+      {
+        "time": "11:05:27",
+        "value": 270.955
+      },
+      {
+        "time": "12:15:00",
+        "value": 295.105
+      },
+      {
+        "time": "13:05:27",
+        "value": 282.644
+      },
+      {
+        "time": "14:15:00",
+        "value": 224.77
+      },
+      {
+        "time": "15:05:25",
+        "value": 165.846
+      },
+      {
+        "time": "16:15:00",
+        "value": 74.358
+      }
+    ]
+  }
+}
