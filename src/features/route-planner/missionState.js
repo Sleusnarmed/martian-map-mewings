@@ -1,3 +1,4 @@
+import { traversalStep } from './traversalStep.js'
 import { DEFAULT_SETTINGS } from './planner.js'
 import { distanceBetween, pointOnRoute } from './routeGeometry.js'
 
@@ -57,7 +58,7 @@ function checkResources(state) {
 }
 
 function advance(state, amount, units) {
-  if (state.phase !== 'ready' || !state.result?.route) return state
+  if (state.phase !== 'ready' || !state.result?.route || !Number.isFinite(amount) || amount <= 0) return state
   const available = Math.min(state.settings.budgetSeconds, state.settings.oxygenSeconds) - state.elapsed
   if (available <= 0) return alert({ ...state, playing: false }, 'Resources exhausted', 'No time or oxygen autonomy remains in the current planning assumptions. Stop the traverse and review mission data.', 'warning')
   if (state.mode !== 'return' && available - returnEstimate(state) < state.settings.reserveSeconds) {
@@ -66,30 +67,36 @@ function advance(state, amount, units) {
   const route = state.result.route
   let next = state, remaining = amount
   // Survey at short intervals even during accelerated playback; never teleport past a hidden obstacle.
-  while (remaining > 0.001 && next.legDistance < route.length) {
-    const before = pointOnRoute(route, next.legDistance)
-    let step = Math.min(5, route.length - next.legDistance)
-    let after = pointOnRoute(route, next.legDistance + step)
-    if (units === 'metres' && step > remaining) { step = remaining; after = pointOnRoute(route, next.legDistance + step) }
-    if (units === 'seconds' && after.seconds - before.seconds > remaining) {
-      step *= remaining / (after.seconds - before.seconds)
-      after = pointOnRoute(route, next.legDistance + step)
-    }
-    const delta = after.seconds - before.seconds
-    const point = { longitude: after.longitude, latitude: after.latitude }
-    next = { ...next, position: point, legDistance: next.legDistance + step, elapsed: next.elapsed + delta, surveys: survey(next.surveys, point) }
+  while (remaining > 1e-9 && next.legDistance < route.length) {
+    const availableSeconds = Math.min(next.settings.budgetSeconds, next.settings.oxygenSeconds) - next.elapsed
+    const step = traversalStep(route, next.legDistance, {
+      metres: units === 'metres' ? remaining : Infinity,
+      seconds: Math.min(availableSeconds, units === 'seconds' ? remaining : Infinity),
+      returnAllowance: availableSeconds - next.settings.reserveSeconds,
+      returnTimeAt: next.mode === 'return' ? null : distance => returnEstimate({ ...next, legDistance: distance }),
+    })
+    const point = { longitude: step.point.longitude, latitude: step.point.latitude }
+    next = { ...next, position: point, legDistance: next.legDistance + step.distance,
+      elapsed: next.elapsed + step.seconds, surveys: survey(next.surveys, point) }
     const discovered = next.hazards.filter(h => !h.known && distanceBetween(point, h) <= OBSERVATION_RADIUS + h.radius)
     if (discovered.length) {
       next = { ...next, hazards: next.hazards.map(h => discovered.includes(h) ? { ...h, known: true } : h) }
       next = alert(next, 'Obstacle observed', 'A newly observed blocked area affects the terrain ahead. Movement paused while the route is recalculated.', 'warning')
       return requestPlan(next, 'obstacle')
     }
-    remaining -= units === 'metres' ? step : delta
+    remaining -= units === 'metres' ? step.distance : step.seconds
+    if (step.reserveLimited) return alert({ ...next, playing: false }, 'Return reserve low',
+      'Outbound movement paused at the required return reserve. Review the route back to point A.', 'warning')
+    if (Math.min(next.settings.budgetSeconds, next.settings.oxygenSeconds) - next.elapsed <= 1e-9) {
+      return alert({ ...next, playing: false, phase: route.length - next.legDistance <= 1e-7 ? 'arrived' : next.phase },
+        'Resources exhausted', 'No time or oxygen autonomy remains in the current planning assumptions.', 'warning')
+    }
+    if (step.distance <= 1e-9) break
     const checked = checkResources(next)
     if (checked !== next && next.mode !== 'return') return checked
     next = checked
   }
-  if (route.length - next.legDistance <= 0.01) {
+  if (route.length - next.legDistance <= 1e-7) {
     return alert({ ...next, phase: 'arrived', playing: false }, 'Destination reached', next.mode === 'return'
       ? 'You have returned to point A. Review your remaining time and oxygen.'
       : 'You have reached point B. Review the science information and your return margin.')
@@ -141,6 +148,7 @@ export function missionReducer(state, action) {
     case 'delay': {
       if (!state.a || !state.result || state.phase === 'calculating') return state
       const seconds = action.seconds ?? 480
+      if (!Number.isFinite(seconds) || seconds <= 0) return state
       const changed = { ...state, elapsed: state.elapsed + seconds, delay: state.delay + seconds, playing: false }
       return requestPlan(checkResources(alert(changed, 'Mission delay', `${Math.round(seconds / 60)} minutes added. Rechecking the route and return margin.`)), 'delay')
     }
