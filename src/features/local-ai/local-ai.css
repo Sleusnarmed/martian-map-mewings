@@ -1,7 +1,4 @@
 .eva-control { position: relative; display: grid; gap: 4px; min-width: 0; }
-.eva-language { min-height: 44px; width: 100%; padding: 4px; white-space: nowrap; color: var(--md-muted); background: var(--md-overlay); border: 1px solid var(--md-overlay-border); border-radius: 4px; font: inherit; font-size: 12px; }
-.eva-language:hover:enabled { color: var(--md-white); background: var(--md-electric-blue); }
-.eva-language:disabled { opacity: 0.6; }
 .eva-input-level { display: block; width: 100%; height: 8px; margin-top: 8px; }
 .eva-input-level::-webkit-meter-bar { background: var(--md-deep-blue); border: 1px solid var(--md-overlay-border); border-radius: 4px; }
 .eva-input-level::-webkit-meter-optimum-value { background: var(--md-neon-yellow); }
@@ -21,7 +18,7 @@
   line-height: 1.5;
   text-align: center;
 }
-.eva-status[data-state='processing']::before {
+.eva-status:is([data-state='transcribing'], [data-state='processing'])::before {
   content: '';
   display: inline-block;
   width: 6px;
@@ -32,7 +29,7 @@
   animation: eva-thinking 1.2s ease-in-out infinite;
 }
 @keyframes eva-thinking { 50% { opacity: 0.35; } }
-@media (prefers-reduced-motion: reduce) { .eva-status[data-state='processing']::before { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .eva-status:is([data-state='transcribing'], [data-state='processing'])::before { animation: none; } }
 .mission-captions {
   position: absolute;
   z-index: 8;

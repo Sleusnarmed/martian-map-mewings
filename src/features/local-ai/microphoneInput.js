@@ -27,7 +27,7 @@ export async function openMicrophoneInput(env, onSample, signal) {
     }
     stream = acquired
     const deviceName = stream.getAudioTracks()[0]?.label || 'Default microphone'
-    if (!context) return { stop, deviceName, meterAvailable: false }
+    if (!context) return { stop, deviceName, meterAvailable: false, stream, context }
     const analyser = context.createAnalyser()
     analyser.fftSize = 256
     source = context.createMediaStreamSource(stream)
@@ -41,6 +41,6 @@ export async function openMicrophoneInput(env, onSample, signal) {
       // their entire useful range in the first few pixels of the meter.
       onSample({ level: Math.min(100, Math.round(Math.sqrt(rms) * 250)), hasSignal: rms >= 0.001 })
     }, 100)
-    return { stop, deviceName, meterAvailable: context.state === 'running' }
+    return { stop, deviceName, meterAvailable: context.state === 'running', stream, context }
   } catch (error) { stop(); throw error }
 }

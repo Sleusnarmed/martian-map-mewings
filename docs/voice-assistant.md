@@ -2,30 +2,24 @@
 
 ## Start and use
 
-Open Ollama with the installed local model. In separate terminals run
-`npm run ai:serve` and `npm run dev`. Restart the adapter after server code
-changes. Optional: `npm run ai:warm` preloads the model.
+Install dependencies, pull `gemma3:4b` in Ollama, and run
+`npm run ai:speech:setup` once to download the pinned local Whisper model.
+From the repository root, start `npm run ai:serve` and `npm run dev` in separate
+terminals. Optional: `npm run ai:warm` preloads Gemma. Restart the adapter after
+server changes and reload the browser after capture changes.
 
-Select **Input: ES** for Spanish or **Input: EN** for English before speaking.
-Press **EVA**, allow microphone access, and give one command.
-The preference is remembered on this browser. During microphone permission and
-startup, **Starting microphone…** is shown; **Listening…** appears only after
-the recognition service confirms it has started. A microphone signal meter
-indicates whether audio is reaching the browser. After recognition,
-**EVA is thinking…** remains visible through classification and explanation.
-**Speaking…** accompanies the spoken reply and English subtitles.
-Press EVA again or Escape to stop.
+Press **EVA**, allow microphone access, wait for **Listening…**, and give one
+command in **English or Spanish**. There is no language selector. Pause for
+about 1.2 seconds after speaking, or press EVA again to finish the command.
+Capture is limited to 20 seconds. **Transcribing…** indicates local speech
+recognition; **EVA is thinking…** indicates command interpretation or route
+explanation. **Speaking…** accompanies English speech and sentence-linked
+English subtitles. The microphone meter shows local input energy.
 
-EVA does not open a panel, replace Information, or display a chat history.
-Errors and speech-output fallbacks appear in the subtitle area and can be
-dismissed. New warnings interrupt EVA so alert audio retains priority.
-
-All UI, accessible labels, notifications, response templates and spoken replies
-are in English. Spanish requests still produce English replies. Recognition
-uses the selected locale (`es-MX` or `en-US`).
-The intent service accepts transcribed English or Spanish. Browser recognition
-may need Internet; offline transcription is not implemented. Test the operator’s
-microphone rather than assuming automatic bilingual recognition.
+Press EVA during startup, transcription, thinking or speaking to cancel.
+Escape and hiding the page always cancel. New warning alerts interrupt EVA;
+alert audio resumes when the assistant releases it. EVA opens no popup or chat.
+Failures use the existing dismissible subtitle area.
 
 ## Example commands
 
@@ -41,75 +35,89 @@ microphone rather than assuming automatic bilingual recognition.
 | Show unobserved ground | Muestra terreno sin observar |
 | Why was this route chosen? | ¿Por qué se eligió esta ruta? |
 | Why can I not traverse this route? | ¿Por qué no puedo hacer el recorrido? |
+| Which resources limit this route? | ¿Qué recursos limitan esta ruta? |
 | How much oxygen do I have left? | ¿Cuánto oxígeno me queda? |
 
-One named layer and an explicit show/hide direction are required. Vague requests,
-toggling, multiple commands, resource changes and movement are rejected.
-Visibility never changes planning constraints or traversal eligibility.
+One named layer and an explicit show/hide direction are required. Ambiguous,
+negated or multiple layer commands, toggles, resource changes and movement are
+rejected. Visibility never changes planning constraints or traversal eligibility.
 
-## Implementation
+## Local models and data flow
 
-- `EvaVoiceControls` owns the button and compact activity indicator.
-- `MapLayerProvider` shares visibility between buttons and EVA; terrain hooks
-  synchronise that state with Cesium.
-- `/api/assistant/intent` returns a validated intent. A semantic guard checks
-  English or Spanish layer names and visibility directions.
-- `/api/assistant/explain` selects verified reasons. English wording and numbers
-  come from the planner. Resource-limited routes retain the limiting explanation.
-- The underlying model is a server configuration detail. EVA is the only
-  assistant name displayed or announced in the application.
-- `voiceSession` allows 30 seconds for permission/startup, 20 seconds for listening
-  after service confirmation, and a 35-second overall assistant-request deadline,
-  cancellation and sentence-linked subtitles. Output uses `en-US`, the shared
-  application voice identity and reading rate 0.95.
-- `microphoneInput` checks microphone permission and samples local signal energy.
-  It does not record or store audio. Cancellation and recognition completion stop
-  all media tracks, the signal timer and its audio context, including late grants.
-  No-speech errors distinguish silence from detected audio without transcription;
-  interim results never execute commands. Only confirmed results are submitted.
-- Mission changes invalidate pending answers. Alert audio is suspended during
-  assistant activity and resumes deferred notices afterwards.
-- The adapter listens on `127.0.0.1:3001`, using the local model server on
-  `127.0.0.1:11434`. Vite proxies under the same origin. A production host must
-  preserve that API routing.
+- **Google Gemma 3 4B** (`gemma3:4b`, Q4_K_M) classifies commands and selects
+  verified route reasons through Ollama. The only assistant name in the UI is EVA.
+- **OpenAI Whisper base**, community ONNX Q8 conversion, revision
+  `27a07b4b52b3a4c5886134bb4320e93e1a4bbc7c`, compares English/Spanish language
+  tokens before transcription. Transformers.js otherwise defaults to English.
+- `captureSpeech` uses MediaRecorder and local microphone energy for end-of-phrase
+  detection. Browser AudioContext decodes audio, downmixes and resamples to mono
+  16 kHz PCM WAV. No Python, ffmpeg or browser speech recognition service is used.
+- `/api/assistant/transcribe` accepts bounded WAV audio, at most 20 seconds and
+  700 KB. Whisper runs on CPU with two intra-op threads. Runtime loads the local
+  `.cache/eva-speech/` cache only; setup is the explicit download step.
+- `/api/assistant/intent` validates structured output and explicit layer meaning.
+  `MapLayerProvider` shares layer visibility with the map buttons and Cesium.
+- `/api/assistant/explain` selects verified reason identifiers. English wording
+  and numbers come from the planner; limiting resources remain in the reply.
+- `voiceSession` allows 30 seconds for microphone setup, up to 50 seconds for
+  local transcription and 35 seconds for the assistant request. Server deadlines
+  are 45 seconds for transcription and 30 seconds for other requests. Cancellation
+  invalidates late results and stops all capture tracks/timers/audio contexts,
+  including late permission grants. Decoder work stops at the next generation step.
+- TTS uses `en-US`, the shared application voice identity and rate 0.95. The
+  installed browser/OS voice determines actual playback availability.
 
-## Verification
+Audio exists only in memory, goes to the local adapter and is not logged or
+saved by the application. English/Spanish detection chooses between those two
+languages per utterance; mixed-language phrases, noise, accents and very short
+commands can still be misrecognised. This is demo assistance, not flight-qualified
+voice control or autonomous navigation.
 
-`npm run ai:check` checks 40 English/Spanish cases against the real model and
-the English response adapter. Unit tests cover cancellation, stale answers,
-numeric consistency, layer actions, reasons, speech errors and subtitles.
-They do not replace testing the physical microphone.
-
-The Operate extension preserves the navy/yellow HUD, map, fonts and focus.
-The assistant panel is removed; feedback uses a compact rail status and the
-existing subtitle area. No tokens or new raster assets are introduced.
+The adapter binds to `127.0.0.1:3001`, Ollama to `127.0.0.1:11434`; Vite proxies
+requests under the same origin. Model setup needs Internet; inference does not
+use a remote speech service. Map imagery may still need network access.
+`GET /api/assistant/health` checks that the configured Gemma model is installed;
+it is not a microphone or speech-cache readiness test.
 
 ## Microphone troubleshooting
 
-If speech is not detected, first select Input ES or EN to match what you will
-say. Wait for Listening rather than speaking during Starting microphone.
-The input meter uses a perceptual scale so quiet input is visible; local signal
-energy above RMS 0.001 counts as audio, not as proof of intelligible speech.
+Wait for Listening before speaking. If the meter remains still, verify Windows
+Settings → System → Sound → Input selects the intended microphone, its volume
+is sufficient, and it is not muted. Confirm Edge's site permission and input
+device. An existing Allow permission normally produces no new prompt.
 
-If the input remains silent or low, check Windows Settings → System → Sound →
-Input: select the intended microphone, ensure it is not muted, and test its
-input volume. Then verify Edge Settings → Site permissions → Microphone uses
-that input. An existing Allow permission normally produces no new prompt.
-If the meter moves but recognition returns no words, check the selected speech
-language and the recognition service's Internet access. After code updates,
-reload the page so an existing voice session is replaced.
+If Transcribing fails, run `npm run ai:speech:setup` from the repository root
+and restart `ai:serve`. If thinking fails, verify Ollama and `gemma3:4b` are
+available. The physical Realtek microphone was previously confirmed working by
+Gerardo; the new automatic transcription path still needs an operator retry.
 
-Microphone regression coverage: 85 total tests, including delayed permission,
-cancellation cleanup, service-confirmed listening, selected locale, interim
-versus final results, permission errors and quiet-input signal scaling.
-Scoped diagnostic UI finish review: **ship**. Desktop and mobile language/error
-controls were reviewed; this is not evidence that the physical no-speech incident
-is resolved. A successful Windows input test and retry in Edge remain required.
+## Verification and interface contract
 
-Earlier English/EVA interface finish review: **ship**. Desktop, mobile and portrait listening states preserve
-the map and open Information panel. Labelled fixtures verify the thinking
-indicator, shared layer mutation and English response fallback; they do not
-establish physical microphone transcription or audible playback. The final
-real-model check passed 40/40 bilingual requests with English adapter replies.
-At that milestone, 77 tests, lint and both app/independent builds passed; 17 focused tests also
-passed after the fallback-copy correction. The manual UI detector found no issues.
+The automatic bilingual change preserves the navy/yellow palette, fonts, map,
+compact rail feedback, shared voice, alert priority and subtitles. The Input
+EN/ES control and its saved preference are no longer used. No new raster assets
+or visual tokens are introduced.
+
+Unit tests cover WAV validation/resampling, silence, end-of-phrase capture,
+manual finish, cancellation, late permissions, transcription cancellation,
+English output and shared voice identity. `npm run ai:check` exercises 40 bilingual
+adapter cases with Gemma and command guards. Browser integration uses explicitly labelled synthesized
+microphone fixtures with real MediaRecorder, Whisper, Gemma and shared layers;
+these do not establish physical microphone transcription or audible playback.
+
+Final verification (2026-11-15): **40/40** bilingual adapter cases passed with
+the configured Gemma model and command guards; **73** unit tests, ESLint and
+both production builds passed. Dependency audit: zero vulnerabilities. Real
+local HTTP tests transcribed both sample languages and returned the correct
+slopes command; a resource-limited mission fixture retained its verified oxygen
+deficit in the English explanation. Observed speech transcription took about
+1.6–3.5 seconds; the loaded CPU adapter varied with concurrent requests, up to
+18.2 seconds for a classification/explanation case. These are demo observations,
+not latency guarantees or independent model benchmarks.
+
+Fresh independent finish review: **ship**, scoped to this automatic bilingual
+extension. Seven captures cover the production page, blocked-permission recovery,
+desktop/tablet/mobile listening and a completed English layer command. The
+reviewer checked the final 40-case log and found no open material issues.
+DESIGN.md and its tokens remain unchanged; this uses the incumbent Operate
+interface rather than introducing a new visual system.
