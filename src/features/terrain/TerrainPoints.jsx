@@ -2,12 +2,13 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Cartesian3, SceneTransforms } from 'cesium'
 import { sampleHeight } from './terrainData'
 import { visibleTerrainPoints } from './visibleTerrainPoints.js'
-import { projectTerrainPoint } from './projectTerrainPoint.js'
+import { projectTerrainPoint, canvasPointToOverlay } from './projectTerrainPoint.js'
 import TerrainPointDetails from './TerrainPointDetails.jsx'
 import region from './region.json'
 
 export default function TerrainPoints({ viewer, data, points, mode, onInspect }) {
   const buttons = useRef(new Map())
+  const overlay = useRef(null)
   const clearTimer = useRef(null)
   const [selection, setSelection] = useState(null)
   const [pinned, setPinned] = useState(false)
@@ -17,19 +18,25 @@ export default function TerrainPoints({ viewer, data, points, mode, onInspect })
     if (!point.source || !Number.isFinite(point.longitude) || !Number.isFinite(point.latitude)) return []
     const elevation = sampleHeight(data, point.longitude, point.latitude)
     if (!Number.isFinite(elevation)) return []
-    const offset = point.id === 'jezero' ? 40 : point.displayModes ? 2 : 25
     return [{ ...point, elevation,
-      position: Cartesian3.fromDegrees(point.longitude, point.latitude, elevation + offset, viewer.scene.globe.ellipsoid) }]
+      position: Cartesian3.fromDegrees(point.longitude, point.latitude, elevation, viewer.scene.globe.ellipsoid) }]
   }), [points, mode, data, viewer])
 
   useEffect(() => {
     function update() {
       const { scene, camera, canvas } = viewer
+      const host = overlay.current
+      if (!host) return
+      const canvasRect = canvas.getBoundingClientRect()
+      const overlayRect = host.getBoundingClientRect()
       const project = position => SceneTransforms.worldToWindowCoordinates(scene, position)
       for (const marker of markers) {
         const button = buttons.current.get(marker.id)
         if (!button) continue
-        const screen = projectTerrainPoint(camera, marker.position, project, canvas.clientWidth, canvas.clientHeight)
+        const projected = projectTerrainPoint(camera, marker.position, project, canvas.clientWidth, canvas.clientHeight)
+        const screen = projected && canvasPointToOverlay(projected,
+          { width: canvas.clientWidth, height: canvas.clientHeight }, canvasRect,
+          { width: host.clientWidth, height: host.clientHeight }, overlayRect)
         button.hidden = !screen
         if (screen) button.style.transform = `translate(${screen.x}px, ${screen.y}px)`
       }
@@ -51,7 +58,7 @@ export default function TerrainPoints({ viewer, data, points, mode, onInspect })
   }
   const active = mode === 'walk' && markers.some(marker => marker.id === selection?.id) ? selection : null
   return <>
-    <div className="terrain-poi-overlay" aria-label="Map points of interest">
+    <div ref={overlay} className="terrain-poi-overlay" aria-label="Map points of interest">
       {markers.map(marker => <button key={marker.id} type="button" className="terrain-poi-marker"
         ref={element => { if (element) buttons.current.set(marker.id, element); else buttons.current.delete(marker.id) }}
         hidden aria-label={marker.name}

@@ -32,3 +32,26 @@ test('negative MOLA height does not hide a visible Jezero annotation', () => {
   assert.deepEqual(projectTerrainPoint({ positionWC: eye, directionWC: direction }, position,
     () => ({ x: 400, y: 300 }), 800, 600), { x: 400, y: 300 })
 })
+
+test('panel-shifted canvas coordinates align with the visible map rather than drifting right', async () => {
+  const { canvasPointToOverlay } = await import('../src/features/terrain/projectTerrainPoint.js')
+  const canvasSize = { width: 3200, height: 900 }
+  const canvasRect = { left: -1280, top: 137, width: 3200, height: 900 }
+  const overlaySize = { width: 1920, height: 900 }
+  const overlayRect = { left: 0, top: 137, width: 1920, height: 900 }
+  for (const [x, y] of [[1300, 200], [1800, 400], [2500, 600]]) {
+    assert.deepEqual(canvasPointToOverlay({ x, y }, canvasSize, canvasRect, overlaySize, overlayRect), { x: x - 1280, y })
+  }
+  assert.equal(canvasPointToOverlay({ x: 1000, y: 200 }, canvasSize, canvasRect, overlaySize, overlayRect), null)
+})
+
+test('portrait top offset, parent scaling and viewport origin are accounted for exactly once', async () => {
+  const { canvasPointToOverlay } = await import('../src/features/terrain/projectTerrainPoint.js')
+  const size = { width: 400, height: 800 }
+  // Both elements scaled 1.5x by their ancestor; canvas starts 200 CSS px above overlay.
+  const canvasRect = { left: 30, top: -200, width: 600, height: 1200 }
+  const overlayRect = { left: 30, top: 100, width: 600, height: 1200 }
+  assert.deepEqual(canvasPointToOverlay({ x: 100, y: 300 }, size, canvasRect, size, overlayRect), { x: 100, y: 100 })
+  assert.equal(canvasPointToOverlay({ x: 100, y: 100 }, size, canvasRect, size, overlayRect), null)
+  assert.equal(canvasPointToOverlay({ x: 100, y: 300 }, { ...size, width: 0 }, canvasRect, size, overlayRect), null)
+})
