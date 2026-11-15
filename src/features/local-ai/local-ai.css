@@ -1,4 +1,11 @@
-.eva-control { position: relative; min-width: 0; }
+.eva-control { position: relative; display: grid; gap: 4px; min-width: 0; }
+.eva-language { min-height: 44px; width: 100%; padding: 4px; white-space: nowrap; color: var(--md-muted); background: var(--md-overlay); border: 1px solid var(--md-overlay-border); border-radius: 4px; font: inherit; font-size: 12px; }
+.eva-language:hover:enabled { color: var(--md-white); background: var(--md-electric-blue); }
+.eva-language:disabled { opacity: 0.6; }
+.eva-input-level { display: block; width: 100%; height: 8px; margin-top: 8px; }
+.eva-input-level::-webkit-meter-bar { background: var(--md-deep-blue); border: 1px solid var(--md-overlay-border); border-radius: 4px; }
+.eva-input-level::-webkit-meter-optimum-value { background: var(--md-neon-yellow); }
+.eva-input-level::-moz-meter-bar { background: var(--md-neon-yellow); }
 .eva-control .eva-rail-button { width: 100%; }
 .eva-rail-button[aria-pressed='true'] { color: var(--md-neon-yellow); }
 .eva-status {
@@ -52,6 +59,7 @@
 .mission-caption-text button { min-width: 44px; min-height: 44px; border: 0; border-radius: 4px; color: var(--md-white); background: transparent; }
 .mission-caption-text button:hover { background: var(--md-electric-blue); }
 @media (max-width: 699px) {
+  .has-route-planner .field-control-rail { align-items: flex-start; }
   .md-demo.has-route-planner .field-control-rail .field-rail-button,
   .md-demo.has-route-planner .field-control-rail .field-voice .md-button {
     flex-direction: column;
