@@ -1,5 +1,6 @@
 import { useRef } from 'react'
 import RegionDetail from './RegionDetail.jsx'
+import TerrainPointDetails from '../terrain/TerrainPointDetails.jsx'
 import MissionIcon from './MissionIcon.jsx'
 import useOverflowIndicator from './useOverflowIndicator.js'
 import { formatMeters, formatMinutes, isAvailable } from './missionPresentation.js'
@@ -27,11 +28,11 @@ function TelemetryPage({ mission }) {
   return <><h2>Telemetry</h2><p className="mt-panel-description">Simulated mission time and return resources</p><dl className="mt-telemetry-table">{rows.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl><p className="mt-body-note">{mission.telemetryNote ?? 'Oxygen autonomy is shown as time remaining. Return margins account for the estimated journey back.'}</p></>
 }
 
-export default function MissionInfoPanel({ mission, region, image, activeTab, page, contentRef, onTabChange, onPageChange, onReturn, onInspectStop, collapsed = false }) {
+export default function MissionInfoPanel({ mission, region, sciencePoint, image, activeTab, page, contentRef, onTabChange, onPageChange, onReturn, onInspectStop, collapsed = false }) {
   const planned = useRouteMission()
   const tabRefs = useRef([])
   const panelRef = useRef(null)
-  useOverflowIndicator(panelRef, `${activeTab}-${page}-${region?.id}`)
+  useOverflowIndicator(panelRef, `${activeTab}-${page}-${region?.id}-${sciencePoint?.id}`)
   function handleTabKey(event, index) {
     const next = event.key === 'ArrowRight' ? (index + 1) % tabs.length : event.key === 'ArrowLeft' ? (index + tabs.length - 1) % tabs.length : event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : null
     if (next === null) return
@@ -42,10 +43,10 @@ export default function MissionInfoPanel({ mission, region, image, activeTab, pa
   return (
     <aside id="mission-information" className={`md-panel field-deck ${activeTab === 'science' ? 'has-pages' : ''}`} aria-label="Mission information" hidden={collapsed}>
       <div className="mt-tabs" role="tablist" aria-label="Mission information tabs">{tabs.map((tab, index) => <button key={tab.id} ref={(element) => { tabRefs.current[index] = element }} id={`mission-tab-${tab.id}`} role="tab" aria-selected={activeTab === tab.id} aria-controls="mission-active-panel" tabIndex={activeTab === tab.id ? 0 : -1} onKeyDown={(event) => handleTabKey(event, index)} onClick={() => onTabChange(tab.id)}>{tab.label}</button>)}</div>
-      <section key={`${activeTab}-${page}-${region?.id}`} ref={panelRef} className="mt-tabpanel" role="tabpanel" id="mission-active-panel" aria-labelledby={`mission-tab-${activeTab}`} tabIndex={0}>
+      <section key={`${activeTab}-${page}-${region?.id}-${sciencePoint?.id}`} ref={panelRef} className="mt-tabpanel" role="tabpanel" id="mission-active-panel" aria-labelledby={`mission-tab-${activeTab}`} tabIndex={0}>
         <div ref={contentRef} className="mt-panel-content">
         {activeTab === 'route' && (planned ? <RoutePlanner /> : <RoutePage mission={mission} onReturn={onReturn} onInspectStop={onInspectStop} />)}
-        {activeTab === 'science' && <RegionDetail key={region?.id} region={region} image={image} page={page} />}
+        {activeTab === 'science' && (sciencePoint ? <TerrainPointDetails selection={sciencePoint} page={page} /> : <RegionDetail key={region?.id} region={region} image={image} page={page} />)}
         {activeTab === 'telemetry' && <TelemetryPage mission={mission} />}
         </div>
       </section>

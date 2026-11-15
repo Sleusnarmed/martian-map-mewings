@@ -4,8 +4,16 @@ The local map includes **13 science sites plus Jezero’s published center**.
 All native symbols are available in 2D, 2.5D and immersive 3D. Hover reveals the
 name; selecting a site keeps its name above its symbol and adds a white selection
 ring. It remains selected while moving the cursor, panning or switching views.
-Selecting another site replaces it; Close point details or Escape clears it.
+Selecting another site replaces it; Escape clears the pinned marker.
 The coordinate inspector can be dismissed independently.
+
+Science-site selection opens **Information → Science**, using the same panel
+and paging controls as Jezero and Wildcat. Additional sites have three pages:
+science summary, published position, and local source records. They do not
+create a separate map card or coordinate-inspector popup. Changing sites resets
+Science to its first page; switching to Route or Telemetry preserves the chosen
+site. Selecting a region restores its regional brief. Native marker labels and
+the automatic zoom for overlapping symbols remain available.
 
 A click on overlapping science symbols zooms toward the closest geographic pair.
 Coordinates are never displaced to make room. The camera preserves 2D or oblique
@@ -97,14 +105,22 @@ not assert traversability or relax route limits.
 
 On phone layouts, selected names wrap without abbreviating the site and the
 camera focus occupies the clear area to the right of the perspective controls.
-The point card stays below speech subtitles in the stacking order.
+The former floating point card has been removed; site details now occupy the
+existing Information panel.
 
 Verified with 99 passing tests, ESLint, the production build and the isolated
 mission-detail build. Live captures cover grouped-point zoom, hover/pinning,
 2D, oblique and surface markers, local attribution, tablet and phone layouts.
-An independent finish review marked both phone-label and subtitle-priority
+The earlier independent finish review marked both phone-label and subtitle-priority
 findings resolved. Subtitle captures use an explicitly labelled layout fixture;
 they do not test actual speech playback. The longest Hans Amundsen name was
 visually checked on desktop and covered by the wrapping test, but its phone
 capture could not be completed after the browser viewport override stopped
 applying. Cheyava's phone capture confirms the same wrapping and framing path.
+
+The subsequent Science-panel integration passed the 99-test suite, ESLint and
+the production build. Live desktop checks covered list and native-symbol
+selection, all three Science pages, switching sites, returning from Route to
+Science, and restoring Wildcat's region brief. An independent code/capture
+review approved this scoped integration; responsive captures above belong to
+the earlier marker work, not a new responsive audit of the Science panel.

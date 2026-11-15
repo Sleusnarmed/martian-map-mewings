@@ -30,7 +30,7 @@ export default function MissionWorkspace({
   const [preview] = useState(readPreviewLocation);
   const information = useFadingView(
     { tab: preview.activeTab, page: preview.page, regionId: initialRegionId },
-    (value) => `${value.tab}-${value.page}-${value.regionId}`,
+    (value) => `${value.tab}-${value.page}-${value.regionId}-${value.sciencePoint?.id ?? ''}`,
   );
   const [mapSelection, setMapSelection] = useState({
     id: initialRegionId,
@@ -43,6 +43,7 @@ export default function MissionWorkspace({
     tab: activeTab,
     page,
     regionId: selectedRegionId,
+    sciencePoint,
   } = information.value;
   const [scenarioId, setScenarioId] = useState(preview.scenarioId);
   const [returning, setReturning] = useState(false);
@@ -156,6 +157,7 @@ export default function MissionWorkspace({
     information.change((current) => ({
       ...current,
       regionId: id,
+      sciencePoint: null,
       tab: "science",
       page: 0,
     }));
@@ -177,6 +179,21 @@ export default function MissionWorkspace({
     }));
   }
 
+  function selectSciencePoint(point) {
+    if (!point) {
+      information.change(current => ({ ...current, sciencePoint: null, page: 0 }));
+      return;
+    }
+    planned?.dispatch({ type: "dismiss-inspection" });
+    if (point.id === "jezero" || point.id === "wildcat-ridge") {
+      selectRegion(point.id, false);
+      return;
+    }
+    information.change(current => ({ ...current, tab: "science", page: 0, sciencePoint: point }));
+    setOpenPanel("information");
+    focusInformationTab("science");
+  }
+
   return (
     <div
       className={`md-demo field-shell ${integrated ? "has-terrain" : ""} ${planned ? "has-route-planner" : ""}`}
@@ -195,6 +212,7 @@ export default function MissionWorkspace({
       {MapComponent && (
         <MapComponent
           onPointSelect={(id) => selectRegion(id, false)}
+          onSciencePointSelect={selectSciencePoint}
           focusPointId={mapSelection.id}
           focusRevision={mapSelection.revision}
           controlsTarget={mapToolsTarget}
@@ -261,6 +279,7 @@ export default function MissionWorkspace({
         <MissionInfoPanel
           mission={mission}
           region={regions[selectedRegionId]}
+          sciencePoint={sciencePoint}
           image={wildcatImage}
           activeTab={activeTab}
           page={page}

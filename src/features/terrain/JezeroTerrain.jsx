@@ -25,12 +25,14 @@ const EMPTY_POIS = []
 const DEFAULT_URL = `${import.meta.env.BASE_URL}terrain/jezero/metadata.json`
 
 /** Map adapter for MissionWorkspace; owns no mission case or telemetry state. */
-export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfInterest = EMPTY_POIS, onPointSelect, initialPointId = 'jezero', focusPointId, focusRevision = 0, controlsTarget, navigationTarget }) {
+export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfInterest = EMPTY_POIS, onPointSelect, onSciencePointSelect, initialPointId = 'jezero', focusPointId, focusRevision = 0, controlsTarget, navigationTarget }) {
   const planner = useRouteMission()
   const { attachTerrain, inspect, state: missionState } = planner
   const container = useRef(null)
   const viewerRef = useRef(null)
   const selectCallback = useRef(onPointSelect)
+  const scienceCallback = useRef(onSciencePointSelect)
+  useEffect(() => { scienceCallback.current = onSciencePointSelect }, [onSciencePointSelect])
   const navigationRef = useRef(null)
   const clusterFocusRef = useRef(null)
   const [state, setState] = useState({ status: 'loading' })
@@ -68,10 +70,12 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
   const { slopeThreshold, setSlopeThreshold } = layers
   const inspection = missionState.inspection
   const [selectedSciencePoint, setSelectedSciencePoint] = useState(null)
-  const clearScienceSelection = useCallback(() => setSelectedSciencePoint(null), [])
+  const clearScienceSelection = useCallback(() => { setSelectedSciencePoint(null); scienceCallback.current?.(null) }, [])
   const setInspection = useCallback(point => {
-    inspect(point)
-    if (point?.id) setSelectedSciencePoint(point)
+    if (point?.id) {
+      setSelectedSciencePoint(point)
+      scienceCallback.current?.(point)
+    } else inspect(point)
   }, [inspect])
   const [refining, setRefining] = useState(false)
   useEffect(() => { selectCallback.current = onPointSelect }, [onPointSelect])

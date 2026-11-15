@@ -1230,29 +1230,8 @@
   margin-left: 6px;
 }
 
-.terrain-poi-details {
-  position: absolute;
-  bottom: 28px;
-  left: 24px;
-  z-index: 3;
-  width: min(22rem, calc(100% - 48px));
-  max-height: min(240px, 30dvh);
-  overflow: auto;
-  padding: .9rem;
-  border: 1px solid #7d99c280;
-  border-radius: 8px;
-  background: #07173ff2;
-  color: #f5f7fd;
-  font-size: .85rem;
-}
-.terrain-poi-details > div { position: sticky; top: 0; z-index: 1; display: flex; justify-content: space-between; align-items: start; gap: .5rem; background: var(--md-deep-blue, #07173f); }
-.terrain-poi-details button { min-width: 44px; min-height: 44px; font-size: 1.2rem; }
-.terrain-poi-details summary, .field-science-points summary { min-height: 44px; align-content: center; cursor: pointer; }
+.field-science-points summary { min-height: 44px; align-content: center; cursor: pointer; }
 .field-science-points ul { list-style: none; padding: 0; margin-block: 8px; }
 .field-science-points button { width: 100%; min-height: 48px; padding: 8px; color: var(--md-white); text-align: left; }
 .field-science-points button:hover, .field-science-points button[aria-pressed='true'] { color: var(--md-neon-yellow); background: var(--md-overlay); }
 .field-science-points button small { display: block; color: var(--md-muted); font-size: 12px; margin-top: 4px; }
-.md-demo:has(.field-hud) .terrain-poi-details { bottom: 204px; }
-@media (max-width: 699px) { .terrain-poi-details { left: 16px; width: calc(100% - 32px); max-height: 22dvh; } }
-.terrain-poi-details p { margin-top: .5rem; }
-.terrain-poi-details small { display: block; margin-top: .5rem; color: #b2c2da; }

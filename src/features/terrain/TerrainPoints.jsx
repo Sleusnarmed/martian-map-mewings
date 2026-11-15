@@ -1,7 +1,6 @@
 import { useEffect } from 'react'
 import { ScreenSpaceEventHandler, ScreenSpaceEventType, SceneTransforms, Cartesian3 } from 'cesium'
 import { sampleHeight } from './terrainData'
-import TerrainPointDetails from './TerrainPointDetails.jsx'
 import region from './region.json'
 import { updatePointLabels, wrapPointName } from './terrainPointLabels.js'
 
@@ -79,5 +78,5 @@ export default function TerrainPoints({ viewer, data, points, selection, onClose
     return () => window.removeEventListener('keydown', close)
   }, [onClose])
 
-  return selection ? <TerrainPointDetails selection={selection} pinned onClose={onClose} /> : null
+  return null
 }
