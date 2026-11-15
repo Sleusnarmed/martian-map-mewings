@@ -111,7 +111,7 @@ export default function Home({ onZoneSelected, expanded = false, onExpandedChang
           <div className="solar-copy">
             <p className="solar-kicker">NASA Space Apps Challenge</p>
             <h1><img className="solar-sansi" src={sansiLogo} alt="SANSI — Surface Autonomous Navigation & Survival Interface" width="1752" height="897" draggable="false" /></h1>
-            <p className="solar-intro">Explore Mars. Discover Jezero.</p>
+            <p className="solar-intro">Explore the Solar System.</p>
           </div>
 
           <section className="solar-showcase" aria-label="Planet carousel">
