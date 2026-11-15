@@ -74,7 +74,7 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
 
   useTerrainFraming({ container, viewerRef, controlsTarget })
 
-  useTerrainMarkers({ viewerRef, state, pointsOfInterest })
+  useTerrainMarkers({ viewerRef, state, pointsOfInterest, mode: navigation.mode })
 
   const ready = state.status === 'ready'
   useEffect(() => { setReady(ready); return () => setReady(false) }, [ready, setReady])
