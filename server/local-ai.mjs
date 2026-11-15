@@ -3,12 +3,15 @@ import { createServer } from 'node:http'
 import { pathToFileURL } from 'node:url'
 import { intents, validateIntent } from '../src/features/local-ai/missionAssistant.js'
 import { MAP_LAYERS } from '../src/features/terrain/mapLayerState.js'
-import { explicitLayerCommand } from '../src/features/local-ai/layerCommandGuard.js'
+import { explicitLayerCommand, parseLayerCommand } from '../src/features/local-ai/layerCommandGuard.js'
 
 const schema = { type: 'object', properties: { intent: { type: 'string', enum: intents }, layer: { type: 'string', enum: ['none', ...Object.keys(MAP_LAYERS)] }, action: { type: 'string', enum: ['none', 'show', 'hide'] } }, required: ['intent', 'layer', 'action'], additionalProperties: false }
 
 export async function classifyQuestion(question, { signal, fetchImpl = fetch } = {}) {
   if (typeof question !== 'string' || !question.trim() || question.length > 1000) throw new Error('INVALID_QUESTION')
+  signal?.throwIfAborted()
+  const explicit = parseLayerCommand(question)
+  if (explicit) return { ...explicit, model: ASSISTANT_MODEL }
   const normalized = question.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim()
   if (/^(?:(?:eva|please|can you|por favor|puedes|quiero que)[,\s]+)*(?:calculate|advance|increase|reduce|start|move|ignore|calcula|calcular|avanza|avanzar|aumenta|aumentar|reducir|inicia|iniciar|mueve|mover|ignora|ignorar)\b/.test(normalized)) return { intent: 'unsupported', layer: null, visible: null, model: ASSISTANT_MODEL }
   const response = await fetchImpl('http://127.0.0.1:11434/api/chat', {

@@ -16,6 +16,11 @@ recognition; **EVA is thinking…** indicates command interpretation or route
 explanation. **Speaking…** accompanies English speech and sentence-linked
 English subtitles. The microphone meter shows local input energy.
 
+During interpretation the existing subtitle area displays **Heard: “…”** with
+the actual transcription. If the request is unsupported, EVA repeats that
+transcription before giving English command guidance, rather than hiding it
+behind generic help. The quotation is the input language, not a translation.
+
 Press EVA during startup, transcription, thinking or speaking to cancel.
 Escape and hiding the page always cancel. New warning alerts interrupt EVA;
 alert audio resumes when the assistant releases it. EVA opens no popup or chat.
@@ -56,6 +61,12 @@ rejected. Visibility never changes planning constraints or traversal eligibility
   700 KB. Whisper runs on CPU with two intra-op threads. Runtime loads the local
   `.cache/eva-speech/` cache only; setup is the explicit download step.
 - `/api/assistant/intent` validates structured output and explicit layer meaning.
+  Complete explicit layer commands such as “show slopes”, “hide geology” and
+  “muestra pendientes” use a strict bilingual command parser before Gemma.
+  This avoids model classification variability and latency for these commands.
+  Other wording and mission questions still use Gemma and the existing guards.
+  Misspellings, guessed homophones, negations and compound commands never match
+  this shortcut. Visibility commands still require the map to be ready.
   `MapLayerProvider` shares layer visibility with the map buttons and Cesium.
 - `/api/assistant/explain` selects verified reason identifiers. English wording
   and numbers come from the planner; limiting resources remain in the reply.
@@ -90,6 +101,19 @@ If Transcribing fails, run `npm run ai:speech:setup` from the repository root
 and restart `ai:serve`. If thinking fails, verify Ollama and `gemma3:4b` are
 available. The physical Realtek microphone was previously confirmed working by
 Gerardo; the new automatic transcription path still needs an operator retry.
+
+If EVA gives command guidance, compare **I heard** with what you actually said.
+An incorrect quote indicates a transcription problem; a correct quote followed
+by rejection indicates interpretation/command coverage. After an adapter code
+change, stop `ai:serve` with Ctrl+C, run `npm run ai:serve` again and reload the
+page. The running Node adapter does not automatically reload server modules.
+
+On 2026-11-15, direct local Gemma calls classified “show slopes”, “Show slopes.”
+and “Muestra pendientes” correctly. Existing English/Spanish synthetic WAVs and
+a newly synthesized two-word “Show slopes” WAV also transcribed correctly with
+the installed Whisper model. This does not establish recognition accuracy for
+the user's microphone or accent; the reported failure was not reproduced with
+these fixtures. The transcript feedback is needed for the next physical test.
 
 ## Verification and interface contract
 
