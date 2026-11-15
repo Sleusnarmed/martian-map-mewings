@@ -4,9 +4,10 @@ import { hiriseLayer, geologyLayer } from "./wildcatImagery";
 import TerrainNavigation from "./TerrainNavigation";
 import EnvironmentTimeline from "./EnvironmentTimeline";
 import WildcatLayers from "./WildcatLayers";
+import MarsSkyChart from "../mars-sky/MarsSkyChart";
 import { formatCoordinates } from "../route-planner/routeGeometry.js";
 
-export default function TerrainControlsPanel({ map, exploration, layers }) {
+export default function TerrainControlsPanel({ map, exploration, layers, skyPanel }) {
   const { ready, refining, state, focus, wildcat, onPointSelect, inspection } =
     map;
   const {
@@ -48,6 +49,8 @@ export default function TerrainControlsPanel({ map, exploration, layers }) {
     spacing,
     setSpacing,
   } = layers;
+  const observer = navigation.context?.outside ? null : navigation.context;
+  const fallback = wildcat ?? region.center;
   return (
     <aside
       className="md-panel field-map-panel"
@@ -86,6 +89,29 @@ export default function TerrainControlsPanel({ map, exploration, layers }) {
         </button>
       </div>
       <div className="field-explorer-tools">
+        <section className="mars-sky-workspace">
+          <button
+            type="button"
+            className="md-button md-button-outline"
+            disabled={!ready}
+            aria-expanded={skyPanel.open}
+            aria-controls="mission-sky-chart"
+            onClick={() => skyPanel.setOpen(!skyPanel.open)}
+          >
+            Cielo de Marte
+          </button>
+          <div id="mission-sky-chart" hidden={!skyPanel.open}>
+            {skyPanel.open && <>
+              <EnvironmentTimeline environment={environment} />
+              <MarsSkyChart
+                sky={skyPanel.sky}
+                longitude={observer?.lon ?? fallback.longitude}
+                latitude={observer?.lat ?? fallback.latitude}
+                heading={observer?.heading ?? 0}
+              />
+            </>}
+          </div>
+        </section>
         {ready && (
           <TerrainNavigation
             navigation={navigation}
@@ -228,7 +254,7 @@ export default function TerrainControlsPanel({ map, exploration, layers }) {
             </>
           }
         />
-        <EnvironmentTimeline environment={environment} />
+        {!skyPanel.open && <EnvironmentTimeline environment={environment} />}
       </div>
       <output className="field-map-inspection">
         {inspection?.error ??

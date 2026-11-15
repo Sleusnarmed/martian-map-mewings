@@ -1,0 +1,57 @@
+.mars-sky-workspace {
+  margin: 0 0 12px;
+}
+
+.mars-sky-workspace > button {
+  width: 100%;
+}
+
+.mars-sky-chart {
+  margin: 10px 0;
+  padding: 10px 12px;
+  border: 1px solid #496181;
+  border-radius: 8px;
+  background: #09182d;
+  color: #e2edfc;
+  text-align: center;
+}
+
+.mars-sky-chart-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  column-gap: 10px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.mars-sky-chart canvas {
+  display: block;
+  width: min(100%, 260px);
+  height: auto;
+  margin: 0 auto;
+}
+
+.mars-sky-chart figcaption,
+.mars-sky-chart p {
+  color: #b6c8e1;
+  font-size: 11px;
+}
+
+.mars-sky-chart a {
+  color: #a5d7ff;
+}
+
+.mars-sky-figures {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.mars-sky-figures input {
+  accent-color: #eafe07;
+}

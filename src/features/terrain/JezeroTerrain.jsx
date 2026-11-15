@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import 'cesium/Build/Cesium/Widgets/widgets.css'
 import { sampleHeight } from './terrainData'
@@ -14,6 +14,8 @@ import { useTerrainMarkers } from './useTerrainMarkers'
 import { useTerrainLayers } from './useTerrainLayers'
 import TerrainControlsPanel from './TerrainControlsPanel'
 import TerrainMapControls from './TerrainMapControls'
+import { buildMarsSky } from '../mars-sky/marsSkyModel'
+import { useMarsSceneSky } from '../mars-sky/useMarsSceneSky'
 import './terrain.css'
 
 const EMPTY_POIS = []
@@ -32,6 +34,7 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
   const [routeVisible, setRouteVisible] = useState(true)
   const [hazardsVisible, setHazardsVisible] = useState(true)
   const [coverageVisible, setCoverageVisible] = useState(false)
+  const [skyPanelOpen, setSkyPanelOpen] = useState(false)
   const imageryViewer = state.status === 'ready' ? state.viewer : null
   const route = missionState.result?.route ?? null
   const navigation = useTerrainNavigation(imageryViewer, state.data, route)
@@ -41,6 +44,10 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
   useMissionMap(imageryViewer, state.data, missionState, { route: routeVisible, hazards: hazardsVisible, coverage: coverageVisible })
   useEffect(() => { if (state.data) attachTerrain(state.data) }, [state.data, attachTerrain])
   const environment = useEnvironmentClock(Boolean(imageryViewer))
+  const skyActive = exploring || skyPanelOpen
+  const sky = useMemo(() => skyActive ? buildMarsSky(environment.sol, environment.minute) : null,
+    [skyActive, environment.sol, environment.minute])
+  useMarsSceneSky(imageryViewer, exploring && sky !== null, sky)
   const layers = useTerrainLayers({ viewerRef, state, initialPointId, minute: environment.minute, exploring })
   const { slopeThreshold, setSlopeThreshold } = layers
   const inspection = missionState.inspection
@@ -78,6 +85,7 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
     {controlsTarget && createPortal(<TerrainControlsPanel
       map={{ ready, refining, state, focus, wildcat, onPointSelect, inspection }}
       exploration={{ navigation, slopeThreshold, setSlopeThreshold, routeVisible, exploring, setRouteVisible, route, environment, hazardsVisible, setHazardsVisible, coverageVisible, setCoverageVisible }}
+      skyPanel={{ open: skyPanelOpen, setOpen: setSkyPanelOpen, sky }}
       layers={layers}
     />, controlsTarget)}
   </div>

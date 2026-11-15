@@ -7,6 +7,8 @@ import { pickTerrainRay } from './pickTerrain'
 import { cameraGroundPoint, LOWERED_PITCH, placeExplorer, useExplorerControls } from './useExplorerControls'
 import { bearingTo, routePosition } from '../route-planner/routeGeometry.js'
 
+const SKY_ENTRY_PITCH = Cesium.Math.toRadians(4)
+
 function screenPoint(viewer, data, x, y) {
   const ray = viewer.camera.getPickRay(new Cesium.Cartesian2(x, y))
   return pickTerrainRay(ray, data)
@@ -66,7 +68,8 @@ export function useTerrainNavigation(viewer, data, route) {
     modeRef.current = 'walk'
     setMode('walk')
     viewer.camera.cancelFlight()
-    placeExplorer(viewer, data, start, first ? bearingTo(start, first) : viewer.camera.heading, LOWERED_PITCH)
+    // Frame both the horizon and route when entering surface mode.
+    placeExplorer(viewer, data, start, first ? bearingTo(start, first) : viewer.camera.heading, SKY_ENTRY_PITCH)
   }
 
   function aimAtWaypoint() {
