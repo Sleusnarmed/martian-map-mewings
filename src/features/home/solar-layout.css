@@ -369,6 +369,7 @@
 }
 .home-mars-globe--expanded { z-index: 100; pointer-events: auto; }
 .home-mars-globe .space-loader { background: transparent; }
+.home-mars-globe:not(.home-mars-globe--expanded) .cesium-credit-logoContainer { display: none; }
 .solar-home--expanded .solar-shell { visibility: hidden; }
 @media (prefers-reduced-motion: reduce) {
   .home-mars-globe { transition: none; }
