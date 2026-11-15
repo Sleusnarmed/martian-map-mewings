@@ -1,4 +1,4 @@
-import { sampleRegionalHeight } from './terrainData.js'
+import { detailWeight, sampleRegionalHeight } from './terrainData.js'
 
 export function insideBounds(bounds, lon, lat) {
   return lon >= bounds[0] && lon <= bounds[2] && lat >= bounds[1] && lat <= bounds[3]
@@ -6,7 +6,8 @@ export function insideBounds(bounds, lon, lat) {
 
 // Central differences on the actual display grid, with Mars radius and latitude correction.
 // This estimates regional slope; it cannot resolve rocks or validate traversability.
-export function slopeAt(data, lon, lat) {
+export function slopeAt(data, lon, lat, local = false) {
+  if (local && detailWeight(data.detail, lon, lat) >= 0.99) data = data.detail
   const dx = (data.bounds[2] - data.bounds[0]) / (data.width - 1)
   const dy = (data.bounds[3] - data.bounds[1]) / (data.height - 1)
   const heights = [sampleRegionalHeight(data, lon - dx, lat), sampleRegionalHeight(data, lon + dx, lat),
@@ -23,7 +24,8 @@ export function pitchForRange(range, mode) {
   if (mode === 'relief') return -25 * Math.PI / 180
   const t = Math.max(0, Math.min(1, (Math.log(Math.max(range, 1)) - Math.log(1300)) / (Math.log(12000) - Math.log(1300))))
   const smooth = t * t * (3 - 2 * t)
-  return -(25 + 65 * smooth) * Math.PI / 180
+  // An oblique mode stays oblique even in the regional overview.
+  return -(35 + 20 * smooth) * Math.PI / 180
 }
 
 export function surfaceDistance(a, b, radius) {

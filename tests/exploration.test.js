@@ -36,8 +36,8 @@ test('slope respects Mars distances, geographic bounds and known inclines', () =
   assert.ok(Math.abs(surfaceDistance({ latitude: 0, longitude: 0 }, { latitude: 0, longitude: 0.01 }, d.radius) - d.radius * 0.01) < 0.0001)
 })
 
-test('automatic perspective is continuous and gets oblique only at close range', () => {
-  assert.equal(pitchForRange(15000, 'auto'), -Math.PI / 2)
+test('2.5D stays oblique at regional and close ranges while 2D remains nadir', () => {
+  assert.ok(pitchForRange(75000, 'auto') > -Math.PI / 2 + 0.4)
   assert.ok(pitchForRange(1300, 'auto') > pitchForRange(6000, 'auto'))
   assert.equal(pitchForRange(1300, 'map'), -Math.PI / 2)
   for (let r = 1301; r <= 12000; r += 37) assert.ok(Math.abs(pitchForRange(r, 'auto') - pitchForRange(r - 1, 'auto')) < 0.002)

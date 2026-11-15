@@ -11,7 +11,7 @@ export default function TerrainNavigation({ navigation, slopes, orbitalReady, ct
   if (hiriseReady && context?.hirise) imagery = 'HiRISE · 0.55 m/px'
   return <>
     <nav className="terrain-view-tools" aria-label="Map perspective">
-      {[['map', '2D'], ['auto', 'Auto 2.5D'], ['walk', '3D explore']].map(([id, name]) => <button key={id}
+      {[['map', '2D'], ['auto', '2.5D'], ['walk', '3D explore']].map(([id, name]) => <button key={id}
         disabled={id === 'walk' && !route} aria-pressed={mode === id} onClick={() => chooseMode(id)}>{name}</button>)}
     </nav>
     <div className="terrain-zoom-tools" aria-label="Map navigation">
@@ -34,12 +34,13 @@ export default function TerrainNavigation({ navigation, slopes, orbitalReady, ct
         <p className="context-coordinates">{context.lat.toFixed(5)}° N · {context.lon.toFixed(5)}° E</p>
         <dl><div><dt>Elevation · MOLA</dt><dd>{context.elevation.toFixed(0)} m</dd></div>
           {walking && context.guidance && <div><dt>Camera above terrain</dt><dd>{Math.round(context.range)} m</dd></div>}
-          <div><dt>Regional slope</dt><dd>{context.slope === null ? 'No estimate' : `${context.slope.toFixed(1)}°`}</dd></div>
+          <div><dt>{context.localSlope ? 'Local slope · HiRISE' : 'Regional slope'}</dt><dd>{context.slope === null ? 'No estimate' : `${context.slope.toFixed(1)}°`}</dd></div>
+          <div><dt>View tilt</dt><dd>{Math.abs(context.pitch).toFixed(0)}° down</dd></div>
           <div><dt>Imagery</dt><dd>{imagery}</dd></div>
         </dl>
         {context.slope !== null && context.slope >= threshold && <p className="terrain-caution" role="status">Review terrain: slope exceeds your {threshold}° planning threshold.</p>}
         {!context.detail && <p className="terrain-caution">Outside the detailed image crop. Zooming cannot reveal additional detail here.</p>}
-        <p className="context-limit">{context.hirise ? 'Local HiRISE relief grid ≈ 3.5 m. The close-up image resolves finer features.' : 'Regional relief grid ≈ 53 m. HiRISE close-up is available at Wildcat Ridge.'}</p>
+        <p className="context-limit">{context.hirise ? 'Local HiRISE relief grid ≈ 3 m. Image detail streams in visible tiles, up to ≈ 0.55 m/px.' : 'Regional relief grid ≈ 53 m. HiRISE close-up is available at Wildcat Ridge.'}</p>
         {slopes && <p className="slope-key"><span>5–10°</span><span>10–15°</span><span>≥15°</span></p>}
         <small>{slopes ? 'Slope overlay active · ' : ''}Route suitability is unverified.</small>
       </>}

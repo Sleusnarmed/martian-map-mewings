@@ -23,6 +23,15 @@ export function useTerrainNavigation(viewer, data, route) {
   const flight = useRef(false)
   const explorer = useExplorerControls(viewer, data, mode === 'walk')
 
+  useEffect(() => {
+    if (!viewer || viewer.isDestroyed()) return
+    // Refine visible close-up terrain; keep the regional overview inexpensive.
+    // Cesium's mutable scene is owned by this synchronization effect.
+    // eslint-disable-next-line react-hooks/immutability
+    viewer.scene.globe.maximumScreenSpaceError = mode === 'walk' ? 1 : 2
+    viewer.scene.requestRender()
+  }, [viewer, mode])
+
   function reframe(nextMode, factor = 1, heading, exitExplorer = false) {
     if (!viewer || viewer.isDestroyed()) return
     viewer.camera.cancelFlight()
@@ -90,7 +99,7 @@ export function useTerrainNavigation(viewer, data, route) {
         if (left && right) scale = surfaceDistance(ellipsoid.cartesianToCartographic(left), ellipsoid.cartesianToCartographic(right), data.radius)
       }
       const cameraHeight = viewer.camera.positionCartographic.height
-      setContext({ lon, lat, elevation, scale, slope: slopeAt(data, lon, lat),
+      setContext({ lon, lat, elevation, scale, slope: slopeAt(data, lon, lat, true), localSlope: detailWeight(data.detail, lon, lat) >= 0.99,
         detail: insideBounds(orbitalDetailLayer.bounds, lon, lat),
         hirise: detailWeight(data.detail, lon, lat) > 0,
         range: walking ? cameraHeight - elevation : Cesium.Cartesian3.distance(viewer.camera.positionWC, target),
@@ -101,7 +110,8 @@ export function useTerrainNavigation(viewer, data, route) {
     }
     const removeRender = viewer.scene.postRender.addEventListener(update)
     const removeEnd = viewer.camera.moveEnd.addEventListener(() => {
-      if (flight.current || modeRef.current === 'walk') return
+      // Preserve the user's orbit/tilt in 2.5D; only 2D enforces a nadir view.
+      if (flight.current || modeRef.current !== 'map') return
       const target = viewTarget(viewer, data)
       if (!target) return
       const range = Cesium.Cartesian3.distance(viewer.camera.positionWC, target)

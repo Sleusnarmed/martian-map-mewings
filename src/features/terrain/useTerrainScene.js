@@ -54,7 +54,7 @@ export function useTerrainScene({ container, viewerRef, selectCallback, terrainU
         // Parent coverage remains visible while individual child tiles refine.
         viewer.scene.globe.loadingDescendantLimit = 0
         viewer.scene.globe.preloadAncestors = true
-        viewer.scene.globe.preloadSiblings = true
+        viewer.scene.globe.preloadSiblings = false
         viewer.resolutionScale = Math.min(1, 2 / (window.devicePixelRatio || 1))
         viewerRef.current = { viewer, data, ellipsoid }
         const zoomHandler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas)

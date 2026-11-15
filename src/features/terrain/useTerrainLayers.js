@@ -5,9 +5,10 @@ import { useSlopeLayer } from './useSlopeLayer'
 import { useSolarHeatingLayer } from './useSolarHeatingLayer'
 import { skyColor } from './environmentModel'
 import { useTerrainMaterial } from './useTerrainMaterial'
+import { useNearbyImagery } from './useNearbyImagery'
 
 // Layer preferences and their Cesium synchronization, independent of mission state.
-export function useTerrainLayers({ viewerRef, state, initialPointId, minute }) {
+export function useTerrainLayers({ viewerRef, state, initialPointId, minute, exploring }) {
   const [contours, setContours] = useState(initialPointId !== 'wildcat-ridge')
   const [elevationColors, setElevationColors] = useState(false)
   const [orbitalVisible, setOrbitalVisible] = useState(true)
@@ -20,6 +21,7 @@ export function useTerrainLayers({ viewerRef, state, initialPointId, minute }) {
   const orbital = useWildcatImagery(imageryViewer, state.data?.bounds, orbitalLayer, orbitalVisible)
   const orbitalDetail = useWildcatImagery(imageryViewer, state.data?.bounds, orbitalDetailLayer, orbitalVisible)
   const hirise = useWildcatImagery(imageryViewer, state.data?.bounds, hiriseLayer, orbitalVisible && nearDetail)
+  const nearbyStatus = useNearbyImagery(imageryViewer, orbitalVisible && exploring)
   const geology = useWildcatImagery(imageryViewer, state.data?.bounds, geologyLayer, geologyVisible, geologyOpacity)
   const slopeStatus = useSlopeLayer(imageryViewer, state.data, slopesVisible)
   const [heatVisible, setHeatVisible] = useState(false)
@@ -56,7 +58,7 @@ export function useTerrainLayers({ viewerRef, state, initialPointId, minute }) {
     slopeStatus,
     orbital,
     orbitalDetail,
-    hirise,
+    hirise: exploring ? { ...hirise, status: nearbyStatus } : hirise,
     heatVisible,
     setHeatVisible,
     heatOpacity,

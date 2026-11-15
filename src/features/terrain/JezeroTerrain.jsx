@@ -40,7 +40,7 @@ export default function JezeroTerrain({ terrainUrl = DEFAULT_URL, pointsOfIntere
   useMissionMap(imageryViewer, state.data, missionState, { route: routeVisible, hazards: hazardsVisible, coverage: coverageVisible })
   useEffect(() => { if (state.data) attachTerrain(state.data) }, [state.data, attachTerrain])
   const environment = useEnvironmentClock(Boolean(imageryViewer))
-  const layers = useTerrainLayers({ viewerRef, state, initialPointId, minute: environment.minute })
+  const layers = useTerrainLayers({ viewerRef, state, initialPointId, minute: environment.minute, exploring })
   const { slopeThreshold, setSlopeThreshold } = layers
   const inspection = missionState.inspection
   const setInspection = useCallback(point => inspect(point), [inspect])
