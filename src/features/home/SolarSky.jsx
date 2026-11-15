@@ -2,10 +2,10 @@ import { useEffect, useRef } from 'react';
 import { BRIGHT_STARS } from '../mars-sky/brightStars';
 
 const figures = [
-  { name: 'Casiopea', chains: [[746, 3179, 4427, 6686, 8886]] },
-  { name: 'Orión', chains: [[27989, 26727, 27366, 24436, 25930, 25336, 27989], [25930, 26311, 26727]] },
-  { name: 'Osa Mayor', chains: [[54061, 53910, 58001, 59774, 54061], [59774, 62956, 65378, 67301]] },
-  { name: 'Cruz del Sur', chains: [[60718, 61084], [59747, 62434]] },
+  { name: 'Cassiopeia', chains: [[746, 3179, 4427, 6686, 8886]] },
+  { name: 'Orion', chains: [[27989, 26727, 27366, 24436, 25930, 25336, 27989], [25930, 26311, 26727]] },
+  { name: 'Ursa Major', chains: [[54061, 53910, 58001, 59774, 54061], [59774, 62956, 65378, 67301]] },
+  { name: 'Southern Cross', chains: [[60718, 61084], [59747, 62434]] },
 ];
 
 const stars = BRIGHT_STARS.map(([id, rightAscension, declination, magnitude]) => ({
