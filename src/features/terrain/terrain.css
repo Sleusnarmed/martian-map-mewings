@@ -1229,3 +1229,24 @@
 .field-map-controls .field-map-perspective {
   margin-left: 6px;
 }
+
+.terrain-poi-details {
+  position: absolute;
+  top: 5rem;
+  right: 1rem;
+  z-index: 20;
+  width: min(20rem, calc(100% - 2rem));
+  max-height: calc(100% - 7rem);
+  overflow: auto;
+  padding: .9rem;
+  border: 1px solid #7d99c280;
+  border-radius: .6rem;
+  background: #07173ff2;
+  color: #f5f7fd;
+  font-size: .85rem;
+}
+.terrain-poi-details > div { display: flex; justify-content: space-between; align-items: start; gap: .5rem; }
+.terrain-poi-details button { padding: 0 .5rem; font-size: 1.2rem; }
+.terrain-poi-details p { margin-top: .5rem; }
+.terrain-poi-details small { display: block; margin-top: .5rem; color: #b2c2da; }
+.terrain-poi-details a { display: block; margin-top: .5rem; color: #eafe07; text-decoration: underline; }
